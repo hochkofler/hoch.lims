@@ -1,0 +1,48 @@
+site_name: HOCH LIMS
+
+theme:
+  name: material
+  palette:
+    primary: white
+  features:
+    - content.code.select
+    - content.code.copy
+
+markdown_extensions:
+  - attr_list
+  - admonition
+  - codehilite
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - toc:
+      permalink: True
+
+plugins:
+  - search
+  - simple:
+      folders: ["src/senaite/**"]
+  - offline
+  - mkdocstrings
+  - pdf-export:  # https://github.com/zhaoterryy/mkdocs-pdf-export-plugin
+      combined: true
+      combined_output_path: pdf/hoch.lims.pdf
+
+nav:
+  - Home: README.md
+  - Docs:
+    - Custom JSON API Endpoints: src/hoch/lims/jsonapi/README.md
+    - Custom IMPRESS Reports: src/hoch/lims/impress/README.md
+    - Custom View Components: src/hoch/lims/browser/README.md
+    - Custom Content Fields: src/hoch/lims/content/README.md
+    - Custom Table Columns: src/hoch/lims/listing/README.md
+    - Adding Multi language Support:  src/hoch/lims/locales/README.md
+  - License: LICENSE.md
+  - Changes: CHANGES.md

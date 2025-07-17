@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<layers>
+
+  <!-- Register Browser Layer -->
+  <layer
+      name="hoch.lims"
+      interface="hoch.lims.interfaces.IHochLims"/>
+
+</layers>

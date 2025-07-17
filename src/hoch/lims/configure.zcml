@@ -1,0 +1,49 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:five="http://namespaces.zope.org/five"
+    xmlns:i18n="http://namespaces.zope.org/i18n"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup">
+
+  <five:registerPackage package="." initialize=".initialize"/>
+
+  <!--  NB: We override senaite and plone translations.
+            Therefore, we have to ensure that this packages' zcml is loaded
+            before the others. -->
+  <i18n:registerTranslations directory="locales"/>
+
+  <!-- Custom permissions -->
+  <include package=".permissions"/>
+
+  <!-- Package includes -->
+  <include package=".browser" />
+  <include package=".content" />
+  <include package=".impress"/>
+  <include package=".jsonapi" />
+  <include package=".listing" />
+  <include package=".patches" />
+
+  <!-- Default Profile -->
+  <genericsetup:registerProfile
+      name="default"
+      title="HOCH.LIMS"
+      description="Install hoch.lims"
+      directory="profiles/default"
+      provides="Products.GenericSetup.interfaces.EXTENSION"/>
+
+  <!-- Uninstall Profile -->
+  <genericsetup:registerProfile
+      name="uninstall"
+      title="HOCH.LIMS"
+      description="Uninstall hoch.lims"
+      directory="profiles/uninstall"
+      provides="Products.GenericSetup.interfaces.EXTENSION"/>
+
+  <!-- Setup handler -->
+  <genericsetup:importStep
+      name="hoch.lims.install"
+      title="HOCH.LIMS: Run Setuphandler"
+      description="Install hoch.lims"
+      handler="hoch.lims.setuphandlers.install"/>
+
+</configure>

@@ -1,0 +1,22 @@
+Metadata-Version: 1.0
+Name: hoch.lims
+Version: 1.0.0
+Summary: An installable SENAITE LIMS extension for pharma manufacture
+Home-page: hochkofler/hoch.lims
+Author: Mathias Hochkofler
+Author-email: hochkofler94@gmail.com
+License: GPLv2
+Keywords: senaite,lims
+Classifier: Framework :: Plone
+Classifier: Framework :: Zope2
+Classifier: Programming Language :: Python
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: License :: OSI Approved :: GNU General Public License v2 (GPLv2)
+Description-Content-Type: text/markdown
+Requires-Dist: senaite.lims
+Requires-Dist: setuptools
+Provides-Extra: test
+Requires-Dist: Products.PloneTestCase; extra == "test"
+Requires-Dist: Products.SecureMailHost; extra == "test"
+Requires-Dist: plone.app.testing; extra == "test"
+Requires-Dist: unittest2; extra == "test"

@@ -1,0 +1,9 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:monkey="http://namespaces.plone.org/monkey"
+    i18n_domain="hoch.lims">
+
+  <!-- Package includes -->
+  <include package=".content" />
+
+</configure>

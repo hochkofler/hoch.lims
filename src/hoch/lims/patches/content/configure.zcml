@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:monkey="http://namespaces.plone.org/monkey"
+    i18n_domain="hoch.lims">
+
+  <!-- Sample Production Batch Number -->
+  <monkey:patch
+    description="Production Batch number"
+    class="bika.lims.content.analysisrequest.AnalysisRequest"
+    original="getProductionBatchNumber"
+    ignoreOriginal="True"
+    replacement=".sample.getProductionBatchNumber" />
+
+</configure>

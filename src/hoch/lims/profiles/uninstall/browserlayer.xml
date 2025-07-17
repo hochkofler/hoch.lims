@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layers>
+
+  <!-- Remove Browser Layer -->
+  <layer
+      name="hoch.lims"
+      interface="hoch.lims.interfaces.IHochLims"
+      remove="True" />
+
+</layers>
