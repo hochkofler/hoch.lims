@@ -6,10 +6,14 @@ from hoch.lims import logger
 
 
 BEHAVIORS = [
-    ("SampleType", [
-        "hoch.lims.content.sampletype.ISampleTypeSchemaExtender",
-    ]),
-]
+    ("SampleMatrix", [
+        "hoch.lims.content.samplematrix.ISampleMatrixSchemaExtender",
+        ]),
+#     ("SampleType", [
+#         "hoch.lims.content.sampletype.ISampleTypeSchemaExtender",
+#     ]),
+    
+ ]
 
 
 def install(context):
