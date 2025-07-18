@@ -6,6 +6,7 @@
     <!-- package includes -->
     <include package=".theme"/>
     <include package=".viewlets"/>
+    <include package=".content"/>
 
     <!-- Static directory for js, css and image resources -->
     <plone:static

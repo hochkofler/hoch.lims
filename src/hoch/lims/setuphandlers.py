@@ -9,10 +9,6 @@ BEHAVIORS = [
     ("SampleMatrix", [
         "hoch.lims.content.samplematrix.ISampleMatrixSchemaExtender",
         ]),
-#     ("SampleType", [
-#         "hoch.lims.content.sampletype.ISampleTypeSchemaExtender",
-#     ]),
-    
  ]
 
 

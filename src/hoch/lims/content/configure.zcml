@@ -10,15 +10,6 @@
     name="sample-extender"
     provides="archetypes.schemaextender.interfaces.ISchemaExtender"/>
 
-    <plone:behavior
-        for="senaite.core.interfaces.ISampleType"
-        name="sampletype-extender"
-        title="Custom Sample Type Fields"
-        description="Add custom fields to the Sample Type Schema"
-        provides=".sampletype.ISampleTypeSchemaExtender"
-        factory=".sampletype.SampleTypeSchemaExtender"
-        />
-
     <!-- Sample Matrix Schema Extender -->
     
     <plone:behavior

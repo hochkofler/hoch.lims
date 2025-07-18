@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object name="portal_types">
+  <object name="Product" meta_type="Dexterity FTI" />
+  <object name="Products" meta_type="Dexterity FTI" />
+</object>
