@@ -46,8 +46,8 @@
   <property name="add_permission">cmf.AddPortalContent</property>
 
   <!-- Python class for content items of this sort -->
-  <property name="schema">hoch.lims.content.product.IProductsSchema</property>
-  <property name="klass">hoch.lims.content.product.Products</property>
+  <property name="schema">hoch.lims.content.products.IProductsSchema</property>
+  <property name="klass">hoch.lims.content.products.Products</property>
 
   <!-- Dexterity behaviours for this type -->
   <property name="behaviors">

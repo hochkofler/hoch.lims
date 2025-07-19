@@ -12,7 +12,7 @@ from plone.dexterity.content import Container
 from senaite.core.z3cform.widgets.uidreference import UIDReferenceWidgetFactory
 from zope import schema
 from zope.interface import implementer
-from field import UIDReferenceFieldDx
+from hoch.lims.content.fields import UIDReferenceFieldDx
 from hoch.lims.interfaces import IProduct
 
 
@@ -37,7 +37,7 @@ class IProductSchema(model.Schema):
     )
 
     directives.widget(
-        "sample_types",
+        "samplematrix",
         UIDReferenceWidgetFactory,
         catalog=SETUP_CATALOG,
         query={

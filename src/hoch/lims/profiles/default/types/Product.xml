@@ -47,7 +47,6 @@
   <!-- Python class for content items of this sort -->
   <property name="schema">hoch.lims.content.product.IProductSchema</property>
   <property name="klass">hoch.lims.content.product.Product</property>
-  <property name="folderish">False</property>
 
   <!-- Dexterity behaviours for this type -->
   <property name="behaviors">
