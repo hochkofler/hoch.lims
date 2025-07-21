@@ -11,7 +11,7 @@
   <property name="description" i18n:translate="" />
 
   <!-- content-type icon -->
-  <property name="icon_expr">senaite_theme/icon/product</property>
+  <!--<property name="icon_expr">string:++plone++hoch.lims.static/assets/icons/product</property>-->
 
   <!-- factory name; usually the same as type name -->
   <property name="factory">Product</property>

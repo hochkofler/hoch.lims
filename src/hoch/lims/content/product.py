@@ -11,7 +11,7 @@ from senaite.core.catalog import SETUP_CATALOG
 from senaite.core.content.base import Container
 from senaite.core.z3cform.widgets.uidreference import UIDReferenceWidgetFactory
 from zope import schema
-from zope.interface import implementer
+from zope.interface import implementer, invariant, Invalid
 from hoch.lims.content.fields import UIDReferenceFieldDx
 from hoch.lims.interfaces import IProduct
 
@@ -81,6 +81,22 @@ class IProductSchema(model.Schema):
         required=False,
     )
 
+    @invariant
+    def validate_title(data):
+        """Checks if the title for this product is unique
+        """
+        title = data.title.strip()
+
+        # https://community.plone.org/t/dexterity-unique-field-validation
+        context = getattr(data, "__context__", None)
+        if context is not None:
+            if context.title == title:
+                # nothing changed
+                return
+            raise Invalid(_("The product code cannot be changed"))
+
+        check_title(title, context, portal_type="Product")
+
 
 @implementer(IProduct, IProductSchema, IDeactivable)
 class Product(Container):
@@ -89,19 +105,9 @@ class Product(Container):
     # Catalogs where this type will be catalogued
     _catalogs = [SETUP_CATALOG]
     security = ClassSecurityInfo()
-
+    exclude_from_nav = True
+    
     @security.protected(permissions.View)
-    def getTitle(self):
-        accessor = self.accessor("title")
+    def getSampleMatrix(self):
+        accessor = self.accessor("samplematrix")
         return accessor(self)
-
-    @security.protected(permissions.ModifyPortalContent)
-    def setTitle(self, value):
-        current = self.title
-        value = value.strip()
-        
-        if current and value != current:
-            raise ValueError(_("The product code cannot be changed"))
-
-        check_title(value, self)
-        self.mutator("title")(self, value)

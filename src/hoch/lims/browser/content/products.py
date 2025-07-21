@@ -40,7 +40,7 @@ class ProductsListingView(ListingView):
                 "index": "Description"
             }),
             ("SampleMatrix", {
-                "title": _("Minimum Unit"),
+                "title": _("Sample Matrix"),
                 "index": "samplematrix",
                 "sortable": True,
             }),
@@ -89,7 +89,8 @@ class ProductsListingView(ListingView):
         item["Title"] = obj.Title()
         item["replace"]["Title"] = get_link_for(obj)
         item["Description"] = obj.Description()
-        item["SampleMatrix"] = obj.samplematrix
+        item["SampleMatrix"] = obj.getSampleMatrix()
+        item["replace"]["SampleMatrix"] = get_link_for(item["SampleMatrix"])
         return item
 
     def get_children_hook(self, parent_uid, child_uids=None):

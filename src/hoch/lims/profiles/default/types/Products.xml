@@ -11,7 +11,7 @@
   <property name="description" i18n:translate=""/>
 
   <!-- content-type icon -->
-  <!--<property name="icon_expr">senaite_theme/icon/samplematrix</property> -->
+  <property name="icon_expr">senaite_theme/icon/hoch_lims_product</property>
 
   <!-- factory name; usually the same as type name -->
   <property name="factory">Products</property>
