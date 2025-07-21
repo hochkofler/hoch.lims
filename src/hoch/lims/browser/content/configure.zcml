@@ -9,7 +9,7 @@
     for="hoch.lims.interfaces.IProducts"
     name="view"
     class=".products.ProductsListingView"
-    permission="cmf.ManagePortal"
+    permission="senaite.core.permissions.ManageBika"
     layer="hoch.lims.interfaces.IHochLims" />
 
 </configure>

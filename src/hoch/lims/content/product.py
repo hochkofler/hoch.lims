@@ -8,7 +8,7 @@ from plone.namedfile.field import NamedBlobFile
 from plone.supermodel import model
 from Products.CMFCore import permissions
 from senaite.core.catalog import SETUP_CATALOG
-from plone.dexterity.content import Container
+from senaite.core.content.base import Container
 from senaite.core.z3cform.widgets.uidreference import UIDReferenceWidgetFactory
 from zope import schema
 from zope.interface import implementer

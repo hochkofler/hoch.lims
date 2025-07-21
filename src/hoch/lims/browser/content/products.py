@@ -4,6 +4,8 @@ from bika.lims.utils import get_link_for
 from senaite.app.listing import ListingView
 from senaite.core.catalog import SETUP_CATALOG
 from hoch.lims import messageFactory as _
+from bika.lims import senaiteMessageFactory as _s
+from senaite.core import PloneMessageFactory as _p
 
 class ProductsListingView(ListingView):
     """Products listing view
@@ -87,7 +89,7 @@ class ProductsListingView(ListingView):
         item["Title"] = obj.Title()
         item["replace"]["Title"] = get_link_for(obj)
         item["Description"] = obj.Description()
-        item["SampleMatrix"] = obj.samplematrix()
+        item["SampleMatrix"] = obj.samplematrix
         return item
 
     def get_children_hook(self, parent_uid, child_uids=None):
