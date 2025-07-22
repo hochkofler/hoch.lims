@@ -16,3 +16,10 @@ class IProduct(Interface):
 class IProducts(Interface):
     """Marker interface for products main folder
     """
+class IMarketingAuthorization(Interface):
+    """Marker interface for Marketing Authorization content type
+    """
+
+class IPharmaceuticalProduct(Interface):
+    """Marker interface for Pharmaceutical Product content type
+    """

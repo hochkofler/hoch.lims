@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object name="MarketingAuthorization" meta_type="Dexterity FTI"
+  i18n:domain="hoch.lims"
+  xmlns:i18n="http://xml.zope.org/namespaces/i18n">
+
+  <property name="title" i18n:translate="">Marketing Authorization</property>
+  <property name="description" i18n:translate="">Pharmaceutical marketing authorization record</property>
+  <property name="factory">MarketingAuthorization</property>
+  <property name="add_view_expr">string:${folder_url}/++add++MarketingAuthorization</property>
+  <property name="klass">hoch.lims.content.marketingauthorization.MarketingAuthorization</property>
+  <property name="schema">hoch.lims.content.marketingauthorization.IMarketingAuthorizationSchema</property>
+  <property name="global_allow">False</property>
+  <property name="filter_content_types">True</property>
+  <property name="allowed_content_types">
+    <element value="PharmaceuticalProduct" />
+  </property>
+  <property name="immediate_view">view</property>
+  <property name="default_view">view</property>
+  <property name="icon_expr">string:++plone++hoch.lims.static/assets/icons/marketingauthorization.svg</property>
+  <property name="link_target"/>
+  <property name="behaviors">
+    <element value="plone.app.content.interfaces.INameFromTitle"/>
+    <element value="plone.app.dexterity.behaviors.metadata.IBasic"/>
+    <element value="plone.app.referenceablebehavior.referenceable.IReferenceable" />
+  </property>
+</object>

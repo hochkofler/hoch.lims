@@ -10,6 +10,15 @@
       <role name="LabClerk"/>
     </permission>
 
+    <permission name="hoch.lims: Field: Edit Regulatory Field" acquire="True">
+      <role name="RegulatoryPharmacist"/>
+    </permission>
+
+    <permission name="hoch.lims: Field: View Regulatory Field" acquire="True">
+      <role name="Authenticated"/>
+      <role name="RegulatoryPharmacist"/>
+    </permission>
+
   </permissions>
 
 </rolemap>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object name="PharmaceuticalProduct" meta_type="Dexterity FTI"
+  i18n:domain="hoch.lims"
+  xmlns:i18n="http://xml.zope.org/namespaces/i18n">
+
+  <property name="title" i18n:translate="">Pharmaceutical Product</property>
+  <property name="description" i18n:translate="">Pharmaceutical product registered under a marketing authorization</property>
+  <property name="factory">PharmaceuticalProduct</property>
+  <property name="add_view_expr">string:${folder_url}/++add++PharmaceuticalProduct</property>
+  <property name="klass">hoch.lims.content.pharmaceuticalproduct.PharmaceuticalProduct</property>
+  <property name="schema">hoch.lims.content.pharmaceuticalproduct.IPharmaceuticalProductSchema</property>
+  <property name="global_allow">False</property>
+  <property name="filter_content_types">True</property>
+  <property name="immediate_view">view</property>
+  <property name="default_view">view</property>
+  <property name="icon_expr">string:++plone++hoch.lims.static/assets/icons/pharmaceuticalproduct.svg</property>
+  <property name="link_target"/>
+  <property name="behaviors">
+    <element value="plone.app.content.interfaces.INameFromTitle"/>
+    <element value="plone.app.dexterity.behaviors.metadata.IBasic"/>
+    <element value="plone.app.referenceablebehavior.referenceable.IReferenceable" />
+  </property>
+</object>

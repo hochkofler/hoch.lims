@@ -13,5 +13,13 @@
       <bound-workflow workflow_id="senaite_deactivable_type_workflow"/>
     </type>
 
+    <type type_id="MarketingAuthorization">
+      <bound-workflow workflow_id="marketing_authorization_workflow"/>
+    </type>
+
+    <type type_id="PharmaceuticalProduct">
+      <bound-workflow workflow_id="marketing_authorization_workflow"/>
+    </type>
+
   </bindings>
 </object>

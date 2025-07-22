@@ -5,4 +5,7 @@
   <!-- Sample permissions -->
   <permission id="hoch.lims.permissions.FieldEditExtendedField" title="hoch.lims: Field: Edit Extended Field"/>
 
+  <!-- Marketing Authorization permissions-->
+  <permission id="hoch.lims.permissions.EditRegulatoryFields" title="hoch.lims: Field: Edit Regulatory Field"/>
+  <permission id="hoch.lims.permissions.ViewRegulatoryFields" title="hoch.lims: Field: View Regulatory Field"/>
 </configure>
