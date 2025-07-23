@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import collections
 from bika.lims import api
 from bika.lims.utils import get_email_link
@@ -59,24 +60,42 @@ class MarketingAuthorizationsView(ListingView):
         ))
 
         self.review_states = [
-            # {
-            #     "id": "default",
-            #     "title": _("Active"),
-            #     "contentFilter": {"is_active": True},
-            #     "columns": self.columns.keys(),
-            # }, {
-            #     "id": "inactive",
-            #     "title": _("Inactive"),
-            #     "contentFilter": {'is_active': False},
-            #     "columns": self.columns.keys(),
-            # }, 
             {
-                "id": "all",
+                "id": "default",
                 "title": _("All"),
                 "contentFilter": {},
-                "columns": self.columns.keys(),
+                "transitions": [],
+                "columns": [
+                    "getId",
+                    "Title",
+                    "Description",
+                    "mktauth_reg_number",
+                    "mktauth_expiration_date",
+                    "review_state",
+                ],
             },
         ]
+
+
+        # self.review_states = [
+        #     {
+        #         "id": "default",
+        #         "title": _("Active"),
+        #         "contentFilter": {"is_active": True},
+        #         "columns": self.columns.keys(),
+        #     }, {
+        #         "id": "inactive",
+        #         "title": _("Inactive"),
+        #         "contentFilter": {'is_active': False},
+        #         "columns": self.columns.keys(),
+        #     }, 
+        #     {
+        #         "id": "all",
+        #         "title": _("All"),
+        #         "contentFilter": {},
+        #         "columns": self.columns.keys(),
+        #     },
+        # ]
 
     def update(self):
         """Update hook
