@@ -16,7 +16,7 @@ def mktauth_reg_number(instance):
     """
     return instance.getRegNumber()
 
-@indexer(IPatIMarketingAuthorizationient)
+@indexer(IMarketingAuthorization)
 def mktauth_expiration_date(instance):
     """Index expiration date
     """

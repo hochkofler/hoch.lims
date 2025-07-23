@@ -4,8 +4,10 @@ from Products.CMFCore import permissions
 from plone.supermodel import model
 from zope import schema
 from hoch.lims import messageFactory as _
+from senaite.core.api import dtime
 from senaite.core.content.base import Container
 from hoch.lims.interfaces import IMarketingAuthorization
+from hoch.lims.content.fields import DatetimeField, DatetimeWidget
 from zope.interface import implementer
 from hoch.lims.catalog import HOCHLIMS_CATALOG
 
@@ -35,8 +37,13 @@ class IMarketingAuthorizationSchema(model.Schema):
         required=True,
     )
 
-    expiration_date = schema.Date(
-        title=_("Expiration Date"),
+    directives.widget("expiration_date",
+                      DatetimeWidget,
+                      show_time=False)
+    
+    expiration_date = DatetimeField(
+        title=_(u"label_marketingauthorizations_expirations_date", default=u"Expiration Date"),
+        description=_(u"Expiration date of the marketing authorization"),
         required=True,
     )
 
@@ -70,3 +77,10 @@ class MarketingAuthorization(Container):
         if dtime.is_dt(value) and as_date:
             value = value.date()
         return value
+    
+    @security.protected(permissions.View)
+    def getLocalizedExpirationDate(self):
+        """Returns the Expiration Date with the field accessor
+        """
+        date = dtime.to_DT(self.getExpirationDate())
+        return dtime.to_localized_time(date)
