@@ -1,6 +1,10 @@
 <?xml version="1.0"?>
 <object name="portal_workflow" meta_type="Plone Workflow Tool">
 
+  <!-- hoch.lims-specific workflows -->
+  <object name="hoch_lims_folder_workflow" meta_type="Workflow"/>
+  <object name="hoch_lims_marketing_authorization_workflow" meta_type="Workflow"/>
+
   <bindings>
 
     <!-- Bindings to "senaite_one_state_workflow" -->

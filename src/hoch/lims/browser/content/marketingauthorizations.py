@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import collections
 from bika.lims import api
-from bika.lims.utils import get_email_link
-from bika.lims.utils import get_image
+from bika.lims.utils import get_link_for
 from bika.lims.utils import get_link
 from senaite.app.listing.view import ListingView
 from hoch.lims import messageFactory as _
@@ -45,57 +44,40 @@ class MarketingAuthorizationsView(ListingView):
 
         self.columns = collections.OrderedDict((
             # ("Title", {
-            #     "title": _("Title"),
-            #     "index": "sortable_title"}),
+            #      "title": _("Title"),
+            #      "index": "sortable_title"}),
+            ("Reg_number", {
+                "title": _("Registration Number"),
+                "index": "mktauth_reg_number"}),
             ("Description", {
                 "title": _("Description"),
                 }),
-            # ("Reg_number", {
-            #     "title": _("Registration Number"),
-            #     "index": "mktauth_reg_number"}),
-            # ("Expiration_date",
-            #     "title": _("Expiration Date"),
-            #     "index": "mktauth_expiration_date",
-            #     "sortable": True}),
+            ("Expiration_date", {
+                "title": _("Expiration Date"),
+                "index": "mktauth_expiration_date",
+                "sortable": True}),
         ))
+
 
         self.review_states = [
             {
                 "id": "default",
+                "title": _("Active"),
+                "contentFilter": {"is_active": True},
+                "columns": self.columns.keys(),
+            }, {
+                "id": "inactive",
+                "title": _("Inactive"),
+                "contentFilter": {'is_active': False},
+                "columns": self.columns.keys(),
+            }, 
+            {
+                "id": "all",
                 "title": _("All"),
                 "contentFilter": {},
-                "transitions": [],
-                "columns": [
-                    "getId",
-                    "Title",
-                    "Description",
-                    "mktauth_reg_number",
-                    "mktauth_expiration_date",
-                    "review_state",
-                ],
+                "columns": self.columns.keys(),
             },
         ]
-
-
-        # self.review_states = [
-        #     {
-        #         "id": "default",
-        #         "title": _("Active"),
-        #         "contentFilter": {"is_active": True},
-        #         "columns": self.columns.keys(),
-        #     }, {
-        #         "id": "inactive",
-        #         "title": _("Inactive"),
-        #         "contentFilter": {'is_active': False},
-        #         "columns": self.columns.keys(),
-        #     }, 
-        #     {
-        #         "id": "all",
-        #         "title": _("All"),
-        #         "contentFilter": {},
-        #         "columns": self.columns.keys(),
-        #     },
-        # ]
 
     def update(self):
         """Update hook
@@ -119,9 +101,9 @@ class MarketingAuthorizationsView(ListingView):
         #item["Title"] = obj.Title()
         #item["replace"]["Title"] = get_link_for(obj)
 
-        #item["Reg_number"] = obj.getRegNumber()
-        #item["replace"]["Reg_number"] = get_link_for(obj)
+        item["Reg_number"] = obj.getRegNumber()
+        item["replace"]["Reg_number"] = get_link(url, value=obj.getRegNumber())
         item["Description"] = obj.Description()
-        #item["Expiration_date"] = obj.getLocalizedExpirationDate()
+        item["Expiration_date"] = obj.getLocalizedExpirationDate()
 
         return item
