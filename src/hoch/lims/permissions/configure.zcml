@@ -1,11 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <configure xmlns="http://namespaces.zope.org/zope"
-           i18n_domain="hoch.lims">
+  i18n_domain="hoch.lims">
 
   <!-- Sample permissions -->
-  <permission id="hoch.lims.permissions.FieldEditExtendedField" title="hoch.lims: Field: Edit Extended Field"/>
+  <permission id="hoch.lims.permissions.FieldEditExtendedField"
+    title="hoch.lims: Field: Edit Extended Field" />
+
+  <!-- Manage permissions-->
+  <permission id="hoch.lims.permissions.ManageMarketingAuthorizations"
+    title="hoch.lims: Manage MarketingAuthorizations"/>
 
   <!-- Marketing Authorization permissions-->
-  <permission id="hoch.lims.permissions.EditRegulatoryFields" title="hoch.lims: Field: Edit Regulatory Field"/>
-  <permission id="hoch.lims.permissions.ViewRegulatoryFields" title="hoch.lims: Field: View Regulatory Field"/>
+  <permission id="hoch.lims.permissions.AddMarketingAuthorizations"
+    title="hoch.lims: Add MarketingAuthorizations"/>
+  <permission id="hoch.lims.permissions.AddMarketingAuthorization"
+    title="hoch.lims: Add MarketingAuthorization"/>
+  <permission id="hoch.lims.permissions.AddPharmaceuticalProduct"
+    title="hoch.lims: Add PharmaceuticalProduct"/>
+
+  <!-- Transition Permissions -->
+  <permission id="hoch.lims.permissions.TransitionActivate"
+    title="hoch.lims: Transition: Activate"/>
+  
+  <permission id="hoch.lims.permissions.TransitionDeactivate"
+    title="hoch.lims: Transition: Deactivate"/>
+  
 </configure>

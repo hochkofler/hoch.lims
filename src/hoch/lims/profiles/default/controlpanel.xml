@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<object
+    name="portal_controlpanel"
+    xmlns:i18n="http://xml.zope.org/namespaces/i18n">
+
+  <configlet
+      title="Hoch Lims Settings"
+      action_id="hoch.lims"
+      appId="hoch.lims"
+      category="Products"
+      condition_expr=""
+      icon_expr="senaite_theme/icon/marketingauthorization"
+      url_expr="string:${portal_url}/@@hochlims-controlpanel"
+      visible="True"
+      i18n:domain="hoch.lims"
+      i18n:attributes="title">
+    <permission>hoch.lims: Manage MarketingAuthorizations</permission>
+  </configlet>
+
+</object>

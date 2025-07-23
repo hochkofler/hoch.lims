@@ -3,19 +3,40 @@
 
   <permissions>
 
-    <!-- Manage permissions -->
-    <permission name="hoch.lims: Field: Edit Extended Field" acquire="False">
+    <!-- Sample permissions -->
+     <permission name="hoch.lims: Field: Edit Extended Field" acquire="False">
       <role name="Manager"/>
       <role name="LabManager"/>
       <role name="LabClerk"/>
     </permission>
 
-    <permission name="hoch.lims: Field: Edit Regulatory Field" acquire="True">
+    <!-- Manage permissions -->
+
+    <permission name="hoch.lims: Manage MarketingAuthorizations" acquire="False">
+      <role name="Manager"/>
       <role name="RegulatoryPharmacist"/>
     </permission>
 
-    <permission name="hoch.lims: Field: View Regulatory Field" acquire="True">
-      <role name="Authenticated"/>
+    <!-- Add Permissions-->
+    <permission name="hoch.lims: Add MarketingAuthorizations" acquire="False">
+      <role name="Manager"/>
+    </permission>
+    <permission name="hoch.lims: Add MarketingAuthorization" acquire="False">
+      <role name="Manager"/>
+      <role name="RegulatoryPharmacist"/>
+    </permission>
+    <permission name="hoch.lims: Add PharmaceuticalProduct" acquire="False">
+      <role name="Manager"/>
+      <role name="RegulatoryPharmacist"/>
+    </permission>
+
+    <!-- Transition Permissions -->
+    <permission name="hoch.lims: Transition: Activate" acquire="False">
+      <role name="Manager"/>
+      <role name="RegulatoryPharmacist"/>
+    </permission>
+    <permission name="hoch.lims: Transition: Deactivate" acquire="False">
+      <role name="Manager"/>
       <role name="RegulatoryPharmacist"/>
     </permission>
 

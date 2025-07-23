@@ -4,4 +4,5 @@
   <object name="Products" meta_type="Dexterity FTI" />
   <object name="MarketingAuthorization" meta_type="Dexterity FTI" />
   <object name="PharmaceuticalProduct" meta_type="Dexterity FTI" />
+  <object name="MarketingAuthorizations" meta_type="Dexterity FTI" />
 </object>

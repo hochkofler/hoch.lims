@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import logging
-
 from bika.lims.api import get_request
 from zope.i18nmessageid import MessageFactory
-
 from hoch.lims.interfaces import IHochLims
+from hoch.lims.config import DEFAULT_ROLES
+from hoch.lims.config import DEFAULT_TYPES
+from hoch.lims.config import PRODUCT_NAME
 
-PRODUCT_NAME = "hoch.lims"
 PROFILE_ID = "profile-{}:default".format(PRODUCT_NAME)
 UNINSTALL_PROFILE_ID = "profile-{}:uninstall".format(PRODUCT_NAME)
 

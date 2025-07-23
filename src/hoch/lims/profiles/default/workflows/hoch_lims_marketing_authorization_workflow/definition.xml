@@ -1,0 +1,172 @@
+<?xml version="1.0"?>
+<dc-workflow xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+             workflow_id="hoch_lims_marketing_authorization_workflow"
+             title="Workflow for marketing authorizations"
+             description=""
+             state_variable="review_state"
+             initial_state="active"
+             manager_bypass="False"
+             i18n:domain="hoch.lims">
+
+  <!-- MANAGED PERMISSIONS -->
+  <permission>Add portal content</permission>
+  <permission>Access contents information</permission>
+  <permission>Delete objects</permission>
+  <permission>List folder contents</permission>
+  <permission>Modify portal content</permission>
+  <permission>View</permission>
+  <!-- hoch.lims: MarketingAuthorization Field permissions -->
+
+  <!-- hoch.lims: Transition permissions -->
+  <permission>hoch.lims: Transition: Activate</permission>
+  <permission>hoch.lims: Transition: Deactivate</permission>
+  <!-- /MANAGED PERMISSIONS -->
+
+  <!-- State: active -->
+  <state state_id="active" title="Active" i18n:attributes="title">
+
+    <!-- TRANSITIONS -->
+    <exit-transition transition_id="deactivate" />
+    <!-- /TRANSITIONS -->
+
+    <!-- MANAGED PERMISSIONS -->
+    <!-- This permission governs if a Marketing Authorization should appear in searches
+         
+    -->
+    <permission-map name="Access contents information" acquired="False">
+      <permission-role>Authenticated</permission-role>
+
+    </permission-map>
+    <!-- Roles needed to add contents inside Marketing Authentication.
+         Not needed at the moment, but we use the default roles -->
+    <permission-map name="Add portal content" acquired="False">
+      <permission-role>Authenticated</permission-role>
+    </permission-map>
+    <!-- Never allow to delete contents -->
+    <permission-map name="Delete objects" acquired="False">
+    </permission-map>
+    <!-- Roles needed to list contents in Marketing Authorization.
+         Not needed at the moment, but we use the default roles -->
+    <permission-map name="List folder contents" acquired="False">
+      <permission-role>Authenticated</permission-role>
+    </permission-map>
+    <!-- We allow the Owner role here to edit Marketing Authentication-->
+    <permission-map name="Modify portal content" acquired="False">
+      <permission-role>Authenticated</permission-role>
+    </permission-map>
+
+    <permission-map name="View" acquired="False">
+      <permission-role>Authenticated</permission-role>
+    </permission-map>
+
+    <!-- Custom field permissions (Use default roles from rolemap) -->
+    
+    <!-- /MANGED PERMISSIONS -->
+
+  </state>
+
+  <!-- State: INACTIVE -->
+  <state state_id="inactive" title="Inactive" i18n:attributes="title">
+
+    <!-- TRANSITIONS -->
+    <exit-transition transition_id="activate" />
+    <!-- /TRANSITIONS -->
+
+    <!-- MANAGED PERMISSIONS -->
+    <!-- This permission governs if a marketing Authorization should appear in searches
+    -->
+    <permission-map name="Access contents information" acquired="False">
+      <permission-role>Authenticated</permission-role>
+    </permission-map>
+    <!-- No longer allow to add contents to a deactivated patient -->
+    <permission-map name="Add portal content" acquired="False">
+    </permission-map>
+    <!-- Never allow to delete contents -->
+    <permission-map name="Delete objects" acquired="False">
+    </permission-map>
+    <!-- Roles needed to list contents in deactivated patients.
+         Not needed at the moment, but we use the default roles -->
+    <permission-map name="List folder contents" acquired="False">
+      <permission-role>Authenticated</permission-role>
+    </permission-map>
+    <!-- Do not allow to edit deactivated patients -->
+    <permission-map name="Modify portal content" acquired="False">
+    </permission-map>
+
+    <permission-map name="View" acquired="False">
+      <permission-role>Authenticated</permission-role>
+    </permission-map>
+
+    <!-- Disallow to edit fields -->
+    
+    <!-- /MANAGED PERMISSIONS -->
+
+  </state>
+
+  <!-- Transition: activate -->
+  <transition transition_id="activate" title="Activate" new_state="active" trigger="USER" before_script="" after_script="" i18n:attributes="title">
+    <action url="" category="workflow" icon="">Activate</action>
+    <guard>
+      <guard-permission>hoch.lims: Transition: Activate</guard-permission>
+      <guard-expression></guard-expression>
+    </guard>
+  </transition>
+
+  <!-- Transition: deactivate -->
+  <transition transition_id="deactivate" title="Deactivate" new_state="inactive" trigger="USER" before_script="" after_script="" i18n:attributes="title">
+    <action url="" category="workflow" icon="">Deactivate</action>
+    <guard>
+      <guard-permission>hoch.lims: Transition: Deactivate</guard-permission>
+      <guard-expression></guard-expression>
+    </guard>
+  </transition>
+
+  <!-- WF Variables -->
+  <variable variable_id="action" for_catalog="False" for_status="True" update_always="True">
+    <description>Previous transition</description>
+    <default>
+      <expression>transition/getId|nothing</expression>
+    </default>
+    <guard>
+    </guard>
+  </variable>
+
+  <variable variable_id="actor" for_catalog="False" for_status="True" update_always="True">
+    <description>The ID of the user who performed the last transition</description>
+    <default>
+      <expression>user/getId</expression>
+    </default>
+    <guard>
+    </guard>
+  </variable>
+
+  <variable variable_id="comments" for_catalog="False" for_status="True" update_always="True">
+    <description>Comment about the last transition</description>
+    <default>
+      <expression>python:state_change.kwargs.get('comment', '')</expression>
+    </default>
+    <guard>
+    </guard>
+  </variable>
+
+  <variable variable_id="review_history" for_catalog="False" for_status="False" update_always="False">
+    <description>Provides access to workflow history</description>
+    <default>
+      <expression>state_change/getHistory</expression>
+    </default>
+    <guard>
+      <guard-permission>Request review</guard-permission>
+      <guard-permission>Review portal content</guard-permission>
+    </guard>
+  </variable>
+
+  <variable variable_id="time" for_catalog="False" for_status="True" update_always="True">
+    <description>When the previous transition was performed</description>
+    <default>
+      <expression>state_change/getDateTime</expression>
+    </default>
+    <guard>
+    </guard>
+  </variable>
+
+</dc-workflow>
