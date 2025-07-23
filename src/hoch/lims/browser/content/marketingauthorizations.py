@@ -23,12 +23,6 @@ class MarketingAuthorizationsView(ListingView):
 
         self.contentFilter = {
             "portal_type": "MarketingAuthorization",
-            "path": {
-                "query": [
-                    api.get_path(context),
-                ],
-                "level": 0
-            },
             "sort_on": "created",
             "sort_order": "descending",
         }
@@ -54,7 +48,7 @@ class MarketingAuthorizationsView(ListingView):
             #     "index": "sortable_title"}),
             ("Description", {
                 "title": _("Description"),
-                "index": "Description"}),
+                }),
             # ("Reg_number", {
             #     "title": _("Registration Number"),
             #     "index": "mktauth_reg_number"}),
@@ -111,3 +105,14 @@ class MarketingAuthorizationsView(ListingView):
         #item["Expiration_date"] = obj.getLocalizedExpirationDate()
 
         return item
+    
+    def get_item_info(self, item):
+        """Safe handling of missing values"""
+        item_info = super(MarketingAuthorizationsView, self).get_item_info(item)
+        
+        # Handle missing values safely
+        for key in item_info:
+            if item_info[key] is None or api.is_missing_value(item_info[key]):
+                item_info[key] = "Error"  # Convert to empty string
+        
+        return item_info
