@@ -14,8 +14,6 @@ from hoch.lims.catalog import HOCHLIMS_CATALOG
 class IMarketingAuthorizationSchema(model.Schema):
     """Marketing Authorization Schema"""
 
-    directives.omitted("title")
-
     title = schema.TextLine(
         title=_(
             u"title",
@@ -84,3 +82,11 @@ class MarketingAuthorization(Container):
         """
         date = dtime.to_DT(self.getExpirationDate())
         return dtime.to_localized_time(date)
+
+    @security.protected(permissions.View)
+    def getHolder(self):
+        """Returns the holder with the field accessor
+        """
+        accessor = self.accessor("holder")
+        value = accessor(self) or ""
+        return value.encode("utf-8")

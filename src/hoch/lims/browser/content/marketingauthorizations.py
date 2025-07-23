@@ -52,24 +52,25 @@ class MarketingAuthorizationsView(ListingView):
             # ("Reg_number", {
             #     "title": _("Registration Number"),
             #     "index": "mktauth_reg_number"}),
-            # ("Expiration_date", {
+            # ("Expiration_date",
             #     "title": _("Expiration Date"),
             #     "index": "mktauth_expiration_date",
             #     "sortable": True}),
         ))
 
         self.review_states = [
+            # {
+            #     "id": "default",
+            #     "title": _("Active"),
+            #     "contentFilter": {"is_active": True},
+            #     "columns": self.columns.keys(),
+            # }, {
+            #     "id": "inactive",
+            #     "title": _("Inactive"),
+            #     "contentFilter": {'is_active': False},
+            #     "columns": self.columns.keys(),
+            # }, 
             {
-                "id": "default",
-                "title": _("Active"),
-                "contentFilter": {"is_active": True},
-                "columns": self.columns.keys(),
-            }, {
-                "id": "inactive",
-                "title": _("Inactive"),
-                "contentFilter": {'is_active': False},
-                "columns": self.columns.keys(),
-            }, {
                 "id": "all",
                 "title": _("All"),
                 "contentFilter": {},
@@ -105,14 +106,3 @@ class MarketingAuthorizationsView(ListingView):
         #item["Expiration_date"] = obj.getLocalizedExpirationDate()
 
         return item
-    
-    def get_item_info(self, item):
-        """Safe handling of missing values"""
-        item_info = super(MarketingAuthorizationsView, self).get_item_info(item)
-        
-        # Handle missing values safely
-        for key in item_info:
-            if item_info[key] is None or api.is_missing_value(item_info[key]):
-                item_info[key] = "Error"  # Convert to empty string
-        
-        return item_info

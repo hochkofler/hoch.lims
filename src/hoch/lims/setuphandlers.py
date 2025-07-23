@@ -265,12 +265,6 @@ def setup_workflow(portal):
     for wf_id, settings in WORKFLOW_TO_UPDATE.items():
         update_workflow(portal, wf_id, settings)
 
-def setup_workflow(portal):
-    """Setup workflow changes (status, transitions, permissions, etc.)
-    """
-    for wf_id, settings in WORKFLOW_TO_UPDATE.items():
-        update_workflow(portal, wf_id, settings)
-
 def update_workflow(portal, workflow_id, settings):
     """Updates the workflow with workflow_id with the settings passed-in
     """

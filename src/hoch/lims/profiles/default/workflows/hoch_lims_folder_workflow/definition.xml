@@ -22,7 +22,7 @@
   <!-- /MANAGED PERMISSIONS -->
 
   <!-- State: active (initial) -->
-  <state state_id="active" title="Active" i18n:attributes="title">
+  <state state_id="active" title="Active" i18n:attributes="title" default="true">
 
     <!-- TRANSITIONS -->
     <exit-transition transition_id="" />

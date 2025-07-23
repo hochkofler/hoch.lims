@@ -53,7 +53,6 @@
     <element value="bika.lims.interfaces.IAutoGenerateID"/>
     <element value="bika.lims.interfaces.IMultiCatalogBehavior"/>
     <element value="plone.app.referenceablebehavior.referenceable.IReferenceable" />
-    <element value="senaite.core.behaviors.IClientShareableBehavior" />
   </property>
 
   <!-- Action aliases -->

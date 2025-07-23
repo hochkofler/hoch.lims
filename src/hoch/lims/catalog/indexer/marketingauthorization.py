@@ -21,3 +21,9 @@ def mktauth_expiration_date(instance):
     """Index expiration date
     """
     return instance.getExpirationDate()
+
+@indexer(IMarketingAuthorization)
+def mktauth_holder(instance):
+    """Index holder
+    """
+    return instance.getHolder()

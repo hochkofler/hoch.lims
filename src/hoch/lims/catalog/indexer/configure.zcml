@@ -5,6 +5,6 @@
   <!-- Marketing Authorization Indexes -->
   <adapter name="mktauth_reg_number" factory=".marketingauthorization.mktauth_reg_number" />
   <adapter name="mktauth_expiration_date" factory=".marketingauthorization.mktauth_expiration_date" />
-
+  <adapter name="mktauth_holder" factory=".marketingauthorization.mktauth_holder" />
 
 </configure>
