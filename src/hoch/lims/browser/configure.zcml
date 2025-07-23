@@ -13,5 +13,14 @@
         directory="static"
         type="plone"
         name="hoch.lims.static" />
+    
+    <!-- Patient Controlpanel -->
+    <browser:page
+      name="hochlims-controlpanel"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+      class=".controlpanel.HochControlPanelView"
+      permission="hoch.lims.permissions.ManageMarketingAuthorizations"
+      layer="hoch.lims.interfaces.IHochLims"
+      />
 
 </configure>

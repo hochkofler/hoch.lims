@@ -9,7 +9,7 @@
       appId="hoch.lims"
       category="Products"
       condition_expr=""
-      icon_expr="senaite_theme/icon/marketingauthorization"
+      icon_expr="senaite_theme/icon/setup"
       url_expr="string:${portal_url}/@@hochlims-controlpanel"
       visible="True"
       i18n:domain="hoch.lims"

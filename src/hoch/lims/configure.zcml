@@ -17,6 +17,11 @@
   <!-- Import senaite.core permissions -->
   <include package="bika.lims" file="permissions.zcml" />
 
+  <!-- Regulators Vocabulary -->
+  <utility
+      component="hoch.lims.vocabularies.RegulatorsVocabularyFactory"
+      name="senaite.patient.vocabularies.regulators" />
+
   <!-- Package includes -->
   <include package=".browser" />
   <include package=".catalog" />

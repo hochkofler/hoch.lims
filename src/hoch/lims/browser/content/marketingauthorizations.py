@@ -35,7 +35,7 @@ class MarketingAuthorizationsView(ListingView):
             }
 
         self.icon = "{}/{}".format(
-            self.portal_url, "senaite_theme/icon/marketingauthorizations")
+            self.portal_url, "senaite_theme/icon/hoch_lims_marketingauthorizations")
 
         self.title = _("Marketing Authorizations")
         self.description = self.context.Description()

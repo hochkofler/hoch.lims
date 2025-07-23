@@ -12,6 +12,7 @@ INDEXES = BASE_INDEXES + [
     # id, indexed attribute, type
     ("mktauth_reg_number", "", "FieldIndex"),
     ("mktauth_expiration_date", "", "DateIndex"),
+    ("mktauth_holder", "", "FieldIndex")
 ]
 
 COLUMNS = BASE_COLUMNS + [

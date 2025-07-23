@@ -15,5 +15,5 @@ def version(context, request):
         "version": "1.0.0",
         "date": "2024-12-20",
         "license": "GPLv2",
-        "copyright": "2024, RIDING BYTES GmbH",
+        "copyright": "2024, MATHIAS HOCHKOFLER",
     }
