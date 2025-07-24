@@ -40,13 +40,15 @@ class IMarketingAuthorizationSchema(model.Schema):
                       show_time=False)
     
     expiration_date = DatetimeField(
-        title=_(u"label_marketingauthorizations_expirations_date", default=u"Expiration Date"),
+        title=_(u"label_marketingauthorization_expiration_date", default=u"Expiration Date"),
         description=_(u"Expiration date of the marketing authorization"),
         required=True,
     )
 
-    holder = schema.TextLine(
-        title=_("Holder"),
+    holder = schema.Choice(
+        title=_(u"label_marketingauthorization_holder", default=u"Holder"),
+        description=_(u"Organization that holds the certification"),
+        source="hoch.lims.vocabularies.regulators",
         required=True,
     )
 

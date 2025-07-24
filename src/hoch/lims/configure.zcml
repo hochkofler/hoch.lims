@@ -20,7 +20,7 @@
   <!-- Regulators Vocabulary -->
   <utility
       component="hoch.lims.vocabularies.RegulatorsVocabularyFactory"
-      name="senaite.patient.vocabularies.regulators" />
+      name="hoch.lims.vocabularies.regulators" />
 
   <!-- Package includes -->
   <include package=".browser" />
