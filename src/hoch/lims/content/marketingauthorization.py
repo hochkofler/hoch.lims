@@ -101,6 +101,7 @@ class IMarketingAuthorizationSchema(model.Schema):
             default=u"Product line or category",
         ),
         source="hoch.lims.vocabularies.product_lines",
+
         required=False,
     )
 
@@ -185,8 +186,12 @@ class IMarketingAuthorizationSchema(model.Schema):
         source="hoch.lims.vocabularies.administration_routes",
         required=True,
     )
+
+    directives.widget("issue_date",
+                      DatetimeWidget,
+                      show_time=False)
     
-    issue_date = schema.Date(
+    issue_date = DatetimeField(
         title=_(
             u"label_marketingauthorization_issue_date",
             default=u"Issue Date",
@@ -197,8 +202,12 @@ class IMarketingAuthorizationSchema(model.Schema):
         ),
         required=True,
     )
+
+    directives.widget("expiration_date",
+                      DatetimeWidget,
+                      show_time=False)
     
-    expiration_date = schema.Date(
+    expiration_date = DatetimeField(
         title=_(
             u"label_marketingauthorization_expiration_date",
             default=u"Expiration Date",
