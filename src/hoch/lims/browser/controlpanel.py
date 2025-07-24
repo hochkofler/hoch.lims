@@ -9,7 +9,6 @@ from plone.z3cform import layout
 from senaite.core.schema.registry import DataGridRow
 from senaite.core.z3cform.widgets.datagrid import DataGridWidgetFactory
 from hoch.lims import messageFactory as _
-from hoch.lims.config import REGULATORY_AUTHORITIES
 from zope import schema
 from zope.interface import Interface
 from zope.interface import Invalid
@@ -18,6 +17,7 @@ from zope.interface import invariant
 from zope.interface import provider
 from zope.schema.interfaces import IContextAwareDefaultFactory
 from hoch.lims.api import hochlims_search
+from hoch.lims.config import REGULATORY_AUTHORITIES
 
 
 @provider(IContextAwareDefaultFactory)

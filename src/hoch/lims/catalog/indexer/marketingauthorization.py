@@ -23,7 +23,8 @@ def mktauth_holder(instance):
 
 @indexer(IMarketingAuthorization)
 def mktauth_trade_name(instance):
-    return instance.getTradeName()
+    value = instance.getTradeName()
+    return value
 
 @indexer(IMarketingAuthorization)
 def mktauth_issuing_organization(instance):

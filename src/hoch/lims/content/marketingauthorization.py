@@ -172,6 +172,7 @@ class IMarketingAuthorizationSchema(model.Schema):
         required=True,
     )
 
+
     administration_route = schema.Choice(
         title=_(
             u"label_marketingauthorization_administration_route",
@@ -263,7 +264,7 @@ class MarketingAuthorization(Container):
         return " ".join(filter(None, parts))
     
     @security.protected(permissions.View)
-    def Description(sef):
+    def Description(self):
         """Dynamic description for display"""
         parts = [self.getRegistrationNumber(), self.getTradeName(), self.getDosageForm()]
         return " ".join(filter(None, parts))
@@ -276,73 +277,73 @@ class MarketingAuthorization(Container):
         return accessor(self)
 
     @security.protected(permissions.View)
-    def getAbbreviatedRegistration(sefl):
+    def getAbbreviatedRegistration(self):
 
         accessor = self.accessor("abbreviated_registration")
         return accessor(self)
     
     @security.protected(permissions.View)
-    def getTradeName(sefl):
+    def getTradeName(self):
 
         accessor = self.accessor("trade_name")
         return accessor(self)
     
     @security.protected(permissions.View)
-    def getDosageForm(sefl):
+    def getDosageForm(self):
 
         accessor = self.accessor("dosage_form")
         return accessor(self)
     
     @security.protected(permissions.View)
-    def getGenericName(sefl):
+    def getGenericName(self):
 
         accessor = self.accessor("generic_name")
         return accessor(self)
     
     @security.protected(permissions.View)
-    def getTherapeuticActions(sefl):
+    def getTherapeuticActions(self):
 
         accessor = self.accessor("therapeutic_actions")
         return accessor(self)
     
     @security.protected(permissions.View)
-    def getAtqCode(sefl):
+    def getAtqCode(self):
 
         accessor = self.accessor("atq_code")
         return accessor(self)
     
     @security.protected(permissions.View)
-    def getSaleCondition(sefl):
+    def getSaleCondition(self):
 
         accessor = self.accessor("sale_condition")
         return accessor(self)
     
     @security.protected(permissions.View)
-    def getAdministrationRoute(sefl):
+    def getAdministrationRoute(self):
 
         accessor = self.accessor("administration_route")
         return accessor(self)
 
     @security.protected(permissions.View)
-    def getMedicineCode(sefl):
+    def getMedicineCode(self):
 
         accessor = self.accessor("medicine_code")
         return accessor(self)
     
     @security.protected(permissions.View)
-    def getProductLine(sefl):
+    def getProductLine(self):
 
         accessor = self.accessor("product_line")
         return accessor(self)
     
     @security.protected(permissions.View)
-    def getRegisteredPresentations(sefl):
+    def getRegisteredPresentations(self):
 
         accessor = self.accessor("registered_presentations")
         return accessor(self)
     
     @security.protected(permissions.View)
-    def getStorageConditions(sefl):
+    def getStorageConditions(self):
 
         accessor = self.accessor("storage_conditions")
         return accessor(self)

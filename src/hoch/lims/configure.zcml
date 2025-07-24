@@ -17,39 +17,41 @@
   <!-- Import senaite.core permissions -->
   <include package="bika.lims" file="permissions.zcml" />
 
-  <!-- Regulators Vocabulary -->
-  <utility
-      component="hoch.lims.vocabularies.RegulatoryAuthoritiesVocabularyFactory"
-      name="hoch.lims.vocabularies.regulatory_authorities" />
-
   <!-- Registrar vocabularios -->
 <utility
     name="hoch.lims.vocabularies.regulatory_authorities"
-    component="hoch.lims.vocabularies.RegulatoryAuthoritiesVocabularyFactory" />
+    component="hoch.lims.vocabularies.RegulatoryAuthoritiesVocabularyFactory" 
+    provides="zope.schema.interfaces.IVocabularyFactory"/>
 
 <utility
     name="hoch.lims.vocabularies.dosage_forms"
-    component="hoch.lims.vocabularies.DosageFormsVocabularyFactory" />
+    component="hoch.lims.vocabularies.DosageFormsVocabularyFactory" 
+    provides="zope.schema.interfaces.IVocabularyFactory"/>
 
 <utility
     name="hoch.lims.vocabularies.product_lines"
-    component="hoch.lims.vocabularies.ProductLinesVocabularyFactory" />
+    component="hoch.lims.vocabularies.ProductLinesVocabularyFactory" 
+    provides="zope.schema.interfaces.IVocabularyFactory"/>
 
 <utility
     name="hoch.lims.vocabularies.therapeutic_indications"
-    component="hoch.lims.vocabularies.TherapeuticIndicationsVocabularyFactory" />
+    component="hoch.lims.vocabularies.TherapeuticIndicationsVocabularyFactory" 
+    provides="zope.schema.interfaces.IVocabularyFactory"/>
 
 <utility
     name="hoch.lims.vocabularies.sale_conditions"
-    component="hoch.lims.vocabularies.SaleConditionsVocabularyFactory" />
+    component="hoch.lims.vocabularies.SaleConditionsVocabularyFactory" 
+    provides="zope.schema.interfaces.IVocabularyFactory"/>
 
 <utility
     name="hoch.lims.vocabularies.storage_conditions"
-    component="hoch.lims.vocabularies.StorageConditionsVocabularyFactory" />
+    component="hoch.lims.vocabularies.StorageConditionsVocabularyFactory" 
+    provides="zope.schema.interfaces.IVocabularyFactory"/>
 
 <utility
     name="hoch.lims.vocabularies.administration_routes"
-    component="hoch.lims.vocabularies.AdministrationRoutesVocabularyFactory" />
+    component="hoch.lims.vocabularies.AdministrationRoutesVocabularyFactory" 
+    provides="zope.schema.interfaces.IVocabularyFactory"/>
 
   <!-- Package includes -->
   <include package=".browser" />
