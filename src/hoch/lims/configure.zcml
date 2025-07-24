@@ -19,8 +19,37 @@
 
   <!-- Regulators Vocabulary -->
   <utility
-      component="hoch.lims.vocabularies.RegulatorsVocabularyFactory"
-      name="hoch.lims.vocabularies.regulators" />
+      component="hoch.lims.vocabularies.RegulatoryAuthoritiesVocabularyFactory"
+      name="hoch.lims.vocabularies.regulatory_authorities" />
+
+  <!-- Registrar vocabularios -->
+<utility
+    name="hoch.lims.vocabularies.regulatory_authorities"
+    component="hoch.lims.vocabularies.RegulatoryAuthoritiesVocabularyFactory" />
+
+<utility
+    name="hoch.lims.vocabularies.dosage_forms"
+    component="hoch.lims.vocabularies.DosageFormsVocabularyFactory" />
+
+<utility
+    name="hoch.lims.vocabularies.product_lines"
+    component="hoch.lims.vocabularies.ProductLinesVocabularyFactory" />
+
+<utility
+    name="hoch.lims.vocabularies.therapeutic_indications"
+    component="hoch.lims.vocabularies.TherapeuticIndicationsVocabularyFactory" />
+
+<utility
+    name="hoch.lims.vocabularies.sale_conditions"
+    component="hoch.lims.vocabularies.SaleConditionsVocabularyFactory" />
+
+<utility
+    name="hoch.lims.vocabularies.storage_conditions"
+    component="hoch.lims.vocabularies.StorageConditionsVocabularyFactory" />
+
+<utility
+    name="hoch.lims.vocabularies.administration_routes"
+    component="hoch.lims.vocabularies.AdministrationRoutesVocabularyFactory" />
 
   <!-- Package includes -->
   <include package=".browser" />

@@ -9,7 +9,7 @@ from plone.z3cform import layout
 from senaite.core.schema.registry import DataGridRow
 from senaite.core.z3cform.widgets.datagrid import DataGridWidgetFactory
 from hoch.lims import messageFactory as _
-from hoch.lims.config import REGULATORS
+from hoch.lims.config import REGULATORY_AUTHORITIES
 from zope import schema
 from zope.interface import Interface
 from zope.interface import Invalid
@@ -21,10 +21,10 @@ from hoch.lims.api import hochlims_search
 
 
 @provider(IContextAwareDefaultFactory)
-def default_regulators(context):
-    return [{u"key": i[0], u"value": i[1]} for i in REGULATORS]
+def default_regulatory_authorities(context):
+    return [{u"key": i[0], u"value": i[1]} for i in REGULATORY_AUTHORITIES]
 
-class IRegulator(Interface):
+class IRegulatoryAuthorities(Interface):
     key = schema.TextLine(
         title=_(u"Key"),
         description=_(
@@ -50,11 +50,11 @@ class IHochControlPanel(Interface):
     # Fieldsets
     ###
     model.fieldset(
-        "regulators",
-        label=_(u"Regulator companies"),
+        "regulatory_authorities",
+        label=_(u"Regulatory Authorities"),
         description=_(""),
         fields=[
-            "regulators",
+            "regulatory_authorities",
         ],
     )
 
@@ -62,29 +62,29 @@ class IHochControlPanel(Interface):
     # Fields
     ###
     directives.widget(
-        "regulators",
+        "regulatory_authorities",
         DataGridWidgetFactory,
         allow_reorder=True,
         auto_append=True)
-    regulators = schema.List(
+    regulatory_authorities = schema.List(
         title=_(
-            u"label_controlpanel_marketingauthorizations_regulators",
+            u"label_controlpanel_marketingauthorizations_regulatory_authorities",
             default=u"Marital Statuses"),
         description=_(
-            u"description_controlpanel_marketingauthorizations_regulators",
+            u"description_controlpanel_marketingauthorizations_regulatory_authorities",
             default=u"regulatory companies that grant marketing authorizations"
         ),
-        value_type=DataGridRow(schema=IRegulator),
+        value_type=DataGridRow(schema=IRegulatoryAuthorities),
         required=True,
-        defaultFactory=default_regulators,
+        defaultFactory=default_regulatory_authorities,
     )
 
     @invariant
-    def validate_regulators(data):
+    def validate_regulatory_authorities(data):
         """Checks if the keyword is unique and valid
         """
         keys = []
-        for status in data.regulators:
+        for status in data.regulatory_authorities:
             key = status.get("key")
             # check if the key contains invalid characters
             if re.findall(r"[^A-Za-z\w\d\-\_]", key):
@@ -96,13 +96,13 @@ class IHochControlPanel(Interface):
             keys.append(key)
 
         # check if a used key is removed
-        old_statuses = data.__context__.regulators
+        old_statuses = data.__context__.regulatory_authorities
         old_keys = map(lambda i: i.get("key"), old_statuses)
         removed = list(set(old_keys).difference(keys))
 
         for key in removed:
             # check if there are patients that use one of the removed key
-            brains = hochlims_search({"mktauth_holder": key})
+            brains = hochlims_search({"mktauth_issuing_organization": key})
             if brains:
                 raise Invalid(
                     _("Can not delete marital status that is in use"))

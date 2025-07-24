@@ -48,7 +48,7 @@ class MarketingAuthorizationsView(ListingView):
             #      "index": "sortable_title"}),
             ("Reg_number", {
                 "title": _("Registration Number"),
-                "index": "mktauth_reg_number"}),
+                "index": "mktauth_registration_number"}),
             ("Description", {
                 "title": _("Description"),
                 }),
@@ -101,8 +101,8 @@ class MarketingAuthorizationsView(ListingView):
         #item["Title"] = obj.Title()
         #item["replace"]["Title"] = get_link_for(obj)
 
-        item["Reg_number"] = obj.getRegNumber()
-        item["replace"]["Reg_number"] = get_link(url, value=obj.getRegNumber())
+        item["Reg_number"] = obj.getRegistrationNumber()
+        item["replace"]["Reg_number"] = get_link(url, value=obj.getRegistrationNumber())
         item["Description"] = obj.Description()
         item["Expiration_date"] = obj.getLocalizedExpirationDate()
 

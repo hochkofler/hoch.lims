@@ -5,22 +5,37 @@ from zope.schema.vocabulary import SimpleVocabulary
 from bika.lims import api
 
 @implementer(IVocabularyFactory)
-class RegulatorsVocabulary(object):
-
+class BaseRegistryVocabulary(object):
+    """Base class for registry-based vocabularies"""
+    registry_key = None
+    
     def __call__(self, context):
-
-        regulators = api.get_registry_record(
-            "hoch.lims.regulators")
-
-        items = []
-        for regulator in regulators:
-            # note: the key will get the submitted value
-            keyword = regulator.get("key")
-            title = regulator.get("value")
-            # value, token, title
+        items = api.get_registry_record(self.registry_key)
+        terms = []
+        for item in items:
+            keyword = item.get("key")
+            title = item.get("value")
             term = SimpleTerm(keyword, keyword, title)
-            items.append(term)
-        return SimpleVocabulary(items)
+            terms.append(term)
+        return SimpleVocabulary(terms)
 
+class RegulatoryAuthoritiesVocabularyFactory(BaseRegistryVocabulary):
+    registry_key = "hoch.lims.regulatory_authorities"
 
-RegulatorsVocabularyFactory = RegulatorsVocabulary()
+class DosageFormsVocabularyFactory(BaseRegistryVocabulary):
+    registry_key = "hoch.lims.dosage_forms"
+
+class ProductLinesVocabularyFactory(BaseRegistryVocabulary):
+    registry_key = "hoch.lims.product_lines"
+
+class TherapeuticIndicationsVocabularyFactory(BaseRegistryVocabulary):
+    registry_key = "hoch.lims.therapeutic_indications"
+
+class SaleConditionsVocabularyFactory(BaseRegistryVocabulary):
+    registry_key = "hoch.lims.sale_conditions"
+
+class StorageConditionsVocabularyFactory(BaseRegistryVocabulary):
+    registry_key = "hoch.lims.storage_conditions"
+
+class AdministrationRoutesVocabularyFactory(BaseRegistryVocabulary):
+    registry_key = "hoch.lims.administration_routes"

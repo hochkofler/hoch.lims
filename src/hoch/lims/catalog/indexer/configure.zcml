@@ -3,8 +3,23 @@
     i18n_domain="hoch.lims">
 
   <!-- Marketing Authorization Indexes -->
-  <adapter name="mktauth_reg_number" factory=".marketingauthorization.mktauth_reg_number" />
+  <adapter name="mktauth_registration_number" factory=".marketingauthorization.mktauth_registration_number" />
   <adapter name="mktauth_expiration_date" factory=".marketingauthorization.mktauth_expiration_date" />
   <adapter name="mktauth_holder" factory=".marketingauthorization.mktauth_holder" />
+  <adapter name="mktauth_trade_name" factory=".marketingauthorization.mktauth_trade_name" />
+  <adapter name="mktauth_issuing_organization" factory=".marketingauthorization.mktauth_issuing_organization" />
+  <adapter name="mktauth_dosage_form" factory=".marketingauthorization.mktauth_dosage_form" />
+  <adapter name="mktauth_therapeutic_actions" factory=".marketingauthorization.mktauth_therapeutic_actions" />
+  <adapter name="mktauth_atq_code" factory=".marketingauthorization.mktauth_atq_code" />
+  <adapter name="mktauth_sale_condition" factory=".marketingauthorization.mktauth_sale_condition" />
+  <adapter name="mktauth_administration_route" factory=".marketingauthorization.mktauth_administration_route" />
+  <adapter name="mktauth_medicine_code" factory=".marketingauthorization.mktauth_medicine_code" />
+  <adapter name="mktauth_product_line" factory=".marketingauthorization.mktauth_product_line" />
+  <adapter name="mktauth_storage_conditions" factory=".marketingauthorization.mktauth_storage_conditions" />
+  <adapter name="mktauth_issue_date" factory=".marketingauthorization.mktauth_issue_date" />
+  <adapter name="mktauth_manufacturer" factory=".marketingauthorization.mktauth_manufacturer" />
+  <adapter name="mktauth_shelf_life" factory=".marketingauthorization.mktauth_shelf_life" />
+  <adapter name="mktauth_abbreviated_registration" factory=".marketingauthorization.mktauth_abbreviated_registration" />
+  <adapter name="mktauth_generic_name" factory=".marketingauthorization.mktauth_generic_name" />
 
 </configure>

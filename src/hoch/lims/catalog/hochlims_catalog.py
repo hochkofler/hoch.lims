@@ -10,9 +10,24 @@ CATALOG_TITLE = "HochLims Marketing Authorization Catalog"
 
 INDEXES = BASE_INDEXES + [
     # id, indexed attribute, type
-    ("mktauth_reg_number", "", "FieldIndex"),
+    ("mktauth_registration_number", "", "FieldIndex"),
     ("mktauth_expiration_date", "", "DateIndex"),
-    ("mktauth_holder", "", "FieldIndex")
+    ("mktauth_holder", "", "FieldIndex"),
+    ("mktauth_trade_name", "", "FieldIndex"),
+    ("mktauth_issuing_organization", "", "FieldIndex"),
+    ("mktauth_dosage_form", "", "FieldIndex"),
+    ("mktauth_therapeutic_actions", "", "KeywordIndex"),
+    ("mktauth_atq_code", "", "FieldIndex"),
+    ("mktauth_sale_condition", "", "FieldIndex"),
+    ("mktauth_administration_route", "", "FieldIndex"),
+    ("mktauth_medicine_code", "", "FieldIndex"),
+    ("mktauth_product_line", "", "FieldIndex"),
+    ("mktauth_storage_conditions", "", "FieldIndex"),
+    ("mktauth_issue_date", "", "DateIndex"),
+    ("mktauth_manufacturer", "", "FieldIndex"),
+    ("mktauth_shelf_life", "", "FieldIndex"),
+    ("mktauth_abbreviated_registration", "", "FieldIndex"),
+    ("mktauth_generic_name", "", "FieldIndex"),
 ]
 
 COLUMNS = BASE_COLUMNS + [
@@ -28,7 +43,7 @@ TYPES = [
 
 @implementer(IHochLimsCatalog)
 class HochLimsCatalog(BaseCatalog):
-    """Catalog for Patients
+    """Catalog for HochLims
     """
     def __init__(self):
         BaseCatalog.__init__(self, CATALOG_ID, title=CATALOG_TITLE)

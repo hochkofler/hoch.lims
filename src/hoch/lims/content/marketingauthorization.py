@@ -14,43 +14,241 @@ from hoch.lims.catalog import HOCHLIMS_CATALOG
 class IMarketingAuthorizationSchema(model.Schema):
     """Marketing Authorization Schema"""
 
+    directives.omitted("title")
     title = schema.TextLine(
+        title=u"Title",
+        required=False
+    )
+
+    directives.omitted("description")
+    description = schema.Text(
+        title=u"Description",
+        required=False
+    )
+
+    issuing_organization = schema.Choice(
         title=_(
-            u"title",
-            default=u"title"
+            u"label_marketingauthorization_issuing_organization",
+            default=u"Issuing Regulatory Authority",
+        ),
+        description=_(
+            u"description_marketingauthorization_issuing_organization",
+            default=u"Authority that issued the certification",
+        ),
+        source="hoch.lims.vocabularies.regulatory_authorities",
+        required=True,
+    )
+    
+    registration_number = schema.TextLine(
+        title=_(
+            u"label_marketingauthorization_registration_number",
+            default=u"Marketing Authorization Number",
+        ),
+        description=_(
+            u"description_marketingauthorization_registration_number",
+            default=u"Unique identifier assigned by the authority",
+        ),
+        required=True,
+        max_length=50,
+    )
+    
+    trade_name = schema.TextLine(
+        title=_(
+            u"label_marketingauthorization_trade_name",
+            default=u"Trade Name (Brand)",
+        ),
+        description=_(
+            u"description_marketingauthorization_trade_name",
+            default=u"Commercial name under which the product is sold",
+        ),
+        required=True,
+        max_length=255,
+    )
+
+    generic_name = schema.TextLine(
+        title=_(
+            u"label_marketingauthorization_generic_name",
+            default=u"Generic Name",
+        ),
+        description=_(
+            u"description_marketingauthorization_generic_name",
+            default=u"Non-proprietary name or chemical name given to a drug",
+        ),
+        required=True,
+        max_length=255,
+    )
+    
+    dosage_form = schema.Choice(
+        title=_(
+            u"label_marketingauthorization_dosage_form",
+            default=u"Dosage Form",
+        ),
+        description=_(
+            u"description_marketingauthorization_dosage_form",
+            default=u"Form in which the product is administered",
+        ),
+        source="hoch.lims.vocabularies.dosage_forms",
+        required=True,
+    )
+    
+    product_line = schema.Choice(
+        title=_(
+            u"label_marketingauthorization_product_line",
+            default=u"Product Line",
+        ),
+        description=_(
+            u"description_marketingauthorization_product_line",
+            default=u"Product line or category",
+        ),
+        source="hoch.lims.vocabularies.product_lines",
+        required=False,
+    )
+
+    registered_presentations = schema.List(
+        title=_(u"label_marketingauthorization_registered_presentations",
+            u"Registered Presentations"),
+        value_type=schema.TextLine(),
+        required=True,
+    )
+
+    therapeutic_actions = schema.List(
+        title=_(
+            u"label_marketingauthorization_therapeutic_actions",
+            default=u"Therapeutic Indications",
+        ),
+        description=_(
+            u"description_marketingauthorization_therapeutic_actions",
+            default=u"List of approved therapeutic uses",
+        ),
+        value_type=schema.Choice(
+            source="hoch.lims.vocabularies.therapeutic_indications"
         ),
         required=True,
     )
 
-    description = schema.TextLine(
+    atq_code = schema.TextLine(
         title=_(
-            u"description",
-            default=u"Description"
+            u"label_marketingauthorization_atq_code",
+            default=u"A.T.Q. Code",
+        ),
+        description=_(
+            u"description_marketingauthorization_atq_code",
+            default=u"Anatomical Therapeutic Chemical classification code",
         ),
         required=False,
     )
 
-    reg_number = schema.TextLine(
-        title=_("Registration Number"),
-        required=True,
+    medicine_code = schema.TextLine(
+        title=_(
+            u"label_marketingauthorization_medicine_code",
+            default=u"Medicine Code",
+        ),
+        required=False,
     )
-
-    directives.widget("expiration_date",
-                      DatetimeWidget,
-                      show_time=False)
     
-    expiration_date = DatetimeField(
-        title=_(u"label_marketingauthorization_expiration_date", default=u"Expiration Date"),
-        description=_(u"Expiration date of the marketing authorization"),
+    sale_condition = schema.Choice(
+        title=_(
+            u"label_marketingauthorization_sale_condition",
+            default=u"Sale Condition",
+        ),
+        description=_(
+            u"description_marketingauthorization_sale_condition",
+            default=u"Conditions under which the product may be sold",
+        ),
+        source="hoch.lims.vocabularies.sale_conditions",
         required=True,
     )
 
-    holder = schema.Choice(
-        title=_(u"label_marketingauthorization_holder", default=u"Holder"),
-        description=_(u"Organization that holds the certification"),
-        source="hoch.lims.vocabularies.regulators",
+    storage_conditions = schema.Choice(
+        title=_(
+            u"label_marketingauthorization_storage_conditions",
+            default=u"Storage Conditions",
+        ),
+        description=_(
+            u"description_marketingauthorization_storage_conditions",
+            default=u"Conditions under which the product may be stored",
+        ),
+        source="hoch.lims.vocabularies.storage_conditions",
         required=True,
     )
+
+    administration_route = schema.Choice(
+        title=_(
+            u"label_marketingauthorization_administration_route",
+            default=u"Route of Administration",
+        ),
+        description=_(
+            u"description_marketingauthorization_administration_route",
+            default=u"How the product is administered",
+        ),
+        source="hoch.lims.vocabularies.administration_routes",
+        required=True,
+    )
+    
+    issue_date = schema.Date(
+        title=_(
+            u"label_marketingauthorization_issue_date",
+            default=u"Issue Date",
+        ),
+        description=_(
+            u"description_marketingauthorization_issue_date",
+            default=u"Date when the authorization was issued",
+        ),
+        required=True,
+    )
+    
+    expiration_date = schema.Date(
+        title=_(
+            u"label_marketingauthorization_expiration_date",
+            default=u"Expiration Date",
+        ),
+        description=_(
+            u"description_marketingauthorization_expiration_date",
+            default=u"Date when the authorization expires",
+        ),
+        required=True,
+    )
+
+    shelf_life = schema.Int(
+        title=_(
+            u"label_marketingauthorization_shelf_life",
+            default=u"Shelf Life (months)",
+        ),
+        description=_(
+            u"description_marketingauthorization_shelf_life",
+            default=u"Product stability period",
+        ),
+        required=True,
+        min=1,
+        max=120,  # 10 years
+    )
+    
+    holder = schema.TextLine(
+        title=_(
+            u"label_marketingauthorization_holder",
+            default=u"Marketing Authorization Holder",
+        ),
+        description=_(
+            u"description_marketingauthorization_holder",
+            default=u"Entity holding the authorization",
+        ),
+        required=False,
+        max_length=255,
+    )
+    
+    manufacturer = schema.TextLine(
+        title=_(
+            u"label_marketingauthorization_manufacturer",
+            default=u"Manufacturer",
+        ),
+        description=_(
+            u"description_marketingauthorization_manufacturer",
+            default=u"Entity that manufactured the product",
+        ),
+        required=False,
+        max_length=255,
+    )
+
 
 @implementer(IMarketingAuthorization, IMarketingAuthorizationSchema)
 class MarketingAuthorization(Container):
@@ -59,12 +257,95 @@ class MarketingAuthorization(Container):
     security = ClassSecurityInfo()
 
     @security.protected(permissions.View)
-    def getRegNumber(self):
+    def Title(self):
+        """Dynamic title for display"""
+        parts = [self.getRegistrationNumber(), self.getTradeName()]
+        return " ".join(filter(None, parts))
+    
+    @security.protected(permissions.View)
+    def Description(sef):
+        """Dynamic description for display"""
+        parts = [self.getRegistrationNumber(), self.getTradeName(), self.getDosageForm()]
+        return " ".join(filter(None, parts))
+
+    @security.protected(permissions.View)
+    def getRegistrationNumber(self):
         """Returns the registration number with the field accessor
         """
-        accessor = self.accessor("reg_number")
-        value = accessor(self) or ""
-        return value.encode("utf-8")
+        accessor = self.accessor("registration_number")
+        return accessor(self)
+
+    @security.protected(permissions.View)
+    def getAbbreviatedRegistration(sefl):
+
+        accessor = self.accessor("abbreviated_registration")
+        return accessor(self)
+    
+    @security.protected(permissions.View)
+    def getTradeName(sefl):
+
+        accessor = self.accessor("trade_name")
+        return accessor(self)
+    
+    @security.protected(permissions.View)
+    def getDosageForm(sefl):
+
+        accessor = self.accessor("dosage_form")
+        return accessor(self)
+    
+    @security.protected(permissions.View)
+    def getGenericName(sefl):
+
+        accessor = self.accessor("generic_name")
+        return accessor(self)
+    
+    @security.protected(permissions.View)
+    def getTherapeuticActions(sefl):
+
+        accessor = self.accessor("therapeutic_actions")
+        return accessor(self)
+    
+    @security.protected(permissions.View)
+    def getAtqCode(sefl):
+
+        accessor = self.accessor("atq_code")
+        return accessor(self)
+    
+    @security.protected(permissions.View)
+    def getSaleCondition(sefl):
+
+        accessor = self.accessor("sale_condition")
+        return accessor(self)
+    
+    @security.protected(permissions.View)
+    def getAdministrationRoute(sefl):
+
+        accessor = self.accessor("administration_route")
+        return accessor(self)
+
+    @security.protected(permissions.View)
+    def getMedicineCode(sefl):
+
+        accessor = self.accessor("medicine_code")
+        return accessor(self)
+    
+    @security.protected(permissions.View)
+    def getProductLine(sefl):
+
+        accessor = self.accessor("product_line")
+        return accessor(self)
+    
+    @security.protected(permissions.View)
+    def getRegisteredPresentations(sefl):
+
+        accessor = self.accessor("registered_presentations")
+        return accessor(self)
+    
+    @security.protected(permissions.View)
+    def getStorageConditions(sefl):
+
+        accessor = self.accessor("storage_conditions")
+        return accessor(self)
 
     @security.protected(permissions.View)
     def getExpirationDate(self, as_date=True):
@@ -90,5 +371,27 @@ class MarketingAuthorization(Container):
         """Returns the holder with the field accessor
         """
         accessor = self.accessor("holder")
-        value = accessor(self) or ""
-        return value.encode("utf-8")
+        return accessor(self)
+    
+    @security.protected(permissions.View)
+    def getIssueDate(self):
+        accessor = self.accessor("issue_date")
+        value = accessor(self)
+        if dtime.is_dt(value):
+            return value.date()
+        return value
+    
+    @security.protected(permissions.View)
+    def getIssuingOrganization(self):
+        accessor = self.accessor("issuing_organization")
+        return accessor(self)
+    
+    @security.protected(permissions.View)
+    def getManufacturer(self):
+        accessor = self.accessor("manufacturer")
+        return accessor(self)
+    
+    @security.protected(permissions.View)
+    def getShelfLife(self):
+        accessor = self.accessor("shelf_life")
+        return accessor(self)
