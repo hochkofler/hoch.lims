@@ -42,7 +42,7 @@
   <property name="default_view_fallback">False</property>
 
   <!-- permission required to add an item of this type -->
-  <property name="add_permission">cmf.AddPortalContent</property>
+  <property name="add_permission">hoch.lims.AddMarketingAuthorization</property>
 
   <!-- Python class for content items of this sort -->
   <property name="schema">hoch.lims.content.marketingauthorization.IMarketingAuthorizationSchema</property>
@@ -82,7 +82,7 @@
           icon_expr=""
           link_target=""
           url_expr="string:${object_url}/edit" visible="True">
-    <permission value="Modify portal content"/>
+    <permission value="hoch.lims.AddMarketingAuthorization"/>
   </action>
 
 </object>
