@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<object name="portal_role_manager" meta_type="Plone Role Settings">
+  <property name="available_roles" purge="false">
+    <element value="RegulatoryPharmacist"/>
+  </property>
+</object>

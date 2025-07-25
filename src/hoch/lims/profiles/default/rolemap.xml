@@ -21,11 +21,11 @@
     <permission name="hoch.lims: Add MarketingAuthorizations" acquire="False">
       <role name="Manager"/>
     </permission>
-    <permission name="hoch.lims: Add MarketingAuthorization" acquire="False">
+    <permission name="hoch.lims: Add MarketingAuthorization" acquire="True">
       <role name="Manager"/>
       <role name="RegulatoryPharmacist"/>
     </permission>
-    <permission name="hoch.lims: Add PharmaceuticalProduct" acquire="False">
+    <permission name="hoch.lims: Add PharmaceuticalProduct" acquire="True">
       <role name="Manager"/>
       <role name="RegulatoryPharmacist"/>
     </permission>

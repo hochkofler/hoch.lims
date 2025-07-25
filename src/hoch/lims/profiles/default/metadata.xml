@@ -4,4 +4,8 @@
   <dependencies>
     <dependency>profile-senaite.lims:default</dependency>
   </dependencies>
+  <steps>
+    <step title="rolemap"/>
+    <step title="roleproperties"/>
+  </steps>
 </metadata>

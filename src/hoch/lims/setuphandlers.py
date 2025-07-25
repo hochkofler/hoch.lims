@@ -388,25 +388,53 @@ def reindex_content_structure(portal):
         if recurse and hasattr(aq_base(obj), "objectValues"):
             map(reindex, obj.objectValues())
 
+
 def setup_roles(portal):
-    """Create custom roles"""
-    logger.info("Creating custom roles...")
-    # Verifica si existe la herramienta portal_role_manager
+    """Ensure custom role is properly registered"""
+    logger.info("Setting up custom roles...")
+    
+    # Método 1: Usando portal_role_manager si existe
     if hasattr(portal, 'portal_role_manager'):
         role_manager = portal.portal_role_manager
-        existing_roles = role_manager.getAvailableRoles()
-        role_ids = [role[0] for role in existing_roles]
+        available_roles = list(role_manager.getProperty('available_roles', []))
         
-        if 'RegulatoryPharmacist' not in role_ids:
-            role_manager.addRole('RegulatoryPharmacist')
-            logger.info("Created role: RegulatoryPharmacist")
-    else:
-        # Fallback al método acl_users
-        acl_users = portal.acl_users
-        existing_roles = acl_users.portal_role_manager.listRoleIds()
-        if 'RegulatoryPharmacist' not in existing_roles:
-            acl_users.portal_role_manager.addRole('RegulatoryPharmacist')
-            logger.info("Created role: RegulatoryPharmacist (via acl_users)")
+        if 'RegulatoryPharmacist' not in available_roles:
+            available_roles.append('RegulatoryPharmacist')
+            role_manager.manage_changeProperties(available_roles=available_roles)
+            logger.info("Added RegulatoryPharmacist to portal_role_manager")
+    
+    # Método 2: Registrar directamente en acl_users
+    acl_users = portal.acl_users
+    if 'RegulatoryPharmacist' not in acl_users.roles.listRoleIds():
+        acl_users.roles.addRole('RegulatoryPharmacist')
+        logger.info("Added RegulatoryPharmacist role directly")
+    
+    # Método 3: Asegurar visibilidad en UI
+    from Products.CMFCore.permissions import setDefaultRoles
+    setDefaultRoles('RegulatoryPharmacist', ('RegulatoryPharmacist',))
+    
+    logger.info("Custom roles setup complete")
+
+
+# def setup_roles(portal):
+#     """Create custom roles"""
+#     logger.info("Creating custom roles...")
+#     # Verifica si existe la herramienta portal_role_manager
+#     if hasattr(portal, 'portal_role_manager'):
+#         role_manager = portal.portal_role_manager
+#         existing_roles = role_manager.getAvailableRoles()
+#         role_ids = [role[0] for role in existing_roles]
+        
+#         if 'RegulatoryPharmacist' not in role_ids:
+#             role_manager.addRole('RegulatoryPharmacist')
+#             logger.info("Created role: RegulatoryPharmacist")
+#     else:
+#         # Fallback al método acl_users
+#         acl_users = portal.acl_users
+#         existing_roles = acl_users.portal_role_manager.listRoleIds()
+#         if 'RegulatoryPharmacist' not in existing_roles:
+#             acl_users.portal_role_manager.addRole('RegulatoryPharmacist')
+#             logger.info("Created role: RegulatoryPharmacist (via acl_users)")
 
 def setup_groups(portal):
     """Setup roles and groups
