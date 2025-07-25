@@ -109,6 +109,8 @@ def setup_handler(context):
 
     reindex_content_structure(portal)
 
+    setup_roles(portal)
+
     setup_groups(portal)
 
     # Setup catalogs
@@ -385,6 +387,26 @@ def reindex_content_structure(portal):
             obj.reindexObject()
         if recurse and hasattr(aq_base(obj), "objectValues"):
             map(reindex, obj.objectValues())
+
+def setup_roles(portal):
+    """Create custom roles"""
+    logger.info("Creating custom roles...")
+    # Verifica si existe la herramienta portal_role_manager
+    if hasattr(portal, 'portal_role_manager'):
+        role_manager = portal.portal_role_manager
+        existing_roles = role_manager.getAvailableRoles()
+        role_ids = [role[0] for role in existing_roles]
+        
+        if 'RegulatoryPharmacist' not in role_ids:
+            role_manager.addRole('RegulatoryPharmacist')
+            logger.info("Created role: RegulatoryPharmacist")
+    else:
+        # Fallback al método acl_users
+        acl_users = portal.acl_users
+        existing_roles = acl_users.portal_role_manager.listRoleIds()
+        if 'RegulatoryPharmacist' not in existing_roles:
+            acl_users.portal_role_manager.addRole('RegulatoryPharmacist')
+            logger.info("Created role: RegulatoryPharmacist (via acl_users)")
 
 def setup_groups(portal):
     """Setup roles and groups
