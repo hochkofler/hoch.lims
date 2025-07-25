@@ -28,6 +28,7 @@ INDEXES = BASE_INDEXES + [
     ("mktauth_shelf_life", "", "FieldIndex"),
     ("mktauth_abbreviated_registration", "", "FieldIndex"),
     ("mktauth_generic_name", "", "FieldIndex"),
+    ("mktauth_registered_presentations", "", "FieldIndex"),
 ]
 
 COLUMNS = BASE_COLUMNS + [

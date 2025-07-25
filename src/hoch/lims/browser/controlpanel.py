@@ -13,6 +13,8 @@ from plone.app.registry.browser import controlpanel
 from senaite.core.z3cform.widgets.datagrid import DataGridWidgetFactory
 from senaite.core.schema.registry import DataGridRow
 from plone import api
+from hoch.lims.api import hochlims_search
+#from hoch.lims import logger
 
 import re
 
@@ -82,15 +84,50 @@ class IHochControlPanel(Interface):
         label=_(u"Regulatory Settings"),
         fields=[
             "regulatory_authorities",
+        ],
+    )
+
+    model.fieldset(
+        "dosage_forms",
+        label=_(u"Dosage forms"),
+        fields=[
             "dosage_forms",
-            "product_lines",
-            "therapeutic_indications",
-            "sale_conditions",
-            "storage_conditions",
-            "administration_routes",
         ],
     )
     
+    model.fieldset(
+        "product_lines",
+        label=_(u"Product lines"),
+        fields=[
+            "product_lines",
+        ],
+    )
+
+    model.fieldset(
+        "therapeutic_indications",
+        label=_(u"Therapeutic actions"),
+        fields=[
+            "therapeutic_indications",
+        ],
+    )
+
+    model.fieldset(
+        "conditions",
+        label=_(u"Sale and storage conditions"),
+        fields=[
+            "sale_conditions",
+            "storage_conditions",
+        ],
+    )
+
+    model.fieldset(
+        "administration_routes",
+        label=_(u"Administration routes"),
+        fields=[
+            "administration_routes",
+        ],
+    )
+
     # Regulatory Authorities
     directives.widget(
         "regulatory_authorities",
@@ -193,20 +230,24 @@ class IHochControlPanel(Interface):
     def validate_keys(data):
         """Validate all vocabulary keys"""
         fields = [
-            "regulatory_authorities",
-            "dosage_forms",
-            "product_lines",
-            "therapeutic_indications",
-            "sale_conditions",
-            "storage_conditions",
-            "administration_routes",
+            ("regulatory_authorities", "mktauth_issuing_organization"),
+            ("dosage_forms",           "mktauth_dosage_form"),
+            ("product_lines",          "mktauth_product_line"),
+            ("therapeutic_indications","mktauth_therapeutic_actions"),
+            ("sale_conditions",        "mktauth_sale_condition"),
+            ("storage_conditions",     "mktauth_storage_condition"),
+            ("administration_routes",  "mktauth_administration_route"),
         ]
         
-        for field_name in fields:
-            items = getattr(data, field_name, [])
-            keys = []
+        for field_name, index_name in fields:
+            new_items = getattr(data, field_name, [])
+            old_items = getattr(data.__context__, field_name, [])
             
-            for item in items:
+            if new_items == old_items:
+                continue
+            new_keys = []
+            
+            for item in new_items:
                 key = item.get("key")
                 # Check for invalid characters
                 if re.findall(r"[^A-Za-z0-9_-]", key):
@@ -216,14 +257,17 @@ class IHochControlPanel(Interface):
                     ))
                 
                 # Check for uniqueness
-                if key in keys:
+                if key in new_keys:
                     raise Invalid(_("Key '%s' is not unique" % key))
-                keys.append(key)
-                
-                # Check if key is being removed and in use
-                # (Implementation would require checking existing content)
-                # This is a placeholder for actual in-use validation
-                pass
+                new_keys.append(key)
+
+            old_keys = [item.get("key") for item in old_items]
+            removed = list(set(old_keys).difference(new_keys))
+
+            for key in removed:
+                brains = hochlims_search({index_name: key})
+                if brains:
+                    raise Invalid(_("Can not delete item '%s' because it is in use" % key))
 
 class HochControlPanelForm(controlpanel.RegistryEditForm):
     schema = IHochControlPanel

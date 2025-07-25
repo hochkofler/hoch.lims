@@ -21,5 +21,6 @@
   <adapter name="mktauth_shelf_life" factory=".marketingauthorization.mktauth_shelf_life" />
   <adapter name="mktauth_abbreviated_registration" factory=".marketingauthorization.mktauth_abbreviated_registration" />
   <adapter name="mktauth_generic_name" factory=".marketingauthorization.mktauth_generic_name" />
+  <adapter name="mktauth_registered_presentations" factory=".marketingauthorization.mktauth_registered_presentations" />
 
 </configure>

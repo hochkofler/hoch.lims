@@ -81,3 +81,7 @@ def mktauth_abbreviated_registration(instance):
 @indexer(IMarketingAuthorization)
 def mktauth_generic_name(instance):
     return instance.getGenericName()
+
+@indexer(IMarketingAuthorization)
+def mktauth_registered_presentations(instance):
+    return instance.getRegisteredPresentations()

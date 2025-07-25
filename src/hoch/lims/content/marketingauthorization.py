@@ -173,7 +173,6 @@ class IMarketingAuthorizationSchema(model.Schema):
         required=True,
     )
 
-
     administration_route = schema.Choice(
         title=_(
             u"label_marketingauthorization_administration_route",
@@ -390,6 +389,11 @@ class MarketingAuthorization(Container):
         if dtime.is_dt(value):
             return value.date()
         return value
+
+    @security.protected(permissions.View)
+    def getLocalizedIssueDate(self):
+        date = dtime.to_DT(self.getIssueDate())
+        return dtime.to_localized_time(date)
     
     @security.protected(permissions.View)
     def getIssuingOrganization(self):

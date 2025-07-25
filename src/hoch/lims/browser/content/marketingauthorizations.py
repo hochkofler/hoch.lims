@@ -43,19 +43,76 @@ class MarketingAuthorizationsView(ListingView):
         self.pagesize = 25
 
         self.columns = collections.OrderedDict((
-            # ("Title", {
-            #      "title": _("Title"),
-            #      "index": "sortable_title"}),
+             ("Title", {
+                "title": _("Title"),
+                "index": "sortable_title",
+                "toggle": False}),
+            ("Issuing_organization", {
+                "title": _("Issuing organization"),
+                "index": "mktauth_issuing_organization"}),
             ("Reg_number", {
                 "title": _("Registration Number"),
                 "index": "mktauth_registration_number"}),
-            ("Description", {
-                "title": _("Description"),
-                }),
+            ("Trade_name", {
+                "title": _("Trade Name (Brand)"),
+                "index": "mktauth_trade_name"}),
+            ("Generic_name", {
+                "title": _("Generic name"),
+                "index": "mktauth_generic_name"}),
+            ("Dosage_form", {
+                "title": _("Dosage Form"),
+                "index": "mktauth_dosage_form"}),
+            ("Product_line", {
+                "title": _("Product line"),
+                "index": "mktauth_product_line",
+                "toggle": False}),
+            ("Registered_presentations", {
+                "title": _("Presentations"),
+                "index": "mktauth_registered_presentations",
+                "toggle": False}),
+            ("Therapeutic_actions", {
+                "title": _("Therapeutic Indications"),
+                "index": "mktauth_therapeutic_actions",
+                "toggle": False}),
+            ("Atq_code", {
+                "title": _("A.T.Q. Code"),
+                "index": "mktauth_atq_code",
+                "toggle": False}),
+            ("Medicine_code", {
+                "title": _("Medicine clasification"),
+                "index": "mktauth_medicine_code",
+                "toggle": False}),
+            ("Sale_condition", {
+                "title": _("Sale Condition"),
+                "index": "mktauth_sale_condition",
+                "toggle": False}),
+            ("Storage_conditions", {
+                "title": _("Storage Conditions"),
+                "index": "mktauth_storage_conditions",
+                "toggle": False}),
+            ("Administration_route", {
+                "title": _("Route of Administration"),
+                "index": "mktauth_administration_route",
+                "toggle": False}),
+            ("Issue_date", {
+                "title": _("Issue Date"),
+                "index": "mktauth_issue_date",
+                "toggle": False}),
             ("Expiration_date", {
                 "title": _("Expiration Date"),
                 "index": "mktauth_expiration_date",
                 "sortable": True}),
+            ("Shelf_life", {
+                "title": _("Shelf Life (months)"),
+                "index": "mktauth_shelf_life"}),
+            ("Holder", {
+                "title": _("Marketing Authorization Holder"),
+                "index": "mktauth_holder",
+                "toggle": False}),
+            ("Manufacturer", {
+                "title": _("Manufacturer"),
+                "index": "mktauth_manufacturer",
+                "toggle": False}),
         ))
 
 
@@ -98,12 +155,26 @@ class MarketingAuthorizationsView(ListingView):
         obj = api.get_object(obj)
         url = api.get_url(obj)
 
-        #item["Title"] = obj.Title()
-        #item["replace"]["Title"] = get_link_for(obj)
-
+        item["Title"] = obj.Title()
+        item["replace"]["Title"] = get_link_for(obj)
         item["Reg_number"] = obj.getRegistrationNumber()
         item["replace"]["Reg_number"] = get_link(url, value=obj.getRegistrationNumber())
-        item["Description"] = obj.Description()
+        item["Trade_name"] = obj.getTradeName()
+        item["Generic_name"] = obj.getGenericName()
+        item["Issuing_organization"] = obj.getIssuingOrganization()
+        item["Dosage_form"] = obj.getDosageForm()
+        item["Therapeutic_actions"] = ", ".join(obj.getTherapeuticActions())
+        item["Atq_code"] = obj.getAtqCode()
+        item["Sale_condition"] = obj.getSaleCondition()
+        item["Storage_conditions"] = obj.getStorageConditions()
+        item["Administration_route"] = obj.getAdministrationRoute()
+        item["Issue_date"] = obj.getLocalizedIssueDate()
         item["Expiration_date"] = obj.getLocalizedExpirationDate()
+        item["Shelf_life"] = obj.getShelfLife()
+        item["Holder"] = obj.getHolder()
+        item["Manufacturer"] = obj.getManufacturer()
+        item["Description"] = obj.Description()
+        item["Registered_presentations"] = obj.getRegisteredPresentations()
+        item["Medicine_code"] = obj.getMedicineCode()
 
         return item
