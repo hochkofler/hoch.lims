@@ -42,7 +42,7 @@
   <property name="default_view_fallback">False</property>
 
   <!-- permission required to add an item of this type -->
-  <property name="add_permission">cmf.AddPortalContent</property>
+  <property name="add_permission">hoch.lims.permissions.ManageMarketingAuthorizations</property>
 
   <!-- Python class for content items of this sort -->
   <property name="schema">hoch.lims.content.marketingauthorizations.IMarketingAuthorizationsSchema</property>

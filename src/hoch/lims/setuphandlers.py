@@ -22,20 +22,20 @@ BEHAVIORS = [
     ]),
 ]
 
+GROUPS = [
+    {
+        "id": "RegulatoryPharmacists",
+        "title": "Regulatory Pharmacists",
+        "roles": ["RegulatoryPharmacist"],
+    }
+]
+
 # Maximum threshold in seconds before a transaction.commit takes place
 # Default: 300 (5 minutes)
 MAX_SEC_THRESHOLD = 300
 
 ROLES = [
     "RegulatoryPharmacist"
-]
-
-GROUPS = [
-    {
-        "id": "RegulatoryPharmacists",
-        "title": "RegulatoryPharmacists",
-        "roles": ["RegulatoryPharmacist"],
-    },
 ]
 
 CATALOGS = (
@@ -173,6 +173,30 @@ def post_uninstall(portal_setup):
 
     logger.info("{} uninstall handler [DONE]".format(PRODUCT_NAME.upper()))
 
+def setup_groups(portal):
+    """Create groups with specific roles"""
+    logger.info("Creating groups...")
+    portal_groups = portal.portal_groups
+    
+    for group_data in GROUPS:
+        group_id = group_data["id"]
+        group_title = group_data["title"]
+        roles = group_data["roles"]
+        
+        if group_id not in portal_groups.listGroupIds():
+            portal_groups.addGroup(
+                group_id,
+                title=group_title,
+                roles=roles
+            )
+            logger.info("Created group: '%s'" % group_id)
+        else:
+            group = portal_groups.getGroupById(group_id)
+            current_roles = group.getRoles()
+            # Añadir nuevos roles sin eliminar los existentes
+            new_roles = list(set(current_roles + roles))
+            group.setRoles(new_roles)
+            logger.info("Updated roles for group: '%s'" % group_id)
 
 def setup_behaviors(portal):
     """Assigns additional behaviors to existing content types
@@ -386,7 +410,7 @@ def reindex_content_structure(portal):
         if recurse and hasattr(aq_base(obj), "objectValues"):
             map(reindex, obj.objectValues())
 
-def setup_groups(portal):
+def setup_groups_old(portal):
     """Setup roles and groups
     """
     logger.info("*** Setup Roles and Groups ***")

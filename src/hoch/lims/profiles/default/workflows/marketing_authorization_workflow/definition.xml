@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <dc-workflow xmlns:i18n="http://xml.zope.org/namespaces/i18n"
-             workflow_id="hoch_lims_marketing_authorization_workflow"
+             workflow_id="marketing_authorization_workflow"
              title="Workflow for marketing authorizations"
              description=""
              state_variable="review_state"
@@ -18,8 +18,7 @@
   <!-- hoch.lims: MarketingAuthorization Field permissions -->
 
   <!-- hoch.lims: Transition permissions -->
-  <permission>hoch.lims: Transition: Activate</permission>
-  <permission>hoch.lims: Transition: Deactivate</permission>
+  <permission>hoch.lims: Transition MarketingAuthorization</permission>
   <!-- /MANAGED PERMISSIONS -->
 
   <!-- State: active -->
@@ -107,7 +106,7 @@
   <transition transition_id="activate" title="Activate" new_state="active" trigger="USER" before_script="" after_script="" i18n:attributes="title">
     <action url="" category="workflow" icon="">Activate</action>
     <guard>
-      <guard-permission>hoch.lims: Transition: Activate</guard-permission>
+      <guard-permission>hoch.lims: Transition MarketingAuthorization</guard-permission>
       <guard-expression></guard-expression>
     </guard>
   </transition>
@@ -116,7 +115,7 @@
   <transition transition_id="deactivate" title="Deactivate" new_state="inactive" trigger="USER" before_script="" after_script="" i18n:attributes="title">
     <action url="" category="workflow" icon="">Deactivate</action>
     <guard>
-      <guard-permission>hoch.lims: Transition: Deactivate</guard-permission>
+      <guard-permission>hoch.lims: Transition MarketingAuthorization</guard-permission>
       <guard-expression></guard-expression>
     </guard>
   </transition>

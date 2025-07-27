@@ -1,45 +1,29 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0"?>
 <rolemap>
-
+  <!-- Roles deben tener 'name' y 'title' -->
+  <roles>
+    <role name="RegulatoryPharmacist"/>
+  </roles>
+  
   <permissions>
-
-    <!-- Sample permissions -->
-     <permission name="hoch.lims: Field: Edit Extended Field" acquire="False">
-      <role name="Manager"/>
-      <role name="LabManager"/>
-      <role name="LabClerk"/>
-    </permission>
-
-    <!-- Manage permissions -->
-
-    <permission name="hoch.lims: Manage MarketingAuthorizations" acquire="False">
-      <role name="Manager"/>
-      <role name="RegulatoryPharmacist"/>
-    </permission>
-
-    <!-- Add Permissions-->
-    <permission name="hoch.lims: Add MarketingAuthorizations" acquire="False">
-      <role name="Manager"/>
-    </permission>
+    <!-- Cada permiso debe tener 'name' y 'acquire' -->
     <permission name="hoch.lims: Add MarketingAuthorization" acquire="False">
       <role name="Manager"/>
       <role name="RegulatoryPharmacist"/>
     </permission>
-    <permission name="hoch.lims: Add PharmaceuticalProduct" acquire="False">
+    
+    <permission name="hoch.lims: Edit MarketingAuthorization" acquire="False">
       <role name="Manager"/>
       <role name="RegulatoryPharmacist"/>
     </permission>
-
-    <!-- Transition Permissions -->
-    <permission name="hoch.lims: Transition: Activate" acquire="False">
+    
+    <permission name="hoch.lims: View MarketingAuthorization" acquire="True">
+      <role name="Authenticated"/>
+    </permission>
+    
+    <permission name="hoch.lims: Transition MarketingAuthorization" acquire="False">
       <role name="Manager"/>
       <role name="RegulatoryPharmacist"/>
     </permission>
-    <permission name="hoch.lims: Transition: Deactivate" acquire="False">
-      <role name="Manager"/>
-      <role name="RegulatoryPharmacist"/>
-    </permission>
-
   </permissions>
-
 </rolemap>

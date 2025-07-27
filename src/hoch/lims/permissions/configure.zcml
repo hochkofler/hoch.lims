@@ -11,18 +11,18 @@
     title="hoch.lims: Manage MarketingAuthorizations"/>
 
   <!-- Marketing Authorization permissions-->
-  <permission id="hoch.lims.permissions.AddMarketingAuthorizations"
-    title="hoch.lims: Add MarketingAuthorizations"/>
+
   <permission id="hoch.lims.permissions.AddMarketingAuthorization"
     title="hoch.lims: Add MarketingAuthorization"/>
-  <permission id="hoch.lims.permissions.AddPharmaceuticalProduct"
-    title="hoch.lims: Add PharmaceuticalProduct"/>
+
+  <permission id="hoch.lims.permissions.EditMarketingAuthorization"
+    title="hoch.lims: Edit MarketingAuthorization"/>
+
+  <permission id="hoch.lims.permissions.ViewMarketingAuthorization"
+    title="hoch.lims: View MarketingAuthorization"/>
 
   <!-- Transition Permissions -->
-  <permission id="hoch.lims.permissions.TransitionActivate"
-    title="hoch.lims: Transition: Activate"/>
-  
-  <permission id="hoch.lims.permissions.TransitionDeactivate"
-    title="hoch.lims: Transition: Deactivate"/>
+  <permission id="hoch.lims.permissions.TransitionMarketingAuthorization"
+    title="hoch.lims: Transition MarketingAuthorization"/>
   
 </configure>

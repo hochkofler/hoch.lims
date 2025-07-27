@@ -2,32 +2,11 @@
 <object name="portal_workflow" meta_type="Plone Workflow Tool">
 
   <!-- hoch.lims-specific workflows -->
-  <object name="hoch_lims_folder_workflow" meta_type="Workflow"/>
-  <object name="hoch_lims_marketing_authorization_workflow" meta_type="Workflow"/>
+  <object name="marketing_authorization_workflow" meta_type="Workflow"/>
 
   <bindings>
-
-    <!-- Bindings to "senaite_one_state_workflow" -->
-    <type type_id="Products">
-      <bound-workflow workflow_id="senaite_one_state_workflow"/>
-    </type>
-
-    <!-- Bindings to "senaite_deactivable_type_workflow" -->
-    <type type_id="Product">
-      <bound-workflow workflow_id="senaite_deactivable_type_workflow"/>
-    </type>
-
     <type type_id="MarketingAuthorization">
       <bound-workflow workflow_id="hoch_lims_marketing_authorization_workflow"/>
     </type>
-
-    <type type_id="MarketingAuthorizations">
-      <bound-workflow workflow_id="hoch_lims_folder_workflow"/>
-    </type>
-
-    <type type_id="PharmaceuticalProduct">
-      <bound-workflow workflow_id="hoch_lims_marketing_authorization_workflow"/>
-    </type>
-
   </bindings>
 </object>
