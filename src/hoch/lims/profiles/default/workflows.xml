@@ -1,12 +1,21 @@
 <?xml version="1.0"?>
 <object name="portal_workflow" meta_type="Plone Workflow Tool">
+  <property name="title">Workflow definitions for senaite</property>
 
-  <!-- hoch.lims-specific workflows -->
+  <!-- workflow definitions -->
   <object name="marketing_authorization_workflow" meta_type="Workflow"/>
 
   <bindings>
+
+    <!-- Bind "senaite_one_state" by default if type not known -->
+    <default>
+      <bound-workflow workflow_id="marketing_authorization_workflow"/>
+    </default>
+
+    <!-- Bindings to "MarketingAuthorization" -->
     <type type_id="MarketingAuthorization">
-      <bound-workflow workflow_id="hoch_lims_marketing_authorization_workflow"/>
+      <bound-workflow workflow_id="marketing_authorization_workflow"/>
     </type>
+
   </bindings>
 </object>
