@@ -39,7 +39,8 @@
     <!-- Roles needed to add contents inside Marketing Authentication.
          Not needed at the moment, but we use the default roles -->
     <permission-map name="Add portal content" acquired="False">
-      <permission-role>Authenticated</permission-role>
+      <permission-role>Manager</permission-role>
+      <permission-role>RegulatoryPharmacist</permission-role>
     </permission-map>
     <!-- Never allow to delete contents -->
     <permission-map name="Delete objects" acquired="False">
@@ -51,7 +52,8 @@
     </permission-map>
     <!-- We allow the Owner role here to edit Marketing Authentication-->
     <permission-map name="Modify portal content" acquired="False">
-      <permission-role>Authenticated</permission-role>
+      <permission-role>Manager</permission-role>
+      <permission-role>RegulatoryPharmacist</permission-role>
     </permission-map>
 
     <permission-map name="View" acquired="False">

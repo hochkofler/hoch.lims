@@ -71,17 +71,7 @@
       pre_handler=".setuphandlers.pre_install"
       post_handler=".setuphandlers.post_install"
       provides="Products.GenericSetup.interfaces.EXTENSION"/>
-
-      
-      <!-- Setup handler -->
-      <!--
-        <genericsetup:importStep
-        name="hoch.lims.install"
-        title="HOCH.LIMS: Run Setuphandler"
-        description="Install hoch.lims"
-        handler="hoch.lims.setuphandlers.install"/>
-    -->
-    
+   
     <!-- Generic Setup Handler -->
   <genericsetup:importStep
     name="hoch.lims.setup_handler"

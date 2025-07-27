@@ -4,12 +4,13 @@
 
   <!-- workflow definitions -->
   <object name="marketing_authorization_workflow" meta_type="Workflow"/>
+  <object name="one_state_workflow" meta_type="Workflow"/>
 
   <bindings>
 
     <!-- Bind "senaite_one_state" by default if type not known -->
     <default>
-      <bound-workflow workflow_id="marketing_authorization_workflow"/>
+      <bound-workflow workflow_id="one_state_workflow"/>
     </default>
 
     <!-- Bindings to "MarketingAuthorization" -->
