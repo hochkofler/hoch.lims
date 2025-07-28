@@ -10,6 +10,7 @@ from hoch.lims import messageFactory as _
 from hoch.lims.catalog import HOCHLIMS_CATALOG
 #from senaite.patient.i18n import translate as t
 from hoch.lims.permissions import AddMarketingAuthorization
+from bika.lims.utils import safe_unicode
 
 
 class MarketingAuthorizationsView(ListingView):
@@ -65,13 +66,15 @@ class MarketingAuthorizationsView(ListingView):
                     u"label_marketingauthorization_trade_name",
                     default=u"Trade Name (Brand)",
                 ),
-                "index": "mktauth_trade_name"}),
+                "index": "mktauth_trade_name",
+                "searchable":True,}),
             ("Generic_name", {
                 "title": _(
                     "label_marketingauthorization_generic_name",
                     default=u"Generic Name",
                 ),
-                "index": "mktauth_generic_name"}),
+                "index": "mktauth_generic_name",
+                "searchable":True,}),
             ("Dosage_form", {
                 "title": _(
                     u"label_marketingauthorization_dosage_form",
@@ -209,9 +212,10 @@ class MarketingAuthorizationsView(ListingView):
     def folderitem(self, obj, item, index):
         obj = api.get_object(obj)
         url = api.get_url(obj)
-
-        item["Title"] = obj.Title()
-        item["replace"]["Title"] = get_link_for(obj)
+        bid = api.get_id(obj)
+        title = safe_unicode(obj.Title())
+        item["Title"] = safe_unicode(obj.Title())
+        #item["replace"]["Title"] = get_link(url, value = bid)
         item["Reg_number"] = obj.getRegistrationNumber()
         item["replace"]["Reg_number"] = get_link(url, value=obj.getRegistrationNumber())
         item["Trade_name"] = obj.getTradeName()

@@ -29,6 +29,7 @@ INDEXES = BASE_INDEXES + [
     ("mktauth_abbreviated_registration", "", "FieldIndex"),
     ("mktauth_generic_name", "", "FieldIndex"),
     ("mktauth_registered_presentations", "", "FieldIndex"),
+    ("mktauth_searchable_text", "", "ZCTextIndex"),
 ]
 
 COLUMNS = BASE_COLUMNS + [

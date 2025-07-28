@@ -10,6 +10,8 @@ from hoch.lims.interfaces import IMarketingAuthorization
 from hoch.lims.content.fields import DatetimeField, DatetimeWidget
 from zope.interface import implementer
 from hoch.lims.catalog import HOCHLIMS_CATALOG
+from bika.lims.utils import safe_unicode
+from datetime import date
 
 class IMarketingAuthorizationSchema(model.Schema):
     """Marketing Authorization Schema"""
@@ -267,15 +269,18 @@ class MarketingAuthorization(Container):
 
     @security.protected(permissions.View)
     def Title(self):
-        """Dynamic title for display"""
-        parts = [self.getRegistrationNumber(), self.getTradeName()]
-        return " ".join(filter(None, parts))
-    
+        # get parts as unicode
+        reg = self.getRegistrationNumber()
+        name = self.getTradeName()
+        return u" ".join(filter(None, (reg, name)))
+
     @security.protected(permissions.View)
     def Description(self):
-        """Dynamic description for display"""
-        parts = [self.getRegistrationNumber(), self.getTradeName(), self.getDosageForm()]
-        return " ".join(filter(None, parts))
+        reg = self.getRegistrationNumber()
+        name = self.getTradeName() 
+        form = self.getDosageForm()
+        generic = self.getGenericName()
+        return u" ".join(filter(None, (reg, name, form, generic)))
 
     @security.protected(permissions.View)
     def getRegistrationNumber(self):
@@ -409,3 +414,14 @@ class MarketingAuthorization(Container):
     def getShelfLife(self):
         accessor = self.accessor("shelf_life")
         return accessor(self)
+    
+    @security.protected(permissions.View)
+    def getIsExpired(self):
+        today = date.today()
+        validfrom = getIssueDate()
+        validto = getExpirationDate()
+        if not validfrom or not validto:
+            return True
+        validfrom = validfrom.asdatetime().date()
+        validto = validto.asdatetime().date()
+        return not (today >= validfrom and today <= validto)

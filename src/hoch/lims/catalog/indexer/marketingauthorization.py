@@ -1,5 +1,6 @@
 from plone.indexer import indexer
 from hoch.lims.interfaces import IMarketingAuthorization
+from bika.lims import api
 
 
 @indexer(IMarketingAuthorization)
@@ -85,3 +86,16 @@ def mktauth_generic_name(instance):
 @indexer(IMarketingAuthorization)
 def mktauth_registered_presentations(instance):
     return instance.getRegisteredPresentations()
+
+@indexer(IMarketingAuthorization)
+def mktauth_searchable_text(instance):
+    """Index for searchable text queries
+    """
+    tokens = [
+        instance.getTradeName(),
+        instance.getGenericName(),
+        instance.getDosageForm(),
+    ]
+    # remove duplicates and filter out emtpies
+    tokens = filter(None, set(tokens))
+    return u" ".join(map(api.safe_unicode, tokens))
