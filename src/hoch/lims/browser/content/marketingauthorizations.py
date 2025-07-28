@@ -37,80 +37,135 @@ class MarketingAuthorizationsView(ListingView):
         self.icon = "{}/{}".format(
             self.portal_url, "senaite_theme/icon/hoch_lims_marketingauthorizations")
 
-        self.title = _("Marketing Authorizations")
+        self.title = self.context.translate(_("Marketing authorizations"))
         self.description = self.context.Description()
         self.show_select_column = True
         self.pagesize = 25
 
         self.columns = collections.OrderedDict((
              ("Title", {
-                "title": _("Title"),
+                "title": _(u"label_marketingauthorization_title",
+                            default=u"Title"),
                 "index": "sortable_title",
                 "toggle": False}),
             ("Issuing_organization", {
-                "title": _("Issuing organization"),
+                "title": _(
+                    u"label_marketingauthorization_issuing_organization",
+                    default=u"Issuing Regulatory Authority",
+                ),
                 "index": "mktauth_issuing_organization"}),
             ("Reg_number", {
-                "title": _("Registration Number"),
+                "title": _(
+                    u"label_marketingauthorization_registration_number",
+                    default=u"Marketing Authorization Number",
+                ),
                 "index": "mktauth_registration_number"}),
             ("Trade_name", {
-                "title": _("Trade Name (Brand)"),
+                "title": _(
+                    u"label_marketingauthorization_trade_name",
+                    default=u"Trade Name (Brand)",
+                ),
                 "index": "mktauth_trade_name"}),
             ("Generic_name", {
-                "title": _("Generic name"),
+                "title": _(
+                    "label_marketingauthorization_generic_name",
+                    default=u"Generic Name",
+                ),
                 "index": "mktauth_generic_name"}),
             ("Dosage_form", {
-                "title": _("Dosage Form"),
+                "title": _(
+                    u"label_marketingauthorization_dosage_form",
+                    default=u"Dosage Form",
+                ),
                 "index": "mktauth_dosage_form"}),
             ("Product_line", {
-                "title": _("Product line"),
+                "title": _(
+                    u"label_marketingauthorization_product_line",
+                    default=u"Product Line",
+                ),
                 "index": "mktauth_product_line",
                 "toggle": False}),
             ("Registered_presentations", {
-                "title": _("Presentations"),
+                "title": _(
+                    u"label_marketingauthorization_registered_presentations",
+                    default=u"Registered Presentations"
+                ),
                 "index": "mktauth_registered_presentations",
                 "toggle": False}),
             ("Therapeutic_actions", {
-                "title": _("Therapeutic Indications"),
+                "title": _(
+                    u"label_marketingauthorization_therapeutic_actions",
+                    default=u"Therapeutic Indications",
+                ),
                 "index": "mktauth_therapeutic_actions",
                 "toggle": False}),
             ("Atq_code", {
-                "title": _("A.T.Q. Code"),
+                "title": _(
+                    u"label_marketingauthorization_atq_code",
+                    default=u"A.T.Q. Code",
+                ),
                 "index": "mktauth_atq_code",
                 "toggle": False}),
             ("Medicine_code", {
-                "title": _("Medicine clasification"),
+                "title": _(
+                    u"label_marketingauthorization_medicine_code",
+                    default=u"Medicine Code",
+                ),
                 "index": "mktauth_medicine_code",
                 "toggle": False}),
             ("Sale_condition", {
-                "title": _("Sale Condition"),
+                "title": _(
+                    u"label_marketingauthorization_sale_condition",
+                    default=u"Sale Condition",
+                ),
                 "index": "mktauth_sale_condition",
                 "toggle": False}),
             ("Storage_conditions", {
-                "title": _("Storage Conditions"),
+                "title": _(
+                    u"label_marketingauthorization_storage_conditions",
+                    default=u"Storage Conditions",
+                ),
                 "index": "mktauth_storage_conditions",
                 "toggle": False}),
             ("Administration_route", {
-                "title": _("Route of Administration"),
+                "title": _(
+                    u"label_marketingauthorization_administration_route",
+                    default=u"Route of Administration",
+                ),
                 "index": "mktauth_administration_route",
                 "toggle": False}),
             ("Issue_date", {
-                "title": _("Issue Date"),
+                "title": _(
+                    u"label_marketingauthorization_issue_date",
+                    default=u"Issue Date",
+                ),
                 "index": "mktauth_issue_date",
                 "toggle": False}),
             ("Expiration_date", {
-                "title": _("Expiration Date"),
+                "title": _(
+                    u"label_marketingauthorization_expiration_date",
+                    default=u"Expiration Date",
+                ),
                 "index": "mktauth_expiration_date",
                 "sortable": True}),
             ("Shelf_life", {
-                "title": _("Shelf Life (months)"),
+                "title": _(
+                    u"label_marketingauthorization_shelf_life",
+                    default=u"Shelf Life (months)",
+                ),
                 "index": "mktauth_shelf_life"}),
             ("Holder", {
-                "title": _("Marketing Authorization Holder"),
+                "title": _(
+                    u"label_marketingauthorization_holder",
+                    default=u"Marketing Authorization Holder",
+                ),
                 "index": "mktauth_holder",
                 "toggle": False}),
             ("Manufacturer", {
-                "title": _("Manufacturer"),
+                "title": _(
+                    u"label_marketingauthorization_manufacturer",
+                    default=u"Manufacturer",
+                ),
                 "index": "mktauth_manufacturer",
                 "toggle": False}),
         ))

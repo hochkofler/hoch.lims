@@ -67,7 +67,7 @@ class IMarketingAuthorizationSchema(model.Schema):
 
     generic_name = schema.TextLine(
         title=_(
-            u"label_marketingauthorization_generic_name",
+            "label_marketingauthorization_generic_name",
             default=u"Generic Name",
         ),
         description=_(

@@ -13,6 +13,7 @@ from hoch.lims.catalog import HOCHLIMS_CATALOG
 from hoch.lims.catalog.hochlims_catalog import HochLimsCatalog
 from zope.component import getUtility
 from plone import api as ploneapi
+from hoch.lims import messageFactory as _
 
 PROFILE_ID = "profile-{}:default".format(PRODUCT_NAME)
 
@@ -56,8 +57,6 @@ SIDEBAR_FOLDERS = [
 # Tuples of (folder_id, folder_name, type)
 SETUP_FOLDERS = [
     ("products", "Products", "Products"),
-    #("marketing_authorizations", "Marketing Authorizations", "MarketingAuthorizations"),
-    #("marketing_authorization", "Marketing Authorization", "MarketingAuthorization"),
 ]
 
 # Tuples of (catalog, index_name, index_attribute, index_type)
@@ -193,9 +192,11 @@ def setup_groups(portal):
         else:
             group = portal_groups.getGroupById(group_id)
             current_roles = group.getRoles()
-            # Añadir nuevos roles sin eliminar los existentes
             new_roles = list(set(current_roles + roles))
-            group.setRoles(new_roles)
+            ploneapi.group.grant_roles(
+                groupname=group_id,
+                roles=new_roles,)
+
             logger.info("Updated roles for group: '%s'" % group_id)
 
 def setup_behaviors(portal):
@@ -222,7 +223,7 @@ def add_folder(portal):
     for folder_id, folder_name, portal_type in SIDEBAR_FOLDERS:
         if portal.get(folder_id) is None:
             logger.info("Adding folder: {}".format(folder_id))
-            portal.invokeFactory(portal_type, folder_id, title=folder_name)
+            portal.invokeFactory(portal_type, folder_id, title=_(folder_name))
             logger.info("Added folder: {}".format(folder_id))
 
 def add_setup_folders(portal):
@@ -235,7 +236,7 @@ def add_setup_folders(portal):
     for folder_id, folder_name, portal_type in SETUP_FOLDERS:
         if setup.get(folder_id) is None:
             logger.info("Adding folder: {}".format(folder_id))
-            setup.invokeFactory(portal_type, folder_id, title=folder_name)
+            setup.invokeFactory(portal_type, folder_id, title=_(folder_name))
     ti.filter_content_types = True
     logger.info("Adding setup folders [DONE]")
 
@@ -409,33 +410,3 @@ def reindex_content_structure(portal):
             obj.reindexObject()
         if recurse and hasattr(aq_base(obj), "objectValues"):
             map(reindex, obj.objectValues())
-
-def setup_groups_old(portal):
-    """Setup roles and groups
-    """
-    logger.info("*** Setup Roles and Groups ***")
-
-    portal_groups = api.get_tool("portal_groups")
-    acl_users = api.get_tool("acl_users")
-    roles = []
-    roles_tree = acl_users.portal_role_manager.listRoleIds()
-    for role in roles_tree:
-        roles.append(role)
-
-    logger.info("Roles actules: '%s'" % roles)
-
-    for gdata in GROUPS:
-        group_id = gdata["id"]
-        # create the group and grant the roles
-        if group_id not in portal_groups.listGroupIds():
-            logger.info("+++ Adding group {title} ({id})".format(**gdata))
-            portal_groups.addGroup(group_id,
-                                   title=gdata["title"],
-                                   roles=gdata["roles"])
-        # grant the roles to the existing group
-        else:
-            ploneapi.group.grant_roles(
-                groupname=gdata["id"],
-                roles=gdata["roles"],)
-            logger.info("+++ Granted group {title} ({id}) the roles {roles}"
-                        .format(**gdata))

@@ -1,0 +1,2 @@
+msgid "Marketing Authorizations"
+msgstr "Autorización de comercialización"
