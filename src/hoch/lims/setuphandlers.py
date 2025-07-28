@@ -176,28 +176,35 @@ def setup_groups(portal):
     """Create groups with specific roles"""
     logger.info("Creating groups...")
     portal_groups = portal.portal_groups
-    
+
     for group_data in GROUPS:
         group_id = group_data["id"]
         group_title = group_data["title"]
-        roles = group_data["roles"]
-        
+        desired_roles = set(group_data["roles"])
+
         if group_id not in portal_groups.listGroupIds():
             portal_groups.addGroup(
                 group_id,
                 title=group_title,
-                roles=roles
+                roles=list(desired_roles),
             )
             logger.info("Created group: '%s'" % group_id)
         else:
+            # Only add missing roles
             group = portal_groups.getGroupById(group_id)
-            current_roles = group.getRoles()
-            new_roles = list(set(current_roles + roles))
-            ploneapi.group.grant_roles(
-                groupname=group_id,
-                roles=new_roles,)
-
-            logger.info("Updated roles for group: '%s'" % group_id)
+            current_roles = set(group.getRoles())
+            roles_to_add = list(desired_roles - current_roles)
+            if roles_to_add:
+                ploneapi.group.grant_roles(
+                    groupname=group_id,
+                    roles=roles_to_add,
+                )
+                logger.info(
+                    "Granted roles %r to group '%s'" % (roles_to_add, group_id)
+                )
+            else:
+                logger.info("Group '%s' already has roles %r"
+                            % (group_id, desired_roles))
 
 def setup_behaviors(portal):
     """Assigns additional behaviors to existing content types
