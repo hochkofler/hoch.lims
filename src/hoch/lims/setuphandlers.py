@@ -18,9 +18,9 @@ from hoch.lims import messageFactory as _
 PROFILE_ID = "profile-{}:default".format(PRODUCT_NAME)
 
 BEHAVIORS = [
-    ("SampleMatrix", [
-        "hoch.lims.content.samplematrix.ISampleMatrixSchemaExtender",
-    ]),
+    # ("SampleMatrix", [
+    #     "hoch.lims.content.samplematrix.ISampleMatrixSchemaExtender",
+    # ]),
 ]
 
 GROUPS = [
@@ -56,7 +56,7 @@ SIDEBAR_FOLDERS = [
 
 # Tuples of (folder_id, folder_name, type)
 SETUP_FOLDERS = [
-    ("products", "Products", "Products"),
+    # ("products", "Products", "Products"),
 ]
 
 # Tuples of (catalog, index_name, index_attribute, index_type)
@@ -80,7 +80,7 @@ NAVTYPES = [
 ID_FORMATTING = [
     {
         "portal_type": "MarketingAuthorization",
-        "form": "A{seq:06d}",
+        "form": "R{seq:06d}",
         "prefix": "marketingauthorization",
         "sequence_type": "generated",
         "counter_type": "",

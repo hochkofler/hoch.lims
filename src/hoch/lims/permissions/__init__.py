@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-
-EditExtendedField = "hoch.lims: Field: Edit Extended Field"
 AddMarketingAuthorization = "hoch.lims: Add MarketingAuthorization"
 EditMarketingAuthorization = "hoch.lims: Edit MarketingAuthorization"
 ViewMarketingAuthorization = "hoch.lims: View MarketingAuthorization"

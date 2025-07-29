@@ -3,23 +3,5 @@
     xmlns="http://namespaces.zope.org/zope"
     xmlns:plone="http://namespaces.plone.org/plone"
     xmlns:browser="http://namespaces.zope.org/browser">
-
-    <!-- Sample Schema Extender (AT) -->
-    <adapter
-    factory=".sample.SampleSchemaExtender"
-    name="sample-extender"
-    provides="archetypes.schemaextender.interfaces.ISchemaExtender"/>
-
-    <!-- Sample Matrix Schema Extender -->
-    
-    <plone:behavior
-        for="senaite.core.interfaces.ISampleMatrix"
-        name="samplematrix-extender"
-        title="Custom Sample Matrix Fields"
-        description="Add custom fields to the Sample Matrix Schema"
-        provides=".samplematrix.ISampleMatrixSchemaExtender"
-        factory=".samplematrix.SampleMatrixSchemaExtender"
-        />
-    
     
 </configure>

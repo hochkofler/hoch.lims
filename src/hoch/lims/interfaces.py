@@ -10,13 +10,6 @@ class IHochLims(IBikaLIMS, ISenaiteCore):
     """Marker interface that defines a Zope 3 browser layer.
     """
 
-class IProduct(Interface):
-    """Marker interface for product item
-    """
-
-class IProducts(Interface):
-    """Marker interface for products main folder
-    """
 class IMarketingAuthorization(Interface):
     """Marker interface for Marketing Authorization content type
     """

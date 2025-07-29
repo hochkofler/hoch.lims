@@ -4,15 +4,6 @@
     xmlns:grok="http://namespaces.zope.org/grok"
     i18n_domain="hoch.lims">
 
-  <!-- Product listing view -->
-
-  <browser:page
-    for="hoch.lims.interfaces.IProducts"
-    name="view"
-    class=".products.ProductsListingView"
-    permission="senaite.core.permissions.ManageBika"
-    layer="hoch.lims.interfaces.IHochLims" />
-
   <!-- marketing authorizations View -->
   <browser:page
       name="view"
