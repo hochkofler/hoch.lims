@@ -52,11 +52,11 @@ CATALOG_MAPPINGS = (
 # Folder in sidebar (folder_id, folder_name, type)
 SIDEBAR_FOLDERS = [
     ("MarketingAuthorizations", "Marketing Authorizations", "MarketingAuthorizations"),
+    ("PharmaceuticalProducts", "Pharmaceutical Products", "PharmaceuticalProducts")
 ]
 
 # Tuples of (folder_id, folder_name, type)
 SETUP_FOLDERS = [
-    # ("products", "Products", "Products"),
 ]
 
 # Tuples of (catalog, index_name, index_attribute, index_type)
@@ -74,6 +74,7 @@ COLUMNS = [
 
 NAVTYPES = [
     "MarketingAuthorizations",
+    "PharmaceuticalProducts",
 ]
 
 # An array of dicts. Each dict represents an ID formatting configuration
@@ -242,7 +243,7 @@ def add_setup_folders(portal):
     ti.filter_content_types = False
     for folder_id, folder_name, portal_type in SETUP_FOLDERS:
         if setup.get(folder_id) is None:
-            logger.info("Adding folder: {}".format(folder_id))
+            logger.info("Adding folder in setup: {}".format(folder_id))
             setup.invokeFactory(portal_type, folder_id, title=_(folder_name))
     ti.filter_content_types = True
     logger.info("Adding setup folders [DONE]")

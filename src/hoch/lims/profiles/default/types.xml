@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <object name="portal_types">
   <object name="MarketingAuthorization" meta_type="Dexterity FTI" />
-  <object name="PharmaceuticalProduct" meta_type="Dexterity FTI" />
   <object name="MarketingAuthorizations" meta_type="Dexterity FTI" />
+  <object name="PharmaceuticalProduct" meta_type="Dexterity FTI" />
+  <object name="PharmaceuticalProducts" meta_type="Dexterity FTI" />
 </object>

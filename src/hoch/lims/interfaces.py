@@ -21,6 +21,10 @@ class IPharmaceuticalProduct(Interface):
     """Marker interface for Pharmaceutical Product content type
     """
 
+class IPharmaceuticalProducts(Interface):
+    """Marker interface for Pharmaceutical Product folder
+    """
+
 class IHochLimsCatalog(ISenaiteCatalogObject):
     """Marker interface for HochLims Catalog
     """

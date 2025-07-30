@@ -18,5 +18,9 @@
       <bound-workflow workflow_id="marketing_authorization_workflow"/>
     </type>
 
+    <type type_id="PharmaceuticalProducts">
+      <bound-workflow workflow_id="one_state_workflow"/>
+    </type>
+
   </bindings>
 </object>

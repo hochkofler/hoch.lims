@@ -12,6 +12,15 @@
       permission="zope2.View"
       layer="hoch.lims.interfaces.IHochLims"
       />
+  
+  <!-- Products View -->
+  <browser:page
+      name="view"
+      for="hoch.lims.content.pharmaceuticalproducts.IPharmaceuticalProducts"
+      class=".pharmaceuticalproducts.PharmaceuticalProductsView"
+      permission="zope2.View"
+      layer="hoch.lims.interfaces.IHochLims"
+      />
 
 <browser:page
   name="edit"
