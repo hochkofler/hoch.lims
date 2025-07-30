@@ -27,4 +27,5 @@ TherapeuticIndicationsVocabularyFactory = registry_vocabulary_factory("hoch.lims
 SaleConditionsVocabularyFactory = registry_vocabulary_factory("hoch.lims.sale_conditions")
 StorageConditionsVocabularyFactory = registry_vocabulary_factory("hoch.lims.sale_conditions")
 AdministrationRoutesVocabularyFactory = registry_vocabulary_factory("hoch.lims.administration_routes")
-
+PrimaryPresentationVocabularyFactory = registry_vocabulary_factory("hoch.lims.primary_presentations")
+SecundaryPresentationVocabularyFactory = registry_vocabulary_factory("hoch.lims.secundary_presentations")

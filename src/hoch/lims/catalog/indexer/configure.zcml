@@ -23,4 +23,11 @@
   <adapter name="mktauth_generic_name" factory=".marketingauthorization.mktauth_generic_name" />
   <adapter name="mktauth_registered_presentations" factory=".marketingauthorization.mktauth_registered_presentations" />
   <adapter name="mktauth_searchable_text" factory=".marketingauthorization.mktauth_searchable_text" />
+  <adapter name="product_code" factory=".pharmaceuticalproduct.product_code" />
+  <adapter name="product_name" factory=".pharmaceuticalproduct.product_name" />
+  <adapter name="product_primary_presentation" factory=".pharmaceuticalproduct.product_primary_presentation" />
+  <adapter name="product_secundary_presentation" factory=".pharmaceuticalproduct.product_secundary_presentation" />
+  <adapter name="product_dosage_unit_per_secundary_presentation" factory=".pharmaceuticalproduct.product_dosage_unit_per_secundary_presentation" />
+  <adapter name="product_dosage_unit_per_primary_presentation" factory=".pharmaceuticalproduct.product_dosage_unit_per_primary_presentation" />
+  
 </configure>

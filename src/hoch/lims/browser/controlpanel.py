@@ -27,6 +27,8 @@ from hoch.lims.config import (
     SALE_CONDITIONS,
     STORAGE_CONDITIONS,
     ADMINISTRATION_ROUTES,
+    PRIMARY_PRESENTATIONS,
+    SECUNDARY_PRESENTATIONS,
 )
 
 # Common interface for all vocabulary rows
@@ -75,6 +77,14 @@ def default_storage_conditions(context):
 @provider(IContextAwareDefaultFactory)
 def default_administration_routes(context):
     return [{u"key": i[0], u"value": i[1]} for i in ADMINISTRATION_ROUTES]
+
+@provider(IContextAwareDefaultFactory)
+def default_primary_presentations(context):
+    return [{u"key": i[0], u"value": i[1]} for i in PRIMARY_PRESENTATIONS]
+
+@provider(IContextAwareDefaultFactory)
+def default_secundary_presentations(context):
+    return [{u"key": i[0], u"value": i[1]} for i in SECUNDARY_PRESENTATIONS]
 
 class IHochControlPanel(Interface):
     """Controlpanel Settings for HochLIMS"""
@@ -125,6 +135,15 @@ class IHochControlPanel(Interface):
         label=_(u"Administration routes"),
         fields=[
             "administration_routes",
+        ],
+    )
+
+    model.fieldset(
+        "presentations",
+        label=_(u"Product presentations"),
+        fields=[
+            "primary_presentation",
+            "secundary_presentation",
         ],
     )
 
@@ -225,6 +244,34 @@ class IHochControlPanel(Interface):
         required=True,
         defaultFactory=default_administration_routes,
     )
+
+    # Primary Presentations
+    directives.widget(
+        "primary_presentation",
+        DataGridWidgetFactory,
+        allow_reorder=True,
+        auto_append=True)
+    primary_presentation = schema.List(
+        title=_(u"Primary Presentations"),
+        description=_(u"Primary product presentations"),
+        value_type=DataGridRow(schema=IVocabularyRow),
+        required=True,
+        defaultFactory=default_primary_presentations,
+    )
+
+    # Secundary Presentations
+    directives.widget(
+        "secundary_presentation",
+        DataGridWidgetFactory,
+        allow_reorder=True,
+        auto_append=True)
+    secundary_presentation = schema.List(
+        title=_(u"Secondary Presentations"),
+        description=_(u"Secondary product presentations"),
+        value_type=DataGridRow(schema=IVocabularyRow),
+        required=True,
+        defaultFactory=default_secundary_presentations,
+    )
     
     @invariant
     def validate_keys(data):
@@ -237,6 +284,8 @@ class IHochControlPanel(Interface):
             ("sale_conditions",        "mktauth_sale_condition"),
             ("storage_conditions",     "mktauth_storage_condition"),
             ("administration_routes",  "mktauth_administration_route"),
+            ("primary_presentation",   "product_primary_presentation"),
+            ("secundary_presentation", "product_secundary_presentation"),
         ]
         
         for field_name, index_name in fields:

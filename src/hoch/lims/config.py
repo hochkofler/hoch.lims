@@ -71,3 +71,17 @@ ADMINISTRATION_ROUTES = (
     (u"subcutaneous", _(u"Subcutaneous")),
     (u"inhalation", _(u"Inhalation")),
 )
+
+PRIMARY_PRESENTATIONS = (
+    (u"blister", _(u"Blister pack")),
+    (u"bottle", _(u"Bottle")),
+    (u"ampoules", _(u"Ampoules")),
+    (u"tube", _(u"Tube")),
+    (u"vial", _(u"Vial")),
+)
+SECUNDARY_PRESENTATIONS = (
+    (u"carton box", _(u"Carton box")),
+    (u"plastic box", _(u"plastic box")),
+    (u"case", _(u"Case")),
+    (u"pallet", _(u"Pallet")),
+)

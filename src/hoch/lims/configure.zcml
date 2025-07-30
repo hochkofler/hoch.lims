@@ -49,8 +49,13 @@
 />
 
 <utility
-    name="hoch.lims.vocabularies.administration_routes"
-    component="hoch.lims.vocabularies.AdministrationRoutesVocabularyFactory" 
+    name="hoch.lims.vocabularies.primary_presentations"
+    component="hoch.lims.vocabularies.PrimaryPresentationVocabularyFactory"
+/>
+
+<utility
+    name="hoch.lims.vocabularies.secundary_presentations"
+    component="hoch.lims.vocabularies.SecundaryPresentationVocabularyFactory"
 />
 
   <!-- Package includes -->

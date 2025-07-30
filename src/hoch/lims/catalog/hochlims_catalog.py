@@ -30,6 +30,12 @@ INDEXES = BASE_INDEXES + [
     ("mktauth_generic_name", "", "FieldIndex"),
     ("mktauth_registered_presentations", "", "FieldIndex"),
     ("mktauth_searchable_text", "", "ZCTextIndex"),
+    ("product_code", "", "FieldIndex"),
+    ("product_name", "", "FieldIndex"),
+    ("product_primary_presentation", "", "FieldIndex"),
+    ("product_secundary_presentation", "", "FieldIndex"),
+    ("product_dosage_unit_per_secundary_presentation", "", "FieldIndex"),
+    ("product_dosage_unit_per_primary_presentation", "", "FieldIndex"),
 ]
 
 COLUMNS = BASE_COLUMNS + [

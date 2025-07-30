@@ -82,6 +82,68 @@ class IPharmaceuticalProductSchema(model.Schema):
         ),
         required=True,
     )
+
+    presentation = schema.TextLine(
+        title=_(
+            u"label_product_presentation",
+            default=u"Presentation",
+        ),
+        description=_(
+            u"description_product_presentation",
+            default=u"Description of the product presentation",
+        ),
+        required=True,
+    ),
+
+    primary_presentation = schema.Choice(
+        title=_(
+            u"label_product_primary_presentation",
+            default=u"Primary Presentation",
+        ),
+        description=_(
+            u"description_product_primary_presentation",
+            default=u"Select the primary presentation for this product.",
+        ),
+        required=True,
+        vocabulary="hoch.lims.PrimaryPresentationVocabulary",
+    )
+
+    dosage_unit_per_primary_presentation = schema.Int(
+        title=_(
+            u"label_product_dosage_unit_per_primary_presentation",
+            default=u"Dosage Unit per Primary Presentation",
+        ),
+        description=_(
+            u"description_product_dosage_unit_per_primary_presentation",
+            default=u"Number of dosage units contained in the primary presentation.",
+        ),
+        required=True,
+    )
+
+    secundary_presentation = schema.Choice(
+        title=_(
+            u"label_product_secundary_presentation",
+            default=u"Secondary Presentation",
+        ),
+        description=_(
+            u"description_product_secundary_presentation",
+            default=u"Select the secondary presentation for this product.",
+        ),
+        required=False,
+        vocabulary="hoch.lims.SecundaryPresentationVocabulary",
+    )
+
+    dosage_unit_per_secundary_presentation = schema.Int(
+        title=_(
+            u"label_product_dosage_unit_per_secondary_presentation",
+            default=u"Dosage Unit per Secondary Presentation",
+        ),
+        description=_(
+            u"description_product_dosage_unit_per_secondary_presentation",
+            default=u"Number of dosage units contained in the secondary presentation.",
+        ),
+        required=True,
+    )
     
 
 @implementer(IPharmaceuticalProduct, IPharmaceuticalProductSchema)
@@ -108,7 +170,6 @@ class PharmaceuticalProduct(Container):
 
     @security.protected(permissions.View)
     def getMarketingAuthorization(self):
-
         accessor = self.accessor("marketingauthorization")
         return accessor(self)
     
@@ -123,6 +184,26 @@ class PharmaceuticalProduct(Container):
         return accessor(self)
     
     @security.protected(permissions.View)
-    def getMarketingAuthorization(self):
-        accessor = self.accessor("marketingauthorization")
+    def getPresentation(self):
+        accessor = self.accessor("presentation")
+        return accessor(self)
+    
+    @security.protected(permissions.View)
+    def getPrimaryPresentation(self):
+        accessor = self.accessor("primary_presentation")
+        return accessor(self)
+    
+    @security.protected(permissions.View)
+    def getDosageUnitPerPrimaryPresentation(self):
+        accessor = self.accessor("dosage_unit_per_primary_presentation")
+        return accessor(self)
+    
+    @security.protected(permissions.View)
+    def getDosageUnitPerSecundaryPresentation(self):
+        accessor = self.accessor("dosage_unit_per_secundary_presentation")
+        return accessor(self)
+    
+    @security.protected(permissions.View)
+    def getSecundaryPresentation(self):
+        accessor = self.accessor("secundary_presentation")
         return accessor(self)
