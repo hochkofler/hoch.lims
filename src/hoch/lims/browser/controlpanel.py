@@ -247,11 +247,11 @@ class IHochControlPanel(Interface):
 
     # Primary Presentations
     directives.widget(
-        "primary_presentation",
+        "primary_presentations",
         DataGridWidgetFactory,
         allow_reorder=True,
         auto_append=True)
-    primary_presentation = schema.List(
+    primary_presentations = schema.List(
         title=_(u"Primary Presentations"),
         description=_(u"Primary product presentations"),
         value_type=DataGridRow(schema=IVocabularyRow),
@@ -261,11 +261,11 @@ class IHochControlPanel(Interface):
 
     # Secundary Presentations
     directives.widget(
-        "secundary_presentation",
+        "secundary_presentations",
         DataGridWidgetFactory,
         allow_reorder=True,
         auto_append=True)
-    secundary_presentation = schema.List(
+    secundary_presentations = schema.List(
         title=_(u"Secondary Presentations"),
         description=_(u"Secondary product presentations"),
         value_type=DataGridRow(schema=IVocabularyRow),
