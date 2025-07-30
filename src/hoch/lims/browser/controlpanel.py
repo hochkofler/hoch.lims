@@ -142,8 +142,8 @@ class IHochControlPanel(Interface):
         "presentations",
         label=_(u"Product presentations"),
         fields=[
-            "primary_presentation",
-            "secundary_presentation",
+            "primary_presentations",
+            "secundary_presentations",
         ],
     )
 
@@ -284,8 +284,8 @@ class IHochControlPanel(Interface):
             ("sale_conditions",        "mktauth_sale_condition"),
             ("storage_conditions",     "mktauth_storage_condition"),
             ("administration_routes",  "mktauth_administration_route"),
-            ("primary_presentation",   "product_primary_presentation"),
-            ("secundary_presentation", "product_secundary_presentation"),
+            ("primary_presentations",   "product_primary_presentation"),
+            ("secundary_presentations", "product_secundary_presentation"),
         ]
         
         for field_name, index_name in fields:

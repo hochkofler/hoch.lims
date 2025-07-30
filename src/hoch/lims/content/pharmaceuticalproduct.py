@@ -105,7 +105,7 @@ class IPharmaceuticalProductSchema(model.Schema):
             default=u"Select the primary presentation for this product.",
         ),
         required=True,
-        source="hoch.lims.PrimaryPresentationVocabulary",
+        source="hoch.lims.vocabularies.primary_presentations",
     )
 
     dosage_unit_per_primary_presentation = schema.Int(
@@ -130,7 +130,7 @@ class IPharmaceuticalProductSchema(model.Schema):
             default=u"Select the secondary presentation for this product.",
         ),
         required=False,
-        source="hoch.lims.SecundaryPresentationVocabulary",
+        source="hoch.lims.vocabularies.secundary_presentations",
     )
 
     dosage_unit_per_secundary_presentation = schema.Int(

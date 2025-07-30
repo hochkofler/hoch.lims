@@ -50,7 +50,7 @@
 
 <utility
     name="hoch.lims.vocabularies.administration_routes"
-    component="hoch.lims.vocabularies.AdministrationRoutesVocabularyFactory
+    component="hoch.lims.vocabularies.AdministrationRoutesVocabularyFactory"
 />
 
 <utility
