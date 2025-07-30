@@ -22,7 +22,7 @@
   <property name="immediate_view">view</property>
 
   <!-- Is this item addable globally, or is it restricted? -->
-  <property name="global_allow">False</property>
+  <property name="global_allow">True</property>
 
   <!-- If we're a container, should we filter addable content types? -->
   <property name="filter_content_types">True</property>

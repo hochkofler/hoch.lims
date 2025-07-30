@@ -22,6 +22,11 @@ def product_marketing_authorization(instance):
     return None
 
 @indexer(IPharmaceuticalProduct)
+def product_presetnation(instance):
+    """Return the primary presentation of the pharmaceutical product."""
+    return instance.getPresentation()
+
+@indexer(IPharmaceuticalProduct)
 def product_primary_presentation(instance):
     """Return the primary presentation of the pharmaceutical product."""
     return instance.getPrimaryPresentation()
