@@ -1,0 +1,206 @@
+<tal:report>
+
+    <!-- REPORT CONTROLS -->
+    <tal:t replace="structure python:view.render_controls(context, **options)" />
+
+    <!-- REPORT JS -->
+    <tal:t replace="structure python:view.render_js(context, **options)" />
+
+    <!-- REPORT CSS -->
+    <tal:t replace="structure python:view.render_css(context, **options)" />
+
+    <!-- REPORT COA -->
+    <tal:COA define="collection python:view.collection;
+                    model python:view.model;" i18n:domain="hoch.lims">
+        <div>
+
+            <table class="tg no-break">
+                <colgroup>
+                    <col style="width: 33%;">
+                    <col style="width: 37%;">
+                    <col style="width: 30%;">
+                </colgroup>
+                <tr>
+                    <td colspan="3">
+                        <span><strong>Dpto. CONTROL DE CALIDAD</strong></span><br>
+                        <span><strong>CERTIFICADO DE CONTROL DE CALIDAD-PRODUCTO TERMINADO</strong></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="1">
+                        <span><strong>PRODUCTO:</strong></span>
+                    </td>
+                    <td colspan="2">
+                        <span><strong>Clorfenamina 4 mg</strong></span>
+                    </td>
+                <tr>
+                    <td colspan="1">
+                        <span><strong>D.C.I.:</strong></span>
+                    </td>
+                    <td colspan="2">
+                        <span>CLORFENAMINA MALEATO</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="1">
+                        <span><strong>CONCENTRACIÓN:</strong></span>
+                    </td>
+                    <td colspan="2">
+                        <span>4 mg</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="1">
+                        <span><strong>LABORATORIO PRODUCTOR:</strong></span>
+                    </td>
+                    <td colspan="1">
+                        <span><strong>LABORATORIOS IFA S.A.</strong></span>
+                    </td>
+                    <td colspan="1">
+                        <span><strong>SANITARIO:</strong></span><br>
+                        <span>NN-23364/2021</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="1">
+                        <span><strong>FECHA DE FABRICACIÓN:</strong></span>
+                    </td>
+                    <td colspan="1">
+                        <span>03-04-2025</span>
+                    </td>
+                    <td colspan="1">
+                        <span><strong>FORMA FARMACÉUTICA:</strong></span><br>
+                        <span>Comprimido</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="1">
+                        <span><strong>FECHA DE VENCIMIENTO:</strong></span>
+                    </td>
+                    <td colspan="1">
+                        <span>03-2027</span>
+                    </td>
+                    <td colspan="1">
+                        <span><strong>N° CERTIFICADO C. DE C. :</strong></span><br>
+                        <span>06/0304t</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="1">
+                        <span><strong>N° LOTE:</strong></span>
+                    </td>
+                    <td colspan="1">
+                        <span>32523</span>
+                    </td>
+                    <td colspan="1">
+                        <span><strong>FECHA DE ANÁLISIS:</strong></span><br>
+                        <span>03-04-2025</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="1">
+                        <span><strong>CANTIDAD:</strong></span>
+                    </td>
+                    <td colspan="1">
+                        <span>396.000</span><span> Comprimidos</span>
+                    </td>
+                    <td colspan="1">
+                        <span><strong>INSTITUCIÓN</strong></span><br>
+                        <span>Comercio</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <span><strong>PRESENTACIÓN:</strong></span>
+                        <span>Caja cartulina x 100 comprimidos en blíster PVDC transparente / aluminio impreso x 10 cada
+                            uno.</span>
+                        <br>
+                        <span><strong>VÍA DE ADM:</strong></span>
+                        <span>Oral</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="1">
+                        <span><strong>TIPO DE ANÁLISIS</strong></span>
+                    </td>
+                    <td colspan="1">
+                        <span><strong>ESPECIFICACIONES</strong></span>
+                    </td>
+                    <td colspan="1">
+                        <span><strong>RESULTADOS</strong></span>
+                    </td>
+                </tr>
+                <tal:categories tal:define="analyses_by_category python:view.get_analyses_by_category(collection);"
+                    tal:repeat="category python:view.sort_items(analyses_by_category)">
+                    <tr>
+                        <td colspan="3" class="text-center">
+                            <strong tal:content="category/Title">Category</strong>
+                        </td>
+                    </tr>
+                    <tal:services
+                        tal:define="services python:view.group_items_by('Keyword',view.get_analyses_by(collection, category=category))"
+                        tal:repeat="service services">
+                        <tr tal:define="analyses python:view.get_analyses_by(collection, category=category, keyword=service);
+                                    analysis python: analyses[0];
+                                    is_numeric python:all(r == 'numeric' for r in [a.getResultType() for a in analyses]);
+                                    specs python: model.get_formatted_specs(analysis)">
+                            <td class="analysis">
+                                <span tal:condition="not:analysis/ScientificName">
+                                    <span class="font-weight-normal" tal:content="analysis/title"></span>
+                                </span>
+                                <span tal:condition="analysis/ScientificName">
+                                    <span class="font-italic" tal:content="analysis/title"></span>
+                                </span>
+
+                                <!-- Method -->
+                                <div class="text-secondary methodtitle" i18n:translate=""
+                                    tal:define="method_title python:analysis and analysis.getMethodTitle() or '';"
+                                    tal:content="structure python:view.hyphenize(method_title)" />
+                            </td>
+                            <td tal:content="specs">Specs</td>
+                            <td tal:condition="is_numeric"
+                                tal:define="avg python:sum([float(a.getFormattedResult()) for a in analyses])/len(analyses)"
+                                tal:content="avg">
+                                Analysis
+                            </td>
+                            <td tal:condition="not:is_numeric"
+                                tal:define="unique_results python:set([a.getFormattedResult() for a in analyses])"
+                                tal:content="unique_results">
+                                Analysis
+                            </td>
+
+                        </tr>
+                    </tal:services>
+                </tal:categories>
+                <tal:signatures>
+                    <tr>
+                        <td colspan="2">
+                            <span><strong>REFERENCIAS:</strong></span>
+                            <span>Análisis de valoración realizados según técnica propia de
+                                laboratorio y el análisis</span>
+                        </td>
+                        <td>
+                            <span><strong>DICTAMEN:</strong></span><br>
+                            <span><strong>APROBADO</strong></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" rowspan="4" class="signature-space"><stron>OBSERVACIONES:</stron></td>
+                        <td>Fecha: 15-04-2025</td>
+                    </tr>
+                    <tr>
+                        <td><br>Silvia Pacha<br>ANALISTA INSTRUMENTAL</td>
+                    </tr>
+                    <tr>
+                        <td><br>Silvia Pacha<br>ANALISTA INSTRUMENTAL</td>
+                    </tr>
+                    <tr>
+                        <td><br>Silvia Pacha<br>ANALISTA INSTRUMENTAL</td>
+                    </tr>
+                </tal:signatures>
+            </table>
+        </div>
+    </tal:COA>
+
+
+</tal:report>

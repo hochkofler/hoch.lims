@@ -14,10 +14,6 @@ ADD_COLUMNS = [
         "title": _("API URL"),
         "sortable": False,
     }),
-    ("ProductionBatchNumber", {
-        "title": _("Production batch number"),
-        "sortable": False,
-    }),
 ]
 
 @implementer(IListingViewAdapter)
@@ -49,5 +45,4 @@ class SampleListingViewAdapter(object):
         portal_url = api.get_url(portal)
         api_url = "{}/@@API/senaite/v1/{}".format(portal_url, uid)
         item["APIURL"] = get_link(api_url, value=api.get_id(obj))
-        item["ProductionBatchNumber"] = obj.getProductionBatchNumber()
         return item

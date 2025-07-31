@@ -8,12 +8,5 @@
          bika.lims.interfaces.IAnalysisRequestsFolder"
     provides="senaite.app.listing.interfaces.IListingViewAdapter"
     factory=".sample_listing.SampleListingViewAdapter" />
-  
-  <!-- Sample Matrix listing with additional columns -->
-  <subscriber
-    for="senaite.core.browser.controlpanel.samplematrices.view.SampleMatricesView
-         senaite.core.interfaces.ISampleMatrices"
-    provides="senaite.app.listing.interfaces.IListingViewAdapter"
-    factory=".samplematrix.SampleMatrixListingViewAdapter" />
 
 </configure>
