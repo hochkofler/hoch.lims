@@ -122,6 +122,25 @@
       border-top: 1px solid black;
     }
 
+    .report table td.noborder-vertical {
+      border-top: none !important;
+      border-bottom: none !important;
+    }
+
+    .report table td.noborder-bottom {
+      border-bottom: none !important;
+    }
+
+    td.align-top-left {
+      vertical-align: top;
+      text-align: left;
+      padding: 0.2rem; /* opcional */
+    }
+
+    td.align-top-left span {
+      display: inline-block;
+    }
+
     <tal:block condition="python:content_width and content_height"><tal:block condition="python:all([content_width, content_height])"
     define="cw python:float(content_width);
  ch python:float(content_height);

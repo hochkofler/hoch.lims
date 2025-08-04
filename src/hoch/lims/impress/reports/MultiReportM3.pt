@@ -21,120 +21,125 @@
                     <col style="width: 30%;">
                 </colgroup>
                 <tr>
-                    <td colspan="3">
-                        <span><strong>Dpto. CONTROL DE CALIDAD</strong></span><br>
-                        <span><strong>CERTIFICADO DE CONTROL DE CALIDAD-PRODUCTO TERMINADO</strong></span>
+                    <td colspan="3" class="label noborder-bottom label">
+                        <span>Dpto. CONTROL DE CALIDAD</span>
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="1">
-                        <span><strong>PRODUCTO:</strong></span>
+                    <td colspan="3" class="text-center noborder-vertical label">
+                        <span>CERTIFICADO DE CONTROL DE CALIDAD-PRODUCTO TERMINADO</span>
                     </td>
-                    <td colspan="2">
-                        <span><strong>Clorfenamina 4 mg</strong></span>
+                </tr>
+                <tr>
+                    <td colspan="1" class="label">
+                        <span class="colon-after">PRODUCTO</span>
+                    </td>
+                    <td colspan="2" class="label">
+                        <span>Clorfenamina 4 mg</span>
                     </td>
                 <tr>
-                    <td colspan="1">
-                        <span><strong>D.C.I.:</strong></span>
+                    <td colspan="1" class="label">
+                        <span class="colon-after">D.C.I.</span>
                     </td>
                     <td colspan="2">
                         <span>CLORFENAMINA MALEATO</span>
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="1">
-                        <span><strong>CONCENTRACIÓN:</strong></span>
+                    <td colspan="1" class="label">
+                        <span class="colon-after">CONCENTRACIÓN</span>
                     </td>
                     <td colspan="2">
                         <span>4 mg</span>
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="1">
-                        <span><strong>LABORATORIO PRODUCTOR:</strong></span>
+                    <td colspan="1" class="label">
+                        <span class="colon-after">LABORATORIO PRODUCTOR</span>
+                    </td>
+                    <td colspan="1" class="label">
+                        <span>LABORATORIOS IFA S.A.</span>
                     </td>
                     <td colspan="1">
-                        <span><strong>LABORATORIOS IFA S.A.</strong></span>
-                    </td>
-                    <td colspan="1">
-                        <span><strong>SANITARIO:</strong></span><br>
+                        <span class="colon-after"><strong>SANITARIO</strong></span><br>
                         <span>NN-23364/2021</span>
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="1">
-                        <span><strong>FECHA DE FABRICACIÓN:</strong></span>
+                    <td colspan="1" class="label">
+                        <span class="colon-after">FECHA DE FABRICACIÓN</span>
                     </td>
                     <td colspan="1">
                         <span>03-04-2025</span>
                     </td>
                     <td colspan="1">
-                        <span><strong>FORMA FARMACÉUTICA:</strong></span><br>
+                        <span class="colon-after"><strong>FORMA FARMACÉUTICA</strong></span><br>
                         <span>Comprimido</span>
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="1">
-                        <span><strong>FECHA DE VENCIMIENTO:</strong></span>
+                    <td colspan="1" class="label">
+                        <span class="colon-after">FECHA DE VENCIMIENTO</span>
                     </td>
                     <td colspan="1">
                         <span>03-2027</span>
                     </td>
                     <td colspan="1">
-                        <span><strong>N° CERTIFICADO C. DE C. :</strong></span><br>
+                        <span class="colon-after"><strong>N° CERTIFICADO C. DE C.</strong></span><br>
                         <span>06/0304t</span>
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="1">
-                        <span><strong>N° LOTE:</strong></span>
+                    <td colspan="1" class="label">
+                        <span class="colon-after">N° LOTE</span>
                     </td>
                     <td colspan="1">
                         <span>32523</span>
                     </td>
                     <td colspan="1">
-                        <span><strong>FECHA DE ANÁLISIS:</strong></span><br>
+                        <span class="colon-after"><strong>FECHA DE ANÁLISIS</strong></span><br>
                         <span>03-04-2025</span>
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="1">
-                        <span><strong>CANTIDAD:</strong></span>
+                    <td colspan="1" class="label">
+                        <span class="colon-after">CANTIDAD</span>
                     </td>
                     <td colspan="1">
                         <span>396.000</span><span> Comprimidos</span>
                     </td>
                     <td colspan="1">
-                        <span><strong>INSTITUCIÓN</strong></span><br>
+                        <span class="colon-after"><strong>INSTITUCIÓN</strong></span><br>
                         <span>Comercio</span>
                     </td>
                 </tr>
                 <tr>
                     <td colspan="3">
-                        <span><strong>PRESENTACIÓN:</strong></span>
+                        <span class="colon-after"><strong>PRESENTACIÓN</strong></span>
                         <span>Caja cartulina x 100 comprimidos en blíster PVDC transparente / aluminio impreso x 10 cada
                             uno.</span>
                         <br>
-                        <span><strong>VÍA DE ADM:</strong></span>
+                        <span class="colon-after"><strong>VÍA DE ADM</strong></span>
                         <span>Oral</span>
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="1">
-                        <span><strong>TIPO DE ANÁLISIS</strong></span>
+                    <td colspan="1" class="text-center label">
+                        <span>TIPO DE ANÁLISIS</span>
                     </td>
-                    <td colspan="1">
-                        <span><strong>ESPECIFICACIONES</strong></span>
+                    <td colspan="1" class="text-center label">
+                        <span>ESPECIFICACIONES</span>
                     </td>
-                    <td colspan="1">
-                        <span><strong>RESULTADOS</strong></span>
+                    <td colspan="1" class="text-center label">
+                        <span>RESULTADOS</span>
                     </td>
                 </tr>
                 <tal:categories tal:define="analyses_by_category python:view.get_analyses_by_category(collection);"
                     tal:repeat="category python:view.sort_items(analyses_by_category)">
-                    <tr>
-                        <td colspan="3" class="text-center">
-                            <strong tal:content="category/Title">Category</strong>
+                    <tr tal:define="length_analyses_by_category python:len(view.get_analyses_by(collection, category=category))"
+                        tal:condition="length_analyses_by_category">
+                        <td colspan="3" class="text-center label">
+                            <span tal:content="category/Title">Category</span>
                         </td>
                     </tr>
                     <tal:services
@@ -143,32 +148,33 @@
                         <tr tal:define="analyses python:view.get_analyses_by(collection, category=category, keyword=service);
                                     analysis python: analyses[0];
                                     is_numeric python:all(r == 'numeric' for r in [a.getResultType() for a in analyses]);
-                                    specs python: model.get_formatted_specs(analysis)">
-                            <td class="analysis">
+                                    specs python: model.get_formatted_specs(analysis);
+                                    unit python:model.get_formatted_unit(analysis)">
+                            <td class="analysis noborder-vertical align-middle">
                                 <span tal:condition="not:analysis/ScientificName">
                                     <span class="font-weight-normal" tal:content="analysis/title"></span>
                                 </span>
                                 <span tal:condition="analysis/ScientificName">
                                     <span class="font-italic" tal:content="analysis/title"></span>
                                 </span>
-
-                                <!-- Method -->
-                                <div class="text-secondary methodtitle" i18n:translate=""
-                                    tal:define="method_title python:analysis and analysis.getMethodTitle() or '';"
-                                    tal:content="structure python:view.hyphenize(method_title)" />
                             </td>
-                            <td tal:content="specs">Specs</td>
-                            <td tal:condition="is_numeric"
-                                tal:define="avg python:sum([float(a.getFormattedResult()) for a in analyses])/len(analyses)"
-                                tal:content="avg">
-                                Analysis
+                            <td class="noborder-vertical text-center align-middle">
+                                <span tal:content="specs">specs</span>
+                                <span class="units" tal:condition="specs" tal:content="structure unit"></span>
                             </td>
-                            <td tal:condition="not:is_numeric"
-                                tal:define="unique_results python:set([a.getFormattedResult() for a in analyses])"
-                                tal:content="unique_results">
-                                Analysis
+                            <td class="noborder-vertical text-center align-middle">
+                                <tal:numeric_result tal:condition="is_numeric">
+                                    <span
+                                        tal:define="avg python:sum([float(a.getFormattedResult()) for a in analyses])/len(analyses)"
+                                        tal:content="avg">Result numeric</span>
+                                </tal:numeric_result>
+                                <tal:non_numeric_result tal:condition="not:is_numeric">
+                                    <span
+                                        tal:define="unique_results python:set([a.getFormattedResult() for a in analyses])"
+                                        tal:content="python: ', '.join(unique_results)">>Result non-numeric</span>
+                                </tal:non_numeric_result>
+                                <span class="units" tal:content="structure unit"></span>
                             </td>
-
                         </tr>
                     </tal:services>
                 </tal:categories>
@@ -185,7 +191,9 @@
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="2" rowspan="4" class="signature-space"><stron>OBSERVACIONES:</stron></td>
+                        <td colspan="2" rowspan="4" class="align-top-left signature-space label colon-after">
+                            <stron>OBSERVACIONES</stron>
+                        </td>
                         <td>Fecha: 15-04-2025</td>
                     </tr>
                     <tr>
