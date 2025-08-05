@@ -71,6 +71,7 @@
   <include package=".jsonapi" />
   <include package=".listing" />
   <include package=".patches" />
+  <include package=".loadsetupdata" />
 
   <!-- Default Profile -->
   <genericsetup:registerProfile
