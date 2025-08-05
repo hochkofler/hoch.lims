@@ -48,9 +48,7 @@ class Hochlims_Custom(WorksheetImporter):
                 return
             
             if row.get('SortKey'):           
-                category.edit(
-                    SortKey=row.get('SortKey')
-                )
+                category.setSortKey(row.get('SortKey'))
             category.reindexObject()
             
     def Import(self):
