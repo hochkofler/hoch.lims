@@ -34,7 +34,7 @@ class IPharmaceuticalProductSchema(model.Schema):
             u"description_product_code",
             default=u"Unique product code",
         ),
-        required=False,
+        required=True,
     )
 
     description = schema.TextLine(

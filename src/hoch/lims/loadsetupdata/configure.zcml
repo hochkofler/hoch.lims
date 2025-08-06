@@ -14,4 +14,57 @@
       provides="bika.lims.interfaces.ISetupDataImporter"
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
 
+    <adapter
+      name="Dosage_Forms"
+      factory=".Dosage_Forms"
+      provides="bika.lims.interfaces.ISetupDataImporter"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
+    
+    <adapter
+      name="Regulatory_Authorities"
+      factory=".Regulatory_Authorities"
+      provides="bika.lims.interfaces.ISetupDataImporter"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
+    
+    <adapter
+      name="Product_Lines"
+      factory=".Product_Lines"
+      provides="bika.lims.interfaces.ISetupDataImporter"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
+    
+    <adapter
+      name="Therapeutic_Indications"
+      factory=".Therapeutic_Indications"
+      provides="bika.lims.interfaces.ISetupDataImporter"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
+    
+    <adapter
+      name="Sale_Conditions"
+      factory=".Sale_Conditions"
+      provides="bika.lims.interfaces.ISetupDataImporter"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
+    
+    <adapter
+      name="Storage_Conditions"
+      factory=".Storage_Conditions"
+      provides="bika.lims.interfaces.ISetupDataImporter"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
+    
+    <adapter
+      name="Administration_Routes"
+      factory=".Administration_Routes"
+      provides="bika.lims.interfaces.ISetupDataImporter"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
+    
+    <adapter
+      name="Primary_Presentation"
+      factory=".Primary_Presentation"
+      provides="bika.lims.interfaces.ISetupDataImporter"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
+    
+    <adapter
+      name="Secundary_Presentation"
+      factory=".Secundary_Presentation"
+      provides="bika.lims.interfaces.ISetupDataImporter"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
 </configure>

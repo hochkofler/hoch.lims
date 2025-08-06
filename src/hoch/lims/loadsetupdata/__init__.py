@@ -8,6 +8,7 @@ from hoch.lims import logger
 from hoch.lims.api import validate_against_vocabulary
 from hoch.lims.api import get_marketing_authorization_by_reg_num
 from bika.lims import api
+import plone.api as plone_api
 from hoch.lims.content.marketingauthorization import IMarketingAuthorizationSchema
 from plone.dexterity.utils import createObject
 
@@ -164,6 +165,237 @@ class Marketing_Authorization(WorksheetImporter):
                         manufacturer=row.get("manufacturer"))
             logger.info("Marketing Authorization '%s' created" % reg_num)
                        
+class Dosage_Forms(WorksheetImporter):
+    """Import Dosage Forms"""
+    
+    def Import(self):
+        """Import Dosage Forms"""
+        logger.info("Importing Dosage Forms custom")
         
+        new_vocab = []
+        for row in self.get_rows(3):
+            key = row.get("key")
+            value = row.get("value")
+            if key and value:
+                new_vocab.append({u'key': api.safe_unicode(key), u'value': api.safe_unicode(value)})
         
+        if new_vocab:
+            
+            plone_api.portal.set_registry_record(
+                "hoch.lims.dosage_forms",
+                new_vocab
+            )
+            
+            actual_values = api.get_registry_record(
+                "hoch.lims.dosage_forms",
+                default=[]
+            )
+            logger.info("this is new dosage forms: %s" % actual_values)
 
+class Regulatory_Authorities(WorksheetImporter):
+    """Import Regulatory Authorities"""
+    
+    def Import(self):
+        """Import Regulatory Authorities"""
+        logger.info("Importing Regulatory Authorities custom")
+        
+        new_vocab = []
+        for row in self.get_rows(3):
+            key = row.get("key")
+            value = row.get("value")
+            if key and value:
+                new_vocab.append({u'key': api.safe_unicode(key), u'value': api.safe_unicode(value)})
+        
+        if new_vocab:
+            plone_api.portal.set_registry_record(
+                "hoch.lims.regulatory_authorities",
+                new_vocab
+            )
+            
+            actual_values = api.get_registry_record(
+                "hoch.lims.regulatory_authorities",
+                default=[]
+            )
+            logger.info("this is new regulatory authorities: %s" % actual_values)
+            
+class Product_Lines(WorksheetImporter):
+    """Import Product Lines"""
+    
+    def Import(self):
+        """Import Product Lines"""
+        logger.info("Importing Product Lines custom")
+        
+        new_vocab = []
+        for row in self.get_rows(3):
+            key = row.get("key")
+            value = row.get("value")
+            if key and value:
+                new_vocab.append({u'key': api.safe_unicode(key), u'value': api.safe_unicode(value)})
+        
+        if new_vocab:
+            plone_api.portal.set_registry_record(
+                "hoch.lims.product_lines",
+                new_vocab
+            )
+            
+            actual_values = api.get_registry_record(
+                "hoch.lims.product_lines",
+                default=[]
+            )
+            logger.info("this is new product lines: %s" % actual_values)
+
+class Therapeutic_Indications(WorksheetImporter):
+    """Import Therapeutic Indications"""
+    
+    def Import(self):
+        """Import Therapeutic Indications"""
+        logger.info("Importing Therapeutic Indications custom")
+        
+        new_vocab = []
+        for row in self.get_rows(3):
+            key = row.get("key")
+            value = row.get("value")
+            if key and value:
+                new_vocab.append({u'key': api.safe_unicode(key), u'value': api.safe_unicode(value)})
+        
+        if new_vocab:
+            plone_api.portal.set_registry_record(
+                "hoch.lims.therapeutic_indications",
+                new_vocab
+            )
+            
+            actual_values = api.get_registry_record(
+                "hoch.lims.therapeutic_indications",
+                default=[]
+            )
+            logger.info("this is new therapeutic indications: %s" % actual_values)
+
+class Sale_Conditions(WorksheetImporter):
+    """Import Sale Conditions"""
+    
+    def Import(self):
+        """Import Sale Conditions"""
+        logger.info("Importing Sale Conditions custom")
+        
+        new_vocab = []
+        for row in self.get_rows(3):
+            key = row.get("key")
+            value = row.get("value")
+            if key and value:
+                new_vocab.append({u'key': api.safe_unicode(key), u'value': api.safe_unicode(value)})
+        
+        if new_vocab:
+            plone_api.portal.set_registry_record(
+                "hoch.lims.sale_conditions",
+                new_vocab
+            )
+            
+            actual_values = api.get_registry_record(
+                "hoch.lims.sale_conditions",
+                default=[]
+            )
+            logger.info("this is new sale conditions: %s" % actual_values)
+
+class Storage_Conditions(WorksheetImporter):
+    """Import Storage Conditions"""
+    
+    def Import(self):
+        """Import Storage Conditions"""
+        logger.info("Importing Storage Conditions custom")
+        
+        new_vocab = []
+        for row in self.get_rows(3):
+            key = row.get("key")
+            value = row.get("value")
+            if key and value:
+                new_vocab.append({u'key': api.safe_unicode(key), u'value': api.safe_unicode(value)})
+        
+        if new_vocab:
+            plone_api.portal.set_registry_record(
+                "hoch.lims.storage_conditions",
+                new_vocab
+            )
+            
+            actual_values = api.get_registry_record(
+                "hoch.lims.storage_conditions",
+                default=[]
+            )
+            logger.info("this is new storage conditions: %s" % actual_values)
+
+class Administration_Routes(WorksheetImporter):
+    """Import Administration Routes"""
+    
+    def Import(self):
+        """Import Administration Routes"""
+        logger.info("Importing Administration Routes custom")
+        
+        new_vocab = []
+        for row in self.get_rows(3):
+            key = row.get("key")
+            value = row.get("value")
+            if key and value:
+                new_vocab.append({u'key': api.safe_unicode(key), u'value': api.safe_unicode(value)})
+        
+        if new_vocab:
+            plone_api.portal.set_registry_record(
+                "hoch.lims.administration_routes",
+                new_vocab
+            )
+            
+            actual_values = api.get_registry_record(
+                "hoch.lims.administration_routes",
+                default=[]
+            )
+            logger.info("this is new administration routes: %s" % actual_values)
+
+class Primary_Presentation(WorksheetImporter):
+    """Import Primary Presentation"""
+    
+    def Import(self):
+        """Import Primary Presentation"""
+        logger.info("Importing Primary Presentation custom")
+        
+        new_vocab = []
+        for row in self.get_rows(3):
+            key = row.get("key")
+            value = row.get("value")
+            if key and value:
+                new_vocab.append({u'key': api.safe_unicode(key), u'value': api.safe_unicode(value)})
+        
+        if new_vocab:
+            plone_api.portal.set_registry_record(
+                "hoch.lims.primary_presentations",
+                new_vocab
+            )
+            
+            actual_values = api.get_registry_record(
+                "hoch.lims.primary_presentations",
+                default=[]
+            )
+            logger.info("this is new primary presentations: %s" % actual_values)
+
+class Secundary_Presentation(WorksheetImporter):
+    """Import Secundary Presentation"""
+    
+    def Import(self):
+        """Import Secundary Presentation"""
+        logger.info("Importing Secundary Presentation custom")
+        
+        new_vocab = []
+        for row in self.get_rows(3):
+            key = row.get("key")
+            value = row.get("value")
+            if key and value:
+                new_vocab.append({u'key': api.safe_unicode(key), u'value': api.safe_unicode(value)})
+        
+        if new_vocab:
+            plone_api.portal.set_registry_record(
+                "hoch.lims.primary_presentations",
+                new_vocab
+            )
+            
+            actual_values = api.get_registry_record(
+                "hoch.lims.primary_presentations",
+                default=[]
+            )
+            logger.info("this is new secundary presentations: %s" % actual_values)
