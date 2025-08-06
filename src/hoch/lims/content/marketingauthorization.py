@@ -441,8 +441,8 @@ class MarketingAuthorization(Container):
     @security.protected(permissions.View)
     def getIsExpired(self):
         today = date.today()
-        validfrom = getIssueDate()
-        validto = getExpirationDate()
+        validfrom = self.getIssueDate()
+        validto = self.getExpirationDate()
         if not validfrom or not validto:
             return True
         validfrom = validfrom.asdatetime().date()
