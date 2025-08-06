@@ -2,7 +2,7 @@ from AccessControl import ClassSecurityInfo
 from plone.autoform import directives
 from Products.CMFCore import permissions
 from plone.supermodel import model
-from zope import schema
+import zope.schema as schema
 from hoch.lims import messageFactory as _
 from senaite.core.api import dtime
 from senaite.core.content.base import Container
@@ -11,7 +11,6 @@ from hoch.lims.content.fields import DatetimeField, DatetimeWidget
 from zope.interface import implementer
 from hoch.lims.catalog import HOCHLIMS_CATALOG
 from hoch.lims.api import hochlims_search
-from bika.lims.utils import safe_unicode
 from datetime import date
 from zope.interface import invariant
 from zope.interface import Invalid
