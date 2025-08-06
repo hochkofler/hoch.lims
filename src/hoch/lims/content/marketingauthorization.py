@@ -10,8 +10,11 @@ from hoch.lims.interfaces import IMarketingAuthorization
 from hoch.lims.content.fields import DatetimeField, DatetimeWidget
 from zope.interface import implementer
 from hoch.lims.catalog import HOCHLIMS_CATALOG
+from hoch.lims.api import hochlims_search
 from bika.lims.utils import safe_unicode
 from datetime import date
+from zope.interface import invariant
+from zope.interface import Invalid
 
 class IMarketingAuthorizationSchema(model.Schema):
     """Marketing Authorization Schema"""
@@ -259,6 +262,26 @@ class IMarketingAuthorizationSchema(model.Schema):
         required=False,
         max_length=255,
     )
+    
+    @invariant
+    def validate_registration_number(data):
+        """Checks if the registration_number is unique
+        """
+        # https://community.plone.org/t/dexterity-unique-field-validation
+        context = getattr(data, "__context__", None)
+        if context is not None:
+            if context.registration_number == data.registration_number:
+                # nothing changed
+                return
+        index_name = "mktauth_registration_number"
+        brains = hochlims_search({index_name: data.registration_number})
+        if brains:
+            raise Invalid(
+                _(
+                    u"error_marketingauthorization_registration_number_unique",
+                    default=u"Registration number must be unique.",
+                )
+            )
 
 
 @implementer(IMarketingAuthorization, IMarketingAuthorizationSchema)

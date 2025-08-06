@@ -5,6 +5,11 @@ from Products.CMFPlone.utils import _createObjectByType
 from senaite.core.exportimport.setupdata import WorksheetImporter
 from senaite.core.catalog import SETUP_CATALOG
 from hoch.lims import logger
+from hoch.lims.api import validate_against_vocabulary
+from hoch.lims.api import get_marketing_authorization_by_reg_num
+from bika.lims import api
+from hoch.lims.content.marketingauthorization import IMarketingAuthorizationSchema
+from plone.dexterity.utils import createObject
 
 class Hochlims_Custom(WorksheetImporter):
     """Import Analysis Services Hidden"""
@@ -66,6 +71,99 @@ class Hochlims_Custom(WorksheetImporter):
             logger.info("Importing Analysys Categories custom - DONE")
         else:
             logger.info("No 'Analysis Categories' sheet found. Skipping.")
+
+class Marketing_Authorization(WorksheetImporter):
+    """Import Marketing Authorization"""
+    
+    def Import(self):
+        """Import Marketing Authorization"""
+        logger.info("Importing Marketing Authorization custom")
+        container = self.context.MarketingAuthorizations
+        separator = "-"
+        
+        for row in self.get_rows(3):
+            reg_num = row.get("registration_number")
+            if not reg_num:
+                continue
+            
+            # check if the registration number already exists by reg_num
+            if get_marketing_authorization_by_reg_num(reg_num):
+                logger.error("Skipping %s: already exists" % reg_num)
+                continue
+            
+            fields_with_vocab = [
+                'dosage_form',
+                'issuing_organization',
+                'product_line',
+                'sale_condition',
+                'storage_conditions',
+                'administration_route',
+            ]
+            validated = {}
+            skip = False
+            for field_name in fields_with_vocab:
+                raw = row.get(field_name)
+                val = validate_against_vocabulary(
+                    self.context,
+                    IMarketingAuthorizationSchema,
+                    field_name,
+                    raw,
+                )
+                if not val:
+                    logger.error(
+                        "Skipping %s: invalid %s '%s'",
+                        reg_num, field_name, raw
+                    )
+                    skip = True
+                    break
+                validated[field_name] = val
+
+            if skip:
+                continue
+            
+            raw_list_actions = row.get("therapeutic_actions", "")
+            tokens = [t.strip() for t in raw_list_actions.split(separator) if t.strip()]
+            validated_list_actions = []
+            for token in tokens:
+                val = validate_against_vocabulary(
+                    self.context,
+                    IMarketingAuthorizationSchema,
+                    'therapeutic_actions',
+                    token,
+                )
+                if not val:
+                    logger.error(
+                        "Skipping %s: invalid therapeutic_actions '%s'",
+                        reg_num, token
+                    )
+                    skip = True
+                    break
+                validated_list_actions.append(val)
+
+            if skip:
+                continue
+            
+            api.create(container, "MarketingAuthorization",
+                        issuing_organization=validated['issuing_organization'],
+                        registration_number=reg_num,
+                        trade_name=row.get("trade_name"),
+                        generic_name=row.get("generic_name"),
+                        dosage_form=validated['dosage_form'],
+                        product_line=validated['product_line'],
+                        registered_presentations=row.get("registered_presentations"),
+                        therapeutic_actions=validated_list_actions,
+                        atq_code=row.get("atq_code"),
+                        medicine_code=row.get("medicine_code"),
+                        sale_condition=validated['sale_condition'],
+                        storage_conditions=validated['storage_conditions'],
+                        administration_route=validated['administration_route'],
+                        issue_date=row.get("issue_date"),
+                        expiration_date=row.get("expiration_date"),
+                        shelf_life=row.get("shelf_life"),
+                        holder=row.get("holder"),
+                        manufacturer=row.get("manufacturer"))
+            logger.info("Marketing Authorization '%s' created" % reg_num)
+                       
         
         
 
