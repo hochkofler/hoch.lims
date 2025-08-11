@@ -222,13 +222,11 @@ class Pharmaceutical_Product(WorksheetImporter):
             if skip:
                 continue
             
-            logger.info("merketing authorization: %s" % reg_num_obj.items())
             # create the product
             obj = api.create(
                 container, "PharmaceuticalProduct",
                 code=code,
                 name=row.get("name"),
-                marketingauthorization= reg_num_obj,
                 presentation=row.get("presentation"),
                 primary_presentation=validated['primary_presentation'],
                 dosage_unit_per_primary_presentation=self.to_int(row.get("dosage_unit_per_primary_presentation"),0),
