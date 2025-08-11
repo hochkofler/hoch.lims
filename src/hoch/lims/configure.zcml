@@ -72,6 +72,7 @@
   <include package=".listing" />
   <include package=".patches" />
   <include package=".loadsetupdata" />
+  <include package=".extender" />
 
   <!-- Default Profile -->
   <genericsetup:registerProfile
