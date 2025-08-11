@@ -15,6 +15,12 @@
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
 
     <adapter
+      name="Pharmaceutical_Product"
+      factory=".Pharmaceutical_Product"
+      provides="bika.lims.interfaces.ISetupDataImporter"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
+
+    <adapter
       name="Dosage_Forms"
       factory=".Dosage_Forms"
       provides="bika.lims.interfaces.ISetupDataImporter"

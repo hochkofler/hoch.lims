@@ -1,3 +1,4 @@
+from hoch.lims.content.pharmaceuticalproduct import IPharmaceuticalProductSchema
 from zope.event import notify
 from Products.Archetypes.event import ObjectInitializedEvent
 from Products.CMFCore.utils import getToolByName
@@ -7,6 +8,7 @@ from senaite.core.catalog import SETUP_CATALOG
 from hoch.lims import logger
 from hoch.lims.api import validate_against_vocabulary
 from hoch.lims.api import get_marketing_authorization_by_reg_num
+from hoch.lims.api import get_pharmaceutical_product_by_code
 from bika.lims import api
 import plone.api as plone_api
 from hoch.lims.content.marketingauthorization import IMarketingAuthorizationSchema
@@ -164,6 +166,78 @@ class Marketing_Authorization(WorksheetImporter):
                         holder=row.get("holder"),
                         manufacturer=row.get("manufacturer"))
             logger.info("Marketing Authorization '%s' created" % reg_num)
+
+class Pharmaceutical_Product(WorksheetImporter):
+    """Import Pharmaceutical products"""
+    
+    def Import(self):
+        """Import Pharmaceutical products"""
+        logger.info("Importing Pharmaceutical products")
+        container = self.context.PharmaceuticalProducts
+        
+        for row in self.get_rows(3):
+            code = row.get("code")
+            if not code:
+                continue
+            
+            # check if the product code already exists by prod_code
+            if get_pharmaceutical_product_by_code(code):
+                logger.error("Skipping %s: already exists" % code)
+                continue
+            
+            # check if the marketing authorization exists
+            reg_num = row.get("registration_number")
+            if not reg_num:
+                logger.error("Skipping %s: no marketing authorization provided" % code)
+                continue
+            
+            reg_num_obj = get_marketing_authorization_by_reg_num(reg_num)
+            if not reg_num_obj:
+                logger.error("Skipping %s: marketing authorization '%s' not found" % (code, reg_num))
+                continue
+            
+            fields_with_vocab = [
+                'primary_presentation',
+                'secundary_presentation',
+            ]
+            validated = {}
+            skip = False
+            for field_name in fields_with_vocab:
+                raw = row.get(field_name)
+                val = validate_against_vocabulary(
+                    self.context,
+                    IPharmaceuticalProductSchema,
+                    field_name,
+                    raw,
+                )
+                if not val:
+                    logger.error(
+                        "Skipping %s: invalid %s '%s'",
+                        reg_num, field_name, raw
+                    )
+                    skip = True
+                    break
+                validated[field_name] = val
+
+            if skip:
+                continue
+            
+            logger.info("merketing authorization: %s" % reg_num_obj.items())
+            # create the product
+            obj = api.create(
+                container, "PharmaceuticalProduct",
+                code=code,
+                name=row.get("name"),
+                marketingauthorization= reg_num_obj,
+                presentation=row.get("presentation"),
+                primary_presentation=validated['primary_presentation'],
+                dosage_unit_per_primary_presentation=self.to_int(row.get("dosage_unit_per_primary_presentation"),0),
+                secundary_presentation=validated['secundary_presentation'],
+                dosage_unit_per_secundary_presentation=self.to_int(row.get("dosage_unit_per_secundary_presentation"),0),
+            )
+            
+            obj.setMarketingAuthorization(reg_num_obj)
+            obj.reindexObject()
                        
 class Dosage_Forms(WorksheetImporter):
     """Import Dosage Forms"""
@@ -379,7 +453,7 @@ class Secundary_Presentation(WorksheetImporter):
     
     def Import(self):
         """Import Secundary Presentation"""
-        logger.info("Importing Secundary Presentation custom")
+        logger.info("Importing Secundary Presentation custom worksheet '%s'" % self.sheetname)
         
         new_vocab = []
         for row in self.get_rows(3):
@@ -390,12 +464,12 @@ class Secundary_Presentation(WorksheetImporter):
         
         if new_vocab:
             plone_api.portal.set_registry_record(
-                "hoch.lims.primary_presentations",
+                "hoch.lims.secundary_presentations",
                 new_vocab
             )
             
             actual_values = api.get_registry_record(
-                "hoch.lims.primary_presentations",
+                "hoch.lims.secundary_presentations",
                 default=[]
             )
             logger.info("this is new secundary presentations: %s" % actual_values)

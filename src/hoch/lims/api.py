@@ -27,6 +27,15 @@ def get_marketing_authorization_by_reg_num(reg_num):
         return brains[0].getObject()
     return None
 
+def get_pharmaceutical_product_by_code(code):
+    """Get a Pharmaceutical Product by its code.
+    """
+    index_name = "product_code"
+    brains = hochlims_search({index_name: code})
+    if brains:
+        return brains[0].getObject()
+    return None
+
 def validate_against_vocabulary(context, schema, field_name, raw_value):
         """
         Checks that raw_value is in the vocabulary defined in the schema

@@ -207,3 +207,9 @@ class PharmaceuticalProduct(Container):
     def getSecundaryPresentation(self):
         accessor = self.accessor("secundary_presentation")
         return accessor(self)
+    
+    @security.protected(permissions.ModifyPortalContent)
+    def setMarketingAuthorization(self, value):
+        """Set the Marketing Authorization for this Pharmaceutical Product."""
+        mutator = self.mutator("marketingauthorization")
+        mutator(self, value)
