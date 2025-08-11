@@ -15,6 +15,7 @@ from bika.lims.utils import safe_unicode
 from datetime import date
 from zope.interface import invariant
 from zope.interface import Invalid
+from bika.lims import api as bika_api
 
 class IMarketingAuthorizationSchema(model.Schema):
     """Marketing Authorization Schema"""
@@ -293,16 +294,16 @@ class MarketingAuthorization(Container):
     @security.protected(permissions.View)
     def Title(self):
         # get parts as unicode
-        reg = self.getRegistrationNumber()
-        name = self.getTradeName()
+        reg = bika_api.safe_unicode(self.getRegistrationNumber())
+        name =bika_api.safe_unicode(self.getTradeName())
         return u" ".join(filter(None, (reg, name)))
 
     @security.protected(permissions.View)
     def Description(self):
-        reg = self.getRegistrationNumber()
-        name = self.getTradeName() 
-        form = self.getDosageForm()
-        generic = self.getGenericName()
+        reg = bika_api.safe_unicode(self.getRegistrationNumber())
+        name =bika_api.safe_unicode(self.getTradeName())
+        form = bika_api.safe_unicode(self.getDosageForm())
+        generic = bika_api.safe_unicode(self.getGenericName())
         return u" ".join(filter(None, (reg, name, form, generic)))
 
     @security.protected(permissions.View)

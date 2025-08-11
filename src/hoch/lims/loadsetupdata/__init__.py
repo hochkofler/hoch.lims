@@ -105,7 +105,7 @@ class Marketing_Authorization(WorksheetImporter):
             validated = {}
             skip = False
             for field_name in fields_with_vocab:
-                raw = row.get(field_name)
+                raw = api.safe_unicode(row.get(field_name))
                 val = validate_against_vocabulary(
                     self.context,
                     IMarketingAuthorizationSchema,
@@ -125,7 +125,7 @@ class Marketing_Authorization(WorksheetImporter):
                 continue
             
             raw_list_actions = row.get("therapeutic_actions", "")
-            tokens = [t.strip() for t in raw_list_actions.split(separator) if t.strip()]
+            tokens = [api.safe_unicode(t.strip()) for t in raw_list_actions.split(separator) if t.strip()]
             validated_list_actions = []
             for token in tokens:
                 val = validate_against_vocabulary(
@@ -203,7 +203,7 @@ class Pharmaceutical_Product(WorksheetImporter):
             validated = {}
             skip = False
             for field_name in fields_with_vocab:
-                raw = row.get(field_name)
+                raw = api.safe_unicode(row.get(field_name))
                 val = validate_against_vocabulary(
                     self.context,
                     IPharmaceuticalProductSchema,
@@ -226,8 +226,8 @@ class Pharmaceutical_Product(WorksheetImporter):
             obj = api.create(
                 container, "PharmaceuticalProduct",
                 code=code,
-                name=row.get("name"),
-                presentation=row.get("presentation"),
+                name=api.safe_unicode(row.get("name")),
+                presentation=api.safe_unicode(row.get("presentation")),
                 primary_presentation=validated['primary_presentation'],
                 dosage_unit_per_primary_presentation=self.to_int(row.get("dosage_unit_per_primary_presentation"),0),
                 secundary_presentation=validated['secundary_presentation'],
