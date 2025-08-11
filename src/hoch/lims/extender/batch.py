@@ -28,20 +28,25 @@ class BatchSchemaExtender(object):
         required=1,
         allowed_types=("PharmaceuticalProduct",),
         mode="rw",
+        render_own_label=True,
         #read_permission=View,
         #write_permission=ModifyPortalContent,
         widget=ReferenceWidget(
             label=_(
-                "label_batch_product",
-                default="Product"),
+                u"label_batch_product",
+                default=u"Product"),
             description=_(
-                "description_batch_product",
-                default="Select the product for this batch."),
-            render_own_label=True,
+                u"description_batch_product",
+                default=u"Select the product for this batch."),
             visible=True,
             catalog=HOCHLIMS_CATALOG,
+            search_index="product_searchable_text",
+            value_key="description",
+            search_wildcard=True,
             query={
                 "is_active": True,
+                "sort_on": "product_name",
+                "sort_order": "ascending"
             },
         )),
     ]

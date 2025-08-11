@@ -30,6 +30,7 @@ INDEXES = BASE_INDEXES + [
     ("mktauth_generic_name", "", "FieldIndex"),
     ("mktauth_registered_presentations", "", "FieldIndex"),
     ("mktauth_searchable_text", "", "ZCTextIndex"),
+    ("product_searchable_text", "", "ZCTextIndex"),
     ("product_code", "", "FieldIndex"),
     ("product_name", "", "FieldIndex"),
     ("product_primary_presentation", "", "FieldIndex"),

@@ -1,5 +1,6 @@
 from plone.indexer import indexer
 from hoch.lims.interfaces import IPharmaceuticalProduct
+from bika.lims import api
 
 @indexer(IPharmaceuticalProduct)
 def product_name(instance):
@@ -45,4 +46,17 @@ def product_dosage_unit_per_primary_presentation(instance):
 def product_dosage_unit_per_secundary_presentation(instance):
     """Return the dosage unit per secondary presentation."""
     return instance.getDosageUnitPerSecundaryPresentation()
+
+@indexer(IPharmaceuticalProduct)
+def product_searchable_text(instance):
+    """Index for searchable text queries
+    """
+    tokens = [
+        instance.getCode(),
+        instance.getName(),
+        instance.Description(),
+    ]
+    # remove duplicates and filter out emtpies
+    tokens = filter(None, set(tokens))
+    return u" ".join(map(api.safe_unicode, tokens))
 
