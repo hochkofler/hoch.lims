@@ -60,6 +60,19 @@
   <alias from="sharing" to="@@sharing"/>
   <alias from="view" to="(selected layout)"/>
 
+  <!-- Marketing Authorizations Settings -->
+  <action title="HochLims Settings"
+          action_id="hochlims_settings"
+          category="document_actions"
+          condition_expr=""
+          icon_expr="string:${portal_url}/senaite_theme/icon/setup"
+          link_target=""
+          url_expr="string:${portal_url}/@@hochlims-controlpanel"
+          i18n:attributes="title"
+          visible="True">
+    <permission value="hoch.lims: Manage MarketingAuthorizations"/>
+  </action>
+
   <!-- View -->
   <action title="View"
           action_id="view"
@@ -81,7 +94,7 @@
           description=""
           icon_expr=""
           link_target=""
-          url_expr="string:${object_url}/edit" visible="False">
+          url_expr="string:${object_url}/edit" visible="True">
     <permission value="Modify portal content"/>
   </action>
 

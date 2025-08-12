@@ -12,7 +12,10 @@ from hoch.lims.api import get_pharmaceutical_product_by_code
 from bika.lims import api
 import plone.api as plone_api
 from hoch.lims.content.marketingauthorization import IMarketingAuthorizationSchema
+from hoch.lims.catalog import HOCHLIMS_CATALOG
 from plone.dexterity.utils import createObject
+from senaite.core.catalog import CLIENT_CATALOG
+from senaite.core.catalog import SENAITE_CATALOG
 
 class Hochlims_Custom(WorksheetImporter):
     """Import Analysis Services Hidden"""
@@ -222,7 +225,6 @@ class Pharmaceutical_Product(WorksheetImporter):
             if skip:
                 continue
             
-            logger.info("variables validated for %s: %s, %s" % (code, validated, reg_num))
             # create the product
             obj = api.create(
                 container, "PharmaceuticalProduct",
@@ -234,12 +236,60 @@ class Pharmaceutical_Product(WorksheetImporter):
                 secundary_presentation=validated['secundary_presentation'],
                 dosage_unit_per_secundary_presentation=self.to_int(row.get("dosage_unit_per_secundary_presentation"),0),
             )
-            
-            logger.info("Pharmaceutical Product oject '%s' created" % obj.__dict__)
+            logger.info("Pharmaceutical Product created '%s'", code)
             
             obj.setMarketingAuthorization(reg_num_obj)
             obj.reindexObject()
                        
+
+class Batch(WorksheetImporter):
+    """Import Batch"""
+    
+    def Import(self):
+        """Import Batch"""
+        logger.info("Importing Batch custom")
+        client_cat = api.get_tool(CLIENT_CATALOG)
+        product_cat = api.get_tool(HOCHLIMS_CATALOG)
+        senaite_cat = api.get_tool(SENAITE_CATALOG)
+        for row in self.get_rows(3):
+            batch_id = row.get("BatchID")
+            if not batch_id:
+                continue
+            client_title = row.get("Client_title")
+            if not client_title:
+                continue
+            client = client_cat(portal_type="Client",
+                                getName=client_title)[0].getObject()
+            if not client:
+                logger.error("Skipping %s: client '%s' not found" % (batch_id, client_title))
+                continue
+            # check if the batch already exists
+            batch = senaite_cat(portal_type="Batch",
+                                getClientBatchID=batch_id)
+            if batch:
+                logger.error("Skipping %s: already exists" % batch_id)
+                continue
+            product_code = row.get("Product_code")
+            if not product_code:
+                logger.error("Skipping %s: no product code provided" % batch_id)
+                continue
+            product = get_pharmaceutical_product_by_code(product_code)
+            if not product:
+                logger.error("Skipping %s: product '%s' not found" % (batch_id, product_code))
+                continue
+            # create the batch
+            obj = api.create(
+                client, "Batch",
+                Client = client,
+                title = batch_id,
+                BatchID = batch_id,
+                ClientBatchID = batch_id,
+                BatchDate =  row.get("BatchDate"),
+                Product = product,
+                Remarks = row.get("Remarks"),
+            )
+            logger.info("Batch '%s' created" % obj.__dict__)
+            
 class Dosage_Forms(WorksheetImporter):
     """Import Dosage Forms"""
     
@@ -454,7 +504,7 @@ class Secundary_Presentation(WorksheetImporter):
     
     def Import(self):
         """Import Secundary Presentation"""
-        logger.info("Importing Secundary Presentation custom worksheet '%s'" % self.sheetname)
+        logger.info("Importing Secundary Presentation custom")
         
         new_vocab = []
         for row in self.get_rows(3):

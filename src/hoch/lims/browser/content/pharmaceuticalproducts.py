@@ -44,12 +44,12 @@ class PharmaceuticalProductsView(ListingView):
              ("Code", {
                 "title": _(u"label_product_code",
                             default=u"Code"),
-                "index": "sortable_title",
+                "index": "product_code",
                 "toggle": True}),
             ("Name", {
                 "title": _(u"label_product_name",
                             default=u"Name"),
-                "index": "sortable_title",
+                "index": "product_name",
                 "toggle": True}),
 
             ("MarketingAuthorization", {
@@ -73,6 +73,7 @@ class PharmaceuticalProductsView(ListingView):
             ("Description", {
                 "title": _(u"label_product_description",
                             default=u"Description"),
+                "index": "product_searchable_text",
                 "toggle": False}),
         ))
 

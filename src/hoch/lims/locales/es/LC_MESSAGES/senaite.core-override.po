@@ -1,2 +1,2 @@
-msgid ""
-msgstr ""
+msgid "Marketing Authorizations"
+msgstr "Registro Sanitario"

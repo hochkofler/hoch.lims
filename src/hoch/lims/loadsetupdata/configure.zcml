@@ -73,4 +73,10 @@
       factory=".Secundary_Presentation"
       provides="bika.lims.interfaces.ISetupDataImporter"
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
+    
+    <adapter
+      name="Batch"
+      factory=".Batch"
+      provides="bika.lims.interfaces.ISetupDataImporter"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
 </configure>
