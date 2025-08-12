@@ -43,11 +43,11 @@ msgstr "Nuevo"
 
 #: hoch/lims/browser/controlpanel.py:241
 msgid "Administration Routes"
-msgstr ""
+msgstr "Vías de administración"
 
 #: hoch/lims/browser/controlpanel.py:135
 msgid "Administration routes"
-msgstr ""
+msgstr "Vías de administración"
 
 #: hoch/lims/browser/content/marketingauthorizations.py:191
 #: hoch/lims/browser/content/pharmaceuticalproducts.py:95
@@ -92,7 +92,7 @@ msgstr ""
 
 #: hoch/lims/browser/controlpanel.py:200
 msgid "Approved therapeutic uses"
-msgstr ""
+msgstr "Usos terapéuticos aprobados"
 
 #: hoch/lims/impress/templates/attachments.pt:29
 msgid "Attachment for"
@@ -136,7 +136,7 @@ msgstr ""
 
 #: hoch/lims/browser/controlpanel.py:319
 msgid "Can not delete item '%s' because it is in use"
-msgstr ""
+msgstr "No se puede eliminar el elemento '%s' porque está en uso"
 
 #: hoch/lims/config.py:27
 msgid "Capsule"
@@ -164,11 +164,11 @@ msgstr ""
 
 #: hoch/lims/browser/controlpanel.py:214
 msgid "Conditions under which products may be sold"
-msgstr ""
+msgstr "Condiciones en las que se pueden vender los productos"
 
 #: hoch/lims/browser/controlpanel.py:325
 msgid "Configuration for pharmaceutical regulatory settings"
-msgstr ""
+msgstr "Configuración para configuraciones regulatorias farmacéuticas"
 
 #: hoch/lims/config.py:63
 msgid "Controlled room temperature"
@@ -204,11 +204,11 @@ msgstr ""
 
 #: hoch/lims/browser/controlpanel.py:171
 msgid "Dosage Forms"
-msgstr ""
+msgstr "Formas farmacéutica"
 
 #: hoch/lims/browser/controlpanel.py:102
 msgid "Dosage forms"
-msgstr ""
+msgstr "Formas farmacéuticas"
 
 #: hoch/lims/impress/templates/attachments.pt:36
 msgid "Filename:"
@@ -228,7 +228,7 @@ msgstr ""
 
 #: hoch/lims/browser/controlpanel.py:324
 msgid "HochLIMS Settings"
-msgstr ""
+msgstr "Configuración HochLIMS"
 
 #: hoch/lims/profiles/default/types/MarketingAuthorizations.xml
 msgid "HochLims Settings"
@@ -266,15 +266,15 @@ msgstr ""
 
 #: hoch/lims/browser/controlpanel.py:37
 msgid "Key"
-msgstr ""
+msgstr "Clave"
 
 #: hoch/lims/browser/controlpanel.py:310
 msgid "Key '%s' is not unique"
-msgstr ""
+msgstr "La clave '%s' no es única"
 
 #: hoch/lims/browser/controlpanel.py:303
 msgid "Key contains invalid charactersOnly letters, numbers, underscores and hyphens are allowed."
-msgstr ""
+msgstr "La clave contiene caracteres no válidosSolo se permiten letras, números, guiones bajos y guiones."
 
 #: hoch/lims/config.py:32
 msgid "Lotion"
@@ -298,7 +298,7 @@ msgstr ""
 
 #: hoch/lims/browser/controlpanel.py:242
 msgid "Methods of drug administration"
-msgstr ""
+msgstr "Métodos de administración de fármacos"
 
 #: hoch/lims/impress/templates/discreeter.pt:16
 msgid "Not invoiced"
@@ -338,7 +338,7 @@ msgstr "Productos"
 
 #: hoch/lims/browser/controlpanel.py:172
 msgid "Pharmaceutical dosage forms"
-msgstr ""
+msgstr "Formas farmacéuticas"
 
 #: hoch/lims/config.py:34
 msgid "Powder for solution"
@@ -350,27 +350,27 @@ msgstr ""
 
 #: hoch/lims/browser/controlpanel.py:255
 msgid "Primary Presentations"
-msgstr ""
+msgstr "Presentaciones Primarias"
 
 #: hoch/lims/browser/controlpanel.py:256
 msgid "Primary product presentations"
-msgstr ""
+msgstr "Presentación primaria del producto"
 
 #: hoch/lims/browser/controlpanel.py:185
 msgid "Product Lines"
-msgstr ""
+msgstr "Clasificaciones del producto"
 
 #: hoch/lims/browser/controlpanel.py:110
 msgid "Product lines"
-msgstr ""
+msgstr "Clasificaciones del producto"
 
 #: hoch/lims/browser/controlpanel.py:143
 msgid "Product presentations"
-msgstr ""
+msgstr "Presentaciones del producto"
 
 #: hoch/lims/browser/content/pharmaceuticalproducts.py:38
 msgid "Products"
-msgstr ""
+msgstr "Productos"
 
 #: hoch/lims/impress/templates/alerts.pt:20
 msgid "Provisional report"
@@ -391,15 +391,15 @@ msgstr ""
 
 #: hoch/lims/browser/controlpanel.py:157
 msgid "Regulatory Authorities"
-msgstr ""
+msgstr "Entidades reguladoras"
 
 #: hoch/lims/browser/controlpanel.py:94
 msgid "Regulatory Settings"
-msgstr ""
+msgstr "Configuración regulatoria"
 
 #: hoch/lims/browser/controlpanel.py:158
 msgid "Regulatory bodies that grant marketing authorizations"
-msgstr ""
+msgstr "Organismos reguladores que otorgan autorizaciones de comercialización"
 
 #: hoch/lims/impress/templates/controls.pt:10
 msgid "Report Options"
@@ -407,7 +407,7 @@ msgstr ""
 
 #: hoch/lims/browser/controlpanel.py:228
 msgid "Required storage conditions"
-msgstr ""
+msgstr "Condiciones de almacenamiento requeridas"
 
 #: hoch/lims/impress/templates/signatures.pt:7
 msgid "Responsibles"
@@ -431,11 +431,11 @@ msgstr ""
 
 #: hoch/lims/browser/controlpanel.py:213
 msgid "Sale Conditions"
-msgstr ""
+msgstr "Condiciones de venta"
 
 #: hoch/lims/browser/controlpanel.py:126
 msgid "Sale and storage conditions"
-msgstr ""
+msgstr "Condiciones de venta y almacenamiento"
 
 #: hoch/lims/impress/templates/summary.pt:29
 msgid "Sample ID"
@@ -447,11 +447,11 @@ msgstr ""
 
 #: hoch/lims/browser/controlpanel.py:269
 msgid "Secondary Presentations"
-msgstr ""
+msgstr "Presentaciones secundarias"
 
 #: hoch/lims/browser/controlpanel.py:270
 msgid "Secondary product presentations"
-msgstr ""
+msgstr "Presentación secundaria del producto"
 
 #: hoch/lims/impress/templates/controls.pt:26
 msgid "Show Sample Remarks"
@@ -467,7 +467,7 @@ msgstr ""
 
 #: hoch/lims/browser/controlpanel.py:227
 msgid "Storage Conditions"
-msgstr ""
+msgstr "Condiciones de almacenamiento"
 
 #: hoch/lims/config.py:71
 msgid "Subcutaneous"
@@ -495,19 +495,19 @@ msgstr ""
 
 #: hoch/lims/browser/controlpanel.py:38
 msgid "The key will be stored in the database and must be unique"
-msgstr ""
+msgstr "La clave se almacenará en la base de datos y debe ser única."
 
 #: hoch/lims/browser/controlpanel.py:46
 msgid "The value will be displayed in selection fields"
-msgstr ""
+msgstr "El valor se mostrará en los campos de selección."
 
 #: hoch/lims/browser/controlpanel.py:199
 msgid "Therapeutic Indications"
-msgstr ""
+msgstr "Indicaciones terapéuticas"
 
 #: hoch/lims/browser/controlpanel.py:118
 msgid "Therapeutic actions"
-msgstr ""
+msgstr "Acciones terapéuticas"
 
 #: hoch/lims/impress/templates/alerts.pt:9
 msgid "This Analysis Request has been invalidated due to erroneously published results"
@@ -531,7 +531,7 @@ msgstr ""
 
 #: hoch/lims/browser/controlpanel.py:186
 msgid "Types of pharmaceutical products"
-msgstr ""
+msgstr "Tipos de productos farmacéuticos"
 
 #: hoch/lims/impress/templates/results.pt:44
 msgid "Unit"
@@ -539,7 +539,7 @@ msgstr ""
 
 #: hoch/lims/browser/controlpanel.py:45
 msgid "Value"
-msgstr ""
+msgstr "Valor"
 
 #: hoch/lims/config.py:80
 msgid "Vial"

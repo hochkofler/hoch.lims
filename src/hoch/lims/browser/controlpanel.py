@@ -299,11 +299,11 @@ class IHochControlPanel(Interface):
             for item in new_items:
                 key = item.get("key")
                 # Check for invalid characters
-                if re.findall(r"[^A-Za-z0-9_-]", key):
-                    raise Invalid(_(
-                        "Key contains invalid characters"
-                        "Only letters, numbers, underscores and hyphens are allowed."
-                    ))
+                # if re.findall(r"[^A-Za-z0-9_-]", key):
+                #     raise Invalid(_(
+                #         "Key contains invalid characters"
+                #         "Only letters, numbers, underscores and hyphens are allowed."
+                #     ))
                 
                 # Check for uniqueness
                 if key in new_keys:
