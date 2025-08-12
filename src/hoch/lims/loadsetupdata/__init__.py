@@ -186,7 +186,7 @@ class Pharmaceutical_Product(WorksheetImporter):
                 continue
             
             # check if the marketing authorization exists
-            reg_num = row.get("registration_number")
+            reg_num = api.safe_unicode(row.get("registration_number"))
             if not reg_num:
                 logger.error("Skipping %s: no marketing authorization provided" % code)
                 continue
@@ -222,10 +222,11 @@ class Pharmaceutical_Product(WorksheetImporter):
             if skip:
                 continue
             
+            logger.info("variables validated for %s: %s, %s" % (code, validated, reg_num))
             # create the product
             obj = api.create(
                 container, "PharmaceuticalProduct",
-                code=code,
+                code=api.safe_unicode(code),
                 name=api.safe_unicode(row.get("name")),
                 presentation=api.safe_unicode(row.get("presentation")),
                 primary_presentation=validated['primary_presentation'],
@@ -233,6 +234,8 @@ class Pharmaceutical_Product(WorksheetImporter):
                 secundary_presentation=validated['secundary_presentation'],
                 dosage_unit_per_secundary_presentation=self.to_int(row.get("dosage_unit_per_secundary_presentation"),0),
             )
+            
+            logger.info("Pharmaceutical Product oject '%s' created" % obj.__dict__)
             
             obj.setMarketingAuthorization(reg_num_obj)
             obj.reindexObject()

@@ -57,10 +57,6 @@ class PharmaceuticalProductsView(ListingView):
                             default=u"Marketing Authorization"),
                 "toggle": True}),
 
-            ("Reg", {
-                "title": _(u"label_product_reg",
-                            default=u"Marketing Authorization number"),
-                "toggle": True}),
             ("DosageForm", {
                 "title": _(u"label_product_dosageform",
                             default=u"Dosage form"),
@@ -69,7 +65,15 @@ class PharmaceuticalProductsView(ListingView):
                 "title": _(u"label_product_api",
                             default=u"API URL"),
                 "toggle": True}),
-            
+            ("Title", {
+                "title": _(u"label_product_title",
+                            default=u"Title"),
+                "index": "sortable_title",
+                "toggle": False}),
+            ("Description", {
+                "title": _(u"label_product_description",
+                            default=u"Description"),
+                "toggle": False}),
         ))
 
 
@@ -121,7 +125,11 @@ class PharmaceuticalProductsView(ListingView):
         item["Name"] = obj.getName()
         reg = api.get_object(obj.getMarketingAuthorization())
         item["MarketingAuthorization"] = obj.getMarketingAuthorization()
-        item["replace"]["MarketingAuthorization"] = get_link_for(item["MarketingAuthorization"])
+        reg_url = api.get_url(reg)
+        reg_num = reg.getRegistrationNumber()
+        item["replace"]["MarketingAuthorization"] = get_link(reg_url, value=api.safe_unicode(reg_num))
         item["DosageForm"] = reg.getDosageForm()
-        item["Reg"] = reg.getRegistrationNumber()
+        item["Reg"] = reg_num
+        item["Title"] = safe_unicode(obj.Title())
+        item["Description"] = safe_unicode(obj.Description())
         return item

@@ -154,19 +154,11 @@ class PharmaceuticalProduct(Container):
 
     @security.protected(permissions.View)
     def Title(self):
-        regObj = api.get_object(self.getMarketingAuthorization())
-        reg = regObj.getRegistrationNumber()
-        code = self.getCode()
-        name = self.getName()
-        return u" ".join(filter(None, (reg, code)))
+        return self.getCode()
 
     @security.protected(permissions.View)
     def Description(self):
-        regObj = api.get_object(self.getMarketingAuthorization())
-        reg = regObj.getRegistrationNumber()
-        code = self.getCode()
-        name = self.getName()
-        return u" ".join(filter(None, (reg, code, name)))
+        return self.getName()
 
     @security.protected(permissions.View)
     def getMarketingAuthorization(self):

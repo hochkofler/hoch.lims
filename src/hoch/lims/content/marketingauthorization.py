@@ -111,10 +111,9 @@ class IMarketingAuthorizationSchema(model.Schema):
         required=False,
     )
 
-    registered_presentations = schema.List(
+    registered_presentations = schema.TextLine(
         title=_(u"label_marketingauthorization_registered_presentations",
             u"Registered Presentations"),
-        value_type=schema.TextLine(),
         required=True,
     )
 
