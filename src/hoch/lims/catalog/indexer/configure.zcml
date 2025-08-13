@@ -9,7 +9,7 @@
   <adapter name="mktauth_trade_name" factory=".marketingauthorization.mktauth_trade_name" />
   <adapter name="mktauth_issuing_organization" factory=".marketingauthorization.mktauth_issuing_organization" />
   <adapter name="mktauth_dosage_form" factory=".marketingauthorization.mktauth_dosage_form" />
-  <adapter name="mktauth_dosage_form" factory=".marketingauthorization.mktauth_dosage_unit" />
+  <adapter name="mktauth_dosage_unit" factory=".marketingauthorization.mktauth_dosage_unit" />
   <adapter name="mktauth_therapeutic_actions" factory=".marketingauthorization.mktauth_therapeutic_actions" />
   <adapter name="mktauth_atq_code" factory=".marketingauthorization.mktauth_atq_code" />
   <adapter name="mktauth_sale_condition" factory=".marketingauthorization.mktauth_sale_condition" />

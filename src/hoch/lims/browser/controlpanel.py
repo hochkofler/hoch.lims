@@ -298,7 +298,7 @@ class IHochControlPanel(Interface):
         fields = [
             ("regulatory_authorities", "mktauth_issuing_organization"),
             ("dosage_forms",           "mktauth_dosage_form"),
-            ("dosage_units",           "mktauth_dosage_unit")
+            ("dosage_units",           "mktauth_dosage_unit"),
             ("product_lines",          "mktauth_product_line"),
             ("therapeutic_indications","mktauth_therapeutic_actions"),
             ("sale_conditions",        "mktauth_sale_condition"),
