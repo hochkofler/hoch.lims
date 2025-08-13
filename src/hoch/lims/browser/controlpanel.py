@@ -284,7 +284,7 @@ class IHochControlPanel(Interface):
         DataGridWidgetFactory,
         allow_reorder=True,
         auto_append=True)
-    secundary_presentations = schema.List(
+    dosage_units = schema.List(
         title=_(u"Dosage units"),
         description=_(u"Minimum unit for sale"),
         value_type=DataGridRow(schema=IVocabularyRow),
