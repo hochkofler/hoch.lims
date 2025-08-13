@@ -34,6 +34,15 @@ DOSAGE_FORMS = (
     (u"powder", _(u"Powder for solution")),
 )
 
+DOSAGE_UNITS = (
+    (u"tablet", _(u"Tablet")),
+    (u"capsule", _(u"Capsule")),
+    (u"bottle", _(u"Bottle")),
+    (u"ampoules", _(u"Ampoules")),
+    (u"tube", _(u"Tube")),
+    (u"vial", _(u"Vial")),
+)
+
 PRODUCT_LINES = (
     (u"brand", _(u"Brand")),
     (u"generic", _(u"Generic")),

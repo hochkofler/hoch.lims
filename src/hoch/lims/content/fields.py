@@ -5,6 +5,7 @@ from archetypes.schemaextender.field import ExtensionField
 from senaite.core.z3cform.widgets.datetimewidget import DatetimeWidget as SenaiteDatetimeWidget
 from Products.Archetypes.public import DateTimeField
 from Products.Archetypes.Field import IntegerField
+from Products.Archetypes.public import StringField
 
 class UIDReferenceFieldDx(UIDReferenceField):
     """Extends the UIDReferenceField to be used in Dexterity content types.
@@ -29,4 +30,8 @@ class ExtDateTimeFieldAT(ExtensionField, DateTimeField):
 
 class ExtIntegerFieldAT(ExtensionField, IntegerField):
     """ Field extender of IntegerField AT
+    """
+    
+class ExtStringFieldAT(ExtensionField, StringField):
+    """ Field extender of StringField AT
     """

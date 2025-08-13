@@ -16,6 +16,7 @@ INDEXES = BASE_INDEXES + [
     ("mktauth_trade_name", "", "FieldIndex"),
     ("mktauth_issuing_organization", "", "FieldIndex"),
     ("mktauth_dosage_form", "", "FieldIndex"),
+    ("mktauth_dosage_unit", "", "FieldIndex"),
     ("mktauth_therapeutic_actions", "", "KeywordIndex"),
     ("mktauth_atq_code", "", "FieldIndex"),
     ("mktauth_sale_condition", "", "FieldIndex"),

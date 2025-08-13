@@ -84,6 +84,15 @@ class IMarketingAuthorizationSchema(model.Schema):
         max_length=255,
     )
     
+    concentrations = schema.TextLine(
+        title=_(
+            "label_marketingauthorization_concentrations",
+            default=u"Generic Name",
+        ),
+        required=True,
+        max_length=100,
+    )
+    
     dosage_form = schema.Choice(
         title=_(
             u"label_marketingauthorization_dosage_form",
@@ -95,6 +104,19 @@ class IMarketingAuthorizationSchema(model.Schema):
         ),
         source="hoch.lims.vocabularies.dosage_forms",
         required=True,
+    )
+    
+    dosage_unit = schema.Choice(
+        title=_(
+            u"label_marketingauthorization_dosage_unit",
+            default=u"Dosage Unit",
+        ),
+        description=_(
+            u"description_marketingauthorization_dosage_unit",
+            default=u"Min unit in which the product is saled",
+        ),
+        source="hoch.lims.vocabularies.dosage_units",
+        required=False,
     )
     
     product_line = schema.Choice(
@@ -331,9 +353,21 @@ class MarketingAuthorization(Container):
         return accessor(self)
     
     @security.protected(permissions.View)
+    def getDosageUnit(self):
+
+        accessor = self.accessor("dosage_unit")
+        return accessor(self)
+    
+    @security.protected(permissions.View)
     def getGenericName(self):
 
         accessor = self.accessor("generic_name")
+        return accessor(self)
+    
+    @security.protected(permissions.View)
+    def getConcentrations(self):
+
+        accessor = self.accessor("concentrations")
         return accessor(self)
     
     @security.protected(permissions.View)

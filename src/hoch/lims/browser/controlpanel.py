@@ -29,6 +29,7 @@ from hoch.lims.config import (
     ADMINISTRATION_ROUTES,
     PRIMARY_PRESENTATIONS,
     SECUNDARY_PRESENTATIONS,
+    DOSAGE_UNITS,
 )
 
 # Common interface for all vocabulary rows
@@ -57,6 +58,10 @@ def default_regulatory_authorities(context):
 @provider(IContextAwareDefaultFactory)
 def default_dosage_forms(context):
     return [{u"key": i[0], u"value": i[1]} for i in DOSAGE_FORMS]
+
+@provider(IContextAwareDefaultFactory)
+def default_dosage_units(context):
+    return [{u"key": i[0], u"value": i[1]} for i in DOSAGE_UNITS]
 
 @provider(IContextAwareDefaultFactory)
 def default_product_lines(context):
@@ -144,6 +149,7 @@ class IHochControlPanel(Interface):
         fields=[
             "primary_presentations",
             "secundary_presentations",
+            "dosage_units",
         ],
     )
 
@@ -273,12 +279,26 @@ class IHochControlPanel(Interface):
         defaultFactory=default_secundary_presentations,
     )
     
+    directives.widget(
+        "dosage_units",
+        DataGridWidgetFactory,
+        allow_reorder=True,
+        auto_append=True)
+    secundary_presentations = schema.List(
+        title=_(u"Dosage units"),
+        description=_(u"Minimum unit for sale"),
+        value_type=DataGridRow(schema=IVocabularyRow),
+        required=True,
+        defaultFactory=default_dosage_units,
+    )
+    
     @invariant
     def validate_keys(data):
         """Validate all vocabulary keys"""
         fields = [
             ("regulatory_authorities", "mktauth_issuing_organization"),
             ("dosage_forms",           "mktauth_dosage_form"),
+            ("dosage_units",           "mktauth_dosage_unit")
             ("product_lines",          "mktauth_product_line"),
             ("therapeutic_indications","mktauth_therapeutic_actions"),
             ("sale_conditions",        "mktauth_sale_condition"),

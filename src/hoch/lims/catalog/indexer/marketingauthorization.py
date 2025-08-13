@@ -36,6 +36,10 @@ def mktauth_dosage_form(instance):
     return instance.getDosageForm()
 
 @indexer(IMarketingAuthorization)
+def mktauth_dosage_unit(instance):
+    return instance.getDosageUnit()
+
+@indexer(IMarketingAuthorization)
 def mktauth_therapeutic_actions(instance):
     return instance.getTherapeuticActions()
 

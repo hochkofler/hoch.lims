@@ -7,7 +7,7 @@ from Products.CMFCore.permissions import View
 from zope.component import adapts
 from zope.interface import implements
 from bika.lims.interfaces import IBatch
-from hoch.lims.content.fields import UIDReferenceFieldAT, ExtDateTimeFieldAT, ExtIntegerFieldAT
+from hoch.lims.content.fields import UIDReferenceFieldAT, ExtDateTimeFieldAT, ExtIntegerFieldAT, ExtStringFieldAT
 from hoch.lims.interfaces import IHochLims
 from senaite.core.browser.widgets.referencewidget import ReferenceWidget
 from bika.lims.browser.widgets import DateTimeWidget
@@ -62,6 +62,18 @@ class BatchSchemaExtender(object):
                     u"label_batch_expirationdate",
                     default=u"Expire date"),
                 datepicker_nopast=1,
+            ),
+        ),
+        ExtDateTimeFieldAT(
+            'ManufactureDate',
+            mode="rw",
+            max="current",
+            default_method=DateTime,
+            required=False,
+            widget=DateTimeWidget(
+                label=_(
+                    u"label_batch_manufacturedate",
+                    default=u"Manufacture date"),
             ),
         ),
         ExtIntegerFieldAT(

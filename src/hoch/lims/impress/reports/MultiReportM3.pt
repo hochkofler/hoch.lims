@@ -118,7 +118,7 @@
                     </td>
                     <td colspan="1">
                         <span class="colon-after"><strong>INSTITUCIÓN</strong></span><br>
-                        <span>POR IMPLEMENTAR</span>
+                        <span tal:content="python: batch.getLabelNames()[0] or 'Comercio'">POR IMPLEMENTAR</span>
                     </td>
                 </tr>
                 <tr>

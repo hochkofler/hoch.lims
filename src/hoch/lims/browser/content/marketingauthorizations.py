@@ -81,6 +81,12 @@ class MarketingAuthorizationsView(ListingView):
                     default=u"Dosage Form",
                 ),
                 "index": "mktauth_dosage_form"}),
+            ("Dosage_unit", {
+                "title": _(
+                    u"label_marketingauthorization_dosage_unit",
+                    default=u"Dosage Unit",
+                ),
+                "index": "mktauth_dosage_unit"}),
             ("Product_line", {
                 "title": _(
                     u"label_marketingauthorization_product_line",
@@ -222,6 +228,7 @@ class MarketingAuthorizationsView(ListingView):
         item["Generic_name"] = obj.getGenericName()
         item["Issuing_organization"] = obj.getIssuingOrganization()
         item["Dosage_form"] = obj.getDosageForm()
+        item["Dosage_unit"] = obj.getDosageUnit()
         item["Therapeutic_actions"] = ", ".join(obj.getTherapeuticActions())
         item["Atq_code"] = obj.getAtqCode()
         item["Sale_condition"] = obj.getSaleCondition()

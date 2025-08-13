@@ -29,6 +29,11 @@
 />
 
 <utility
+    name="hoch.lims.vocabularies.dosage_units"
+    component="hoch.lims.vocabularies.DosageUnitsVocabularyFactory" 
+/>
+
+<utility
     name="hoch.lims.vocabularies.product_lines"
     component="hoch.lims.vocabularies.ProductLinesVocabularyFactory" 
 />

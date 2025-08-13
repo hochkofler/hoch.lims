@@ -104,6 +104,7 @@ class Marketing_Authorization(WorksheetImporter):
                 'sale_condition',
                 'storage_conditions',
                 'administration_route',
+                'dosage_unit',
             ]
             validated = {}
             skip = False
@@ -154,7 +155,9 @@ class Marketing_Authorization(WorksheetImporter):
                         registration_number=reg_num,
                         trade_name=row.get("trade_name"),
                         generic_name=row.get("generic_name"),
+                        concentrations=row.get("concentrations"),
                         dosage_form=validated['dosage_form'],
+                        dosage_unit=validated['dosage_unit'],
                         product_line=validated['product_line'],
                         registered_presentations=row.get("registered_presentations"),
                         therapeutic_actions=validated_list_actions,
@@ -285,6 +288,8 @@ class Batch(WorksheetImporter):
                 BatchID = batch_id,
                 ClientBatchID = batch_id,
                 BatchDate =  row.get("BatchDate"),
+                ManufactureDate = row.get("ManufactureDate"),
+                ReleasedBatchSize = row.get("ReleasedBatchSize"),
                 Product = product,
                 Remarks = row.get("Remarks"),
             )
