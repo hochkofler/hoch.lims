@@ -27,6 +27,12 @@
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
     
     <adapter
+      name="Dosage_Units"
+      factory=".Dosage_Units"
+      provides="bika.lims.interfaces.ISetupDataImporter"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
+    
+    <adapter
       name="Regulatory_Authorities"
       factory=".Regulatory_Authorities"
       provides="bika.lims.interfaces.ISetupDataImporter"

@@ -321,6 +321,33 @@ class Dosage_Forms(WorksheetImporter):
                 default=[]
             )
             logger.info("this is new dosage forms: %s" % actual_values)
+            
+class Dosage_Units(WorksheetImporter):
+    """Import Dosage Units"""
+    
+    def Import(self):
+        """Import Dosage Units"""
+        logger.info("Importing Dosage Units custom")
+        
+        new_vocab = []
+        for row in self.get_rows(3):
+            key = row.get("key")
+            value = row.get("value")
+            if key and value:
+                new_vocab.append({u'key': api.safe_unicode(key), u'value': api.safe_unicode(value)})
+        
+        if new_vocab:
+            
+            plone_api.portal.set_registry_record(
+                "hoch.lims.dosage_units",
+                new_vocab
+            )
+            
+            actual_values = api.get_registry_record(
+                "hoch.lims.dosage_units",
+                default=[]
+            )
+            logger.info("this is new dosage units: %s" % actual_values)
 
 class Regulatory_Authorities(WorksheetImporter):
     """Import Regulatory Authorities"""
