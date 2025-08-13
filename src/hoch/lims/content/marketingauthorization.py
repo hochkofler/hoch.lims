@@ -87,7 +87,7 @@ class IMarketingAuthorizationSchema(model.Schema):
     concentrations = schema.TextLine(
         title=_(
             "label_marketingauthorization_concentrations",
-            default=u"Generic Name",
+            default=u"Concentrations",
         ),
         required=True,
         max_length=100,
@@ -116,7 +116,7 @@ class IMarketingAuthorizationSchema(model.Schema):
             default=u"Min unit in which the product is saled",
         ),
         source="hoch.lims.vocabularies.dosage_units",
-        required=False,
+        required=True,
     )
     
     product_line = schema.Choice(
