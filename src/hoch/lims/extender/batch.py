@@ -7,11 +7,14 @@ from Products.CMFCore.permissions import View
 from zope.component import adapts
 from zope.interface import implements
 from bika.lims.interfaces import IBatch
-from hoch.lims.content.fields import UIDReferenceFieldAT
+from hoch.lims.content.fields import UIDReferenceFieldAT, ExtDateTimeFieldAT, ExtIntegerFieldAT
 from hoch.lims.interfaces import IHochLims
 from senaite.core.browser.widgets.referencewidget import ReferenceWidget
+from bika.lims.browser.widgets import DateTimeWidget
+from Products.Archetypes.Widget import IntegerWidget
 from hoch.lims.catalog import HOCHLIMS_CATALOG
 from hoch.lims import messageFactory as _
+from DateTime.DateTime import DateTime
 
 class BatchSchemaExtender(object):
     """Extend Schema Fields for Batch content type."""
@@ -29,8 +32,8 @@ class BatchSchemaExtender(object):
         allowed_types=("PharmaceuticalProduct",),
         mode="rw",
         render_own_label=True,
-        #read_permission=View,
-        #write_permission=ModifyPortalContent,
+        read_permission=View,
+        write_permission=ModifyPortalContent,
         widget=ReferenceWidget(
             label=_(
                 u"label_batch_product",
@@ -41,7 +44,6 @@ class BatchSchemaExtender(object):
             visible=True,
             catalog=HOCHLIMS_CATALOG,
             search_index="product_searchable_text",
-            value_key="description",
             search_wildcard=True,
             query={
                 "is_active": True,
@@ -49,6 +51,38 @@ class BatchSchemaExtender(object):
                 "sort_order": "ascending"
             },
         )),
+        ExtDateTimeFieldAT(
+            'ExpirationDate',
+            mode="rw",
+            min="current",
+            default_method=DateTime,
+            required=True,
+            widget=DateTimeWidget(
+                label=_(
+                    u"label_batch_expirationdate",
+                    default=u"Expire date"),
+                datepicker_nopast=1,
+            ),
+        ),
+        ExtIntegerFieldAT(
+            'BatchSize',
+            required=True,
+            widget=IntegerWidget(
+              label=_(
+                u"label_batch_batchsize",
+                default=u"Batch size",),  
+            ),
+        ),
+        ExtIntegerFieldAT(
+            'ReleasedBatchSize',
+            required=False,
+            widget=IntegerWidget(
+                label=_(
+                    u"label_batch_releasedbatchsize",
+                    default=u"Released batch size",
+                ),)
+        ),
+        
     ]
     def __init__(self, context):
         self.context = context

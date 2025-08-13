@@ -8,5 +8,11 @@
          bika.lims.interfaces.IAnalysisRequestsFolder"
     provides="senaite.app.listing.interfaces.IListingViewAdapter"
     factory=".sample_listing.SampleListingViewAdapter" />
+  
+  <subscriber
+    for="bika.lims.browser.batchfolder.BatchFolderContentsView
+         bika.lims.interfaces.IBatchFolder"
+    provides="senaite.app.listing.interfaces.IListingViewAdapter"
+    factory=".generic_api.APIListingViewAdapter" />
 
 </configure>

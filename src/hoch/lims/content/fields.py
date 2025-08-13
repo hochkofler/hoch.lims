@@ -3,6 +3,8 @@ from senaite.core.schema import DatetimeField as SenaiteDatetimeField
 from bika.lims.browser.fields import UIDReferenceField as ATUIDReferenceField
 from archetypes.schemaextender.field import ExtensionField
 from senaite.core.z3cform.widgets.datetimewidget import DatetimeWidget as SenaiteDatetimeWidget
+from Products.Archetypes.public import DateTimeField
+from Products.Archetypes.Field import IntegerField
 
 class UIDReferenceFieldDx(UIDReferenceField):
     """Extends the UIDReferenceField to be used in Dexterity content types.
@@ -18,4 +20,13 @@ class DatetimeWidget(SenaiteDatetimeWidget):
 
 class UIDReferenceFieldAT(ExtensionField, ATUIDReferenceField):
     """Extends the UIDReferenceField to be used in Archetypes content types.
+    """
+
+
+class ExtDateTimeFieldAT(ExtensionField, DateTimeField):
+    """Field extender of core's DateTimeField for AT
+    """
+
+class ExtIntegerFieldAT(ExtensionField, IntegerField):
+    """ Field extender of IntegerField AT
     """
