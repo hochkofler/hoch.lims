@@ -16,6 +16,7 @@ from hoch.lims.catalog import HOCHLIMS_CATALOG
 from plone.dexterity.utils import createObject
 from senaite.core.catalog import CLIENT_CATALOG
 from senaite.core.catalog import SENAITE_CATALOG
+from bika.lims.content.abstractbaseanalysis import RESULT_TYPES
 
 class Hochlims_Custom(WorksheetImporter):
     """Import Analysis Services Hidden"""
@@ -42,7 +43,9 @@ class Hochlims_Custom(WorksheetImporter):
                 )
                 
             if row.get('ResultType'):
-                service.setResultType(row.get('ResultType'))
+                resutltype = row.get('ResultType')
+                if resutltype in RESULT_TYPES:
+                    service.setResultType(row.get('ResultType'))
             
             service.reindexObject()
     
