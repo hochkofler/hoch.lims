@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:monkey="http://namespaces.plone.org/monkey"
+    i18n_domain="hoch.lims">
+
+    <monkey:patch
+    description="Formated spect"
+    class="senaite.impress.analysisrequest.model.SuperModel"
+    original="get_formatted_specs2"
+    ignoreOriginal="True"
+    replacement=".analysisrequest.get_formatted_specs2" />
+
+</configure>

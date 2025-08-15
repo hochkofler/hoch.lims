@@ -11,6 +11,15 @@
       font-size: 7pt;
     }
 
+    .report .COA {
+      margin-top: 15mm;
+    }
+
+    a{
+      color: inherit;
+      text-decoration: none;
+    }
+
     .report h1 {
       font-size: 140%;
     }
@@ -126,10 +135,23 @@
       border-top: none !important;
       border-bottom: none !important;
     }
-
+    
+    .report table td.noborder-horizontal {
+      border-left: none !important;
+      border-right: none !important;
+    }
     .report table td.noborder-bottom {
       border-bottom: none !important;
     }
+
+    .report table td.noborder-left {
+      border-left: none !important;
+    }
+
+    .report table td.noborder-right {
+      border-right: none !important;
+    }
+
 
     td.align-top-left {
       vertical-align: top;
@@ -156,15 +178,6 @@
     .report .section-resultsinterpretation img {
       max-width: <tal:t replace="python:'{:.2f}mm'.format(cw)" />;
       max-height: <tal:t replace="python:'{:.2f}mm'.format(ch * 0.75)" />;
-    }
-
-    </tal:block>@page {
-      @bottom-right {
-        vertical-align: top;
-        margin-top: 2mm;
-        font-size: 9pt;
-        content: "<tal:t i18n:translate=''>Page</tal:t> " counter(page) " <tal:t i18n:translate=''>of</tal:t> " counter(pages);
-      }
     }
 
     </tal:block>

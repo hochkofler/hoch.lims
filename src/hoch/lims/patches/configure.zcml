@@ -4,6 +4,6 @@
     i18n_domain="hoch.lims">
 
   <!-- Package includes -->
-  <include package=".content" />
+  <include package=".impress" />
 
 </configure>

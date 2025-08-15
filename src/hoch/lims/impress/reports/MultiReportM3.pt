@@ -16,9 +16,10 @@
                     batch python:model_summary.getBatch();
                     batch_number python:batch.getId();
                     batch_expire python: batch.ExpirationDate.strftime('%m-%y');
+                    batch_manufacture_date python: batch.ManufactureDate.strftime('%d-%m-%y');
                     product model_summary/Batch/Product;
                     mktauth product/MarketingAuthorization" i18n:domain="hoch.lims">
-        <div>
+        <div class="COA">
 
             <table class="tg no-break">
                 <colgroup>
@@ -37,36 +38,36 @@
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="1" class="label">
+                    <td colspan="1" class="label noborder-right">
                         <span class="colon-after">PRODUCTO</span>
                     </td>
-                    <td colspan="2" class="label">
+                    <td colspan="2" class="label noborder-left">
                         <span tal:content="mktauth/TradeName"></span>
                     </td>
                 <tr>
-                    <td colspan="1" class="label">
+                    <td colspan="1" class="label noborder-right">
                         <span class="colon-after">D.C.I.</span>
                     </td>
-                    <td colspan="2">
+                    <td colspan="2" class="noborder-left">
                         <span tal:content="mktauth/GenericName"></span>
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="1" class="label">
+                    <td colspan="1" class="label noborder-right">
                         <span class="colon-after">CONCENTRACIÓN</span>
                     </td>
-                    <td colspan="2">
-                        <span>POR IMPLEMENTAR</span>
+                    <td colspan="2" class="noborder-left">
+                        <span tal:content="mktauth/Concentrations">POR IMPLEMENTAR</span>
                     </td>
                 </tr>
                 <tr>
                     <td colspan="1" class="label">
                         <span class="colon-after">LABORATORIO PRODUCTOR</span>
                     </td>
-                    <td colspan="1" class="label">
+                    <td colspan="1" class="label text-center">
                         <span>LABORATORIOS IFA S.A.</span>
                     </td>
-                    <td colspan="1">
+                    <td colspan="1" class="text-center">
                         <span class="colon-after"><strong>REGISTRO SANITARIO</strong></span><br>
                         <span tal:content="mktauth/RegistrationNumber"></span>
                     </td>
@@ -75,11 +76,11 @@
                     <td colspan="1" class="label">
                         <span class="colon-after">FECHA DE FABRICACIÓN</span>
                     </td>
-                    <td colspan="1">
-                        <span>POR IMPLEMENTAR</span>
+                    <td colspan="1" class="text-center">
+                        <span tal:content="batch_manufacture_date"></span>
                     </td>
-                    <td colspan="1">
-                        <span class="colon-after"><strong>FORMA FARMACÉUTICA</strong></span><br>
+                    <td colspan="1" class="text-center">
+                        <span class=" colon-after"><strong>FORMA FARMACÉUTICA</strong></span><br>
                         <span tal:content="mktauth/DosageForm"></span>
                     </td>
                 </tr>
@@ -87,10 +88,10 @@
                     <td colspan="1" class="label">
                         <span class="colon-after">FECHA DE VENCIMIENTO</span>
                     </td>
-                    <td colspan="1">
+                    <td colspan="1" class="text-center">
                         <span tal:content="batch_expire"></span>
                     </td>
-                    <td colspan="1">
+                    <td colspan="1" class="text-center">
                         <span class="colon-after"><strong>N° CERTIFICADO C. DE C.</strong></span><br>
                         <span>POR IMPLEMENTAR</span>
                     </td>
@@ -99,12 +100,11 @@
                     <td colspan="1" class="label">
                         <span class="colon-after">N° LOTE</span>
                     </td>
-                    <td colspan="1">
+                    <td colspan="1" class="text-center">
                         <span>
-                            <a tal:content="batch/ClientBatchID"
-                            tal:attributes="href batch/absolute_url"></a></span>
+                            <a tal:content="batch/ClientBatchID" tal:attributes="href batch/absolute_url"></a></span>
                     </td>
-                    <td colspan="1">
+                    <td colspan="1" class="text-center">
                         <span class="colon-after"><strong>FECHA DE ANÁLISIS</strong></span><br>
                         <span>POR DEFINIR</span>
                     </td>
@@ -113,12 +113,15 @@
                     <td colspan="1" class="label">
                         <span class="colon-after">CANTIDAD</span>
                     </td>
-                    <td colspan="1">
-                        <span tal:content="python: batch.ReleasedBatchSize"></span><span> POR IMPLEMENTAR</span>
+                    <td colspan="1" class="text-center">
+                        <span tal:content="python: batch.ReleasedBatchSize or batch.BatchSize"></span><span>
+                        </span><span tal:content="mktauth/DosageUnit"></span>
                     </td>
-                    <td colspan="1">
+                    <td colspan="1" class="text-center">
                         <span class="colon-after"><strong>INSTITUCIÓN</strong></span><br>
-                        <span tal:content="python: batch.getLabelNames()[0] or 'Comercio'">POR IMPLEMENTAR</span>
+                        <span
+                            tal:content="python: batch.getLabelNames()[0] if batch.getLabelNames() else 'Comercio'">POR
+                            IMPLEMENTAR</span>
                     </td>
                 </tr>
                 <tr>
@@ -154,15 +157,15 @@
                         tal:repeat="service services">
                         <tr tal:define="analyses python:view.get_analyses_by(collection, category=category, keyword=service);
                                     analysis python: analyses[0];
-                                    is_numeric python:all(r == 'numeric' for r in [a.getResultType() for a in analyses]);
-                                    specs python: model.get_formatted_specs(analysis);
+                                    is_numeric python:all(((a.getResultType() == 'numeric') and (len(a.getResultOptions()) == 0)) for a in analyses);
+                                    specs python: model.get_formatted_specs2(analysis);
                                     unit python:model.get_formatted_unit(analysis)">
                             <td class="analysis noborder-vertical align-middle">
                                 <span tal:condition="not:analysis/ScientificName">
-                                    <span class="font-weight-normal" tal:content="analysis/title"></span>
+                                    <span class="font-weight-normal" tal:content="analysis/Description"></span>
                                 </span>
                                 <span tal:condition="analysis/ScientificName">
-                                    <span class="font-italic" tal:content="analysis/title"></span>
+                                    <span class="font-italic" tal:content="analysis/Description"></span>
                                 </span>
                             </td>
                             <td class="noborder-vertical text-center align-middle">
@@ -192,30 +195,22 @@
                             <span>Análisis de valoración realizados según técnica propia de
                                 laboratorio y el análisis</span>
                         </td>
-                        <td>
+                        <td class="text-center">
                             <span><strong>DICTAMEN:</strong></span><br>
                             <span><strong>APROBADO</strong></span>
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="2" rowspan="4" class="align-top-left signature-space label colon-after">
-                            <stron>OBSERVACIONES</stron>
+                        <td colspan="2" rowspan="2" class="align-top-left signature-space label colon-after">
+                            <strong>OBSERVACIONES</strong>
                         </td>
                         <td>Fecha: 15-04-2025</td>
                     </tr>
-                    <tr>
-                        <td><br>Silvia Pacha<br>ANALISTA INSTRUMENTAL</td>
-                    </tr>
-                    <tr>
-                        <td><br>Silvia Pacha<br>ANALISTA INSTRUMENTAL</td>
-                    </tr>
-                    <tr>
-                        <td><br>Silvia Pacha<br>ANALISTA INSTRUMENTAL</td>
+                    <tr class="text-center">
+                        <td><br><br><br><br>JEFE DE CONTROL DE CALIDAD</td>
                     </tr>
                 </tal:signatures>
             </table>
         </div>
     </tal:COA>
-
-
 </tal:report>
