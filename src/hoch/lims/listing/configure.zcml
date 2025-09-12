@@ -9,11 +9,16 @@
     provides="senaite.app.listing.interfaces.IListingViewAdapter"
     factory=".sample_listing.SampleListingViewAdapter" />
   
-  <!-- Sample Matrix listing with additional columns -->
   <subscriber
-    for="senaite.core.browser.controlpanel.samplematrices.view.SampleMatricesView
-         senaite.core.interfaces.ISampleMatrices"
+    for="bika.lims.browser.referencesample.ReferenceSamplesView
+         bika.lims.interfaces.IReferenceSamplesFolder"
     provides="senaite.app.listing.interfaces.IListingViewAdapter"
-    factory=".samplematrix.SampleMatrixListingViewAdapter" />
+    factory=".referencesample_listing.ReferenceSampleListingViewAdapter" />
+
+  <subscriber
+    for="senaite.core.browser.controlpanel.suppliers.referencesamples.SupplierReferenceSamplesView
+         senaite.core.interfaces.ISupplier"
+    provides="senaite.app.listing.interfaces.IListingViewAdapter"
+    factory=".referencesample_listing.ReferenceSampleListingViewAdapter" />
 
 </configure>

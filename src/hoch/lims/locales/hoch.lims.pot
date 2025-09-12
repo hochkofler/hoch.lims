@@ -1,0 +1,878 @@
+#--- PLEASE EDIT THE LINES BELOW CORRECTLY ---
+#SOME DESCRIPTIVE TITLE.
+#FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2025-08-12 17:04+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"Language-Code: en\n"
+"Language-Name: English\n"
+"Preferred-Encodings: utf-8 latin1\n"
+"Domain: hoch.lims\n"
+
+#: hoch/lims/config.py:17
+msgid "AGEMED"
+msgstr ""
+
+#: hoch/lims/config.py:19
+msgid "ANMAT"
+msgstr ""
+
+#: hoch/lims/listing/sample_listing.py:14
+msgid "API URL"
+msgstr ""
+
+#: hoch/lims/profiles/default/workflows/marketing_authorization_workflow/definition.xml
+msgid "Activate"
+msgstr ""
+
+#: hoch/lims/browser/content/marketingauthorizations.py:180
+#: hoch/lims/browser/content/pharmaceuticalproducts.py:84
+#: hoch/lims/profiles/default/workflows/marketing_authorization_workflow/definition.xml
+msgid "Active"
+msgstr ""
+
+#: hoch/lims/browser/content/marketingauthorizations.py:32
+#: hoch/lims/browser/content/pharmaceuticalproducts.py:29
+msgid "Add"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:241
+msgid "Administration Routes"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:135
+msgid "Administration routes"
+msgstr ""
+
+#: hoch/lims/browser/content/marketingauthorizations.py:191
+#: hoch/lims/browser/content/pharmaceuticalproducts.py:95
+msgid "All"
+msgstr ""
+
+#: hoch/lims/config.py:78
+msgid "Ampoules"
+msgstr ""
+
+#: hoch/lims/config.py:48
+msgid "Analgesic"
+msgstr ""
+
+#: hoch/lims/impress/templates/header.pt:14
+msgid "Analysis Report"
+msgstr ""
+
+#: hoch/lims/impress/templates/discreeter.pt:34
+msgid "Analysis results relate only to the samples tested."
+msgstr ""
+
+#: hoch/lims/config.py:49
+msgid "Anti-inflammatory"
+msgstr ""
+
+#: hoch/lims/config.py:45
+msgid "Antibacterial"
+msgstr ""
+
+#: hoch/lims/config.py:46
+msgid "Antifungal"
+msgstr ""
+
+#: hoch/lims/config.py:50
+msgid "Antihypertensive"
+msgstr ""
+
+#: hoch/lims/config.py:47
+msgid "Antiviral"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:200
+msgid "Approved therapeutic uses"
+msgstr ""
+
+#: hoch/lims/impress/templates/attachments.pt:29
+msgid "Attachment for"
+msgstr ""
+
+#: hoch/lims/impress/templates/attachments.pt:13
+msgid "Attachments for ${DYNAMIC_CONTENT}"
+msgstr ""
+
+#: hoch/lims/impress/templates/controls.pt:34
+msgid "Attachments per Row"
+msgstr ""
+
+#: hoch/lims/impress/templates/summary.pt:37
+msgid "Batch ID"
+msgstr ""
+
+#: hoch/lims/impress/templates/summary.pt:91
+msgid "Batch Labels"
+msgstr ""
+
+#: hoch/lims/config.py:40
+msgid "Biosimilar"
+msgstr ""
+
+#: hoch/lims/config.py:76
+msgid "Blister pack"
+msgstr ""
+
+#: hoch/lims/config.py:77
+msgid "Bottle"
+msgstr ""
+
+#: hoch/lims/config.py:38
+msgid "Brand"
+msgstr ""
+
+#: hoch/lims/config.py:22
+msgid "COFEPRIS"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:319
+msgid "Can not delete item '%s' because it is in use"
+msgstr ""
+
+#: hoch/lims/config.py:27
+msgid "Capsule"
+msgstr ""
+
+#: hoch/lims/config.py:83
+msgid "Carton box"
+msgstr ""
+
+#: hoch/lims/config.py:85
+msgid "Case"
+msgstr ""
+
+#: hoch/lims/impress/templates/summary.pt:49
+msgid "Client"
+msgstr ""
+
+#: hoch/lims/impress/templates/summary.pt:45
+msgid "Client Batch ID"
+msgstr ""
+
+#: hoch/lims/impress/templates/summary.pt:56
+msgid "Client SID"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:214
+msgid "Conditions under which products may be sold"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:325
+msgid "Configuration for pharmaceutical regulatory settings"
+msgstr ""
+
+#: hoch/lims/config.py:63
+msgid "Controlled room temperature"
+msgstr ""
+
+#: hoch/lims/config.py:56
+msgid "Controlled substance"
+msgstr ""
+
+#: hoch/lims/config.py:30
+msgid "Cream"
+msgstr ""
+
+#: hoch/lims/config.py:18
+msgid "DIGEMID"
+msgstr ""
+
+#: hoch/lims/impress/templates/summary.pt:76
+msgid "Date Published"
+msgstr ""
+
+#: hoch/lims/impress/templates/summary.pt:68
+msgid "Date Received"
+msgstr ""
+
+#: hoch/lims/impress/templates/summary.pt:72
+msgid "Date Verified"
+msgstr ""
+
+#: hoch/lims/profiles/default/workflows/marketing_authorization_workflow/definition.xml
+msgid "Deactivate"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:171
+msgid "Dosage Forms"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:102
+msgid "Dosage forms"
+msgstr ""
+
+#: hoch/lims/impress/templates/attachments.pt:36
+msgid "Filename:"
+msgstr ""
+
+#: hoch/lims/config.py:62
+msgid "Frozen (-20Â°C or below)"
+msgstr ""
+
+#: hoch/lims/config.py:39
+msgid "Generic"
+msgstr ""
+
+#: hoch/lims/profiles/default/controlpanel.xml
+msgid "Hoch Lims Settings"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:324
+msgid "HochLIMS Settings"
+msgstr ""
+
+#: hoch/lims/profiles/default/types/MarketingAuthorizations.xml
+msgid "HochLims Settings"
+msgstr ""
+
+#: hoch/lims/config.py:20
+msgid "INVIMA"
+msgstr ""
+
+#: hoch/lims/config.py:21
+msgid "ISP Chile"
+msgstr ""
+
+#: hoch/lims/browser/content/marketingauthorizations.py:185
+#: hoch/lims/browser/content/pharmaceuticalproducts.py:89
+#: hoch/lims/profiles/default/workflows/marketing_authorization_workflow/definition.xml
+msgid "Inactive"
+msgstr ""
+
+#: hoch/lims/config.py:72
+msgid "Inhalation"
+msgstr ""
+
+#: hoch/lims/config.py:33
+msgid "Injection"
+msgstr ""
+
+#: hoch/lims/config.py:70
+msgid "Intramuscular"
+msgstr ""
+
+#: hoch/lims/config.py:69
+msgid "Intravenous"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:37
+msgid "Key"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:310
+msgid "Key '%s' is not unique"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:303
+msgid "Key contains invalid charactersOnly letters, numbers, underscores and hyphens are allowed."
+msgstr ""
+
+#: hoch/lims/config.py:32
+msgid "Lotion"
+msgstr ""
+
+#: hoch/lims/profiles/default/types/MarketingAuthorization.xml
+msgid "Marketing Authorization"
+msgstr ""
+
+#: hoch/lims/profiles/default/types/MarketingAuthorizations.xml
+msgid "Marketing Authorizations"
+msgstr ""
+
+#: hoch/lims/browser/content/marketingauthorizations.py:41
+msgid "Marketing authorizations"
+msgstr ""
+
+#: hoch/lims/impress/templates/discreeter.pt:29
+msgid "Methods included in the ${accreditation_body} schedule of Accreditation for this Laboratory. Analysis remarks are not accredited"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:242
+msgid "Methods of drug administration"
+msgstr ""
+
+#: hoch/lims/impress/templates/discreeter.pt:16
+msgid "Not invoiced"
+msgstr ""
+
+#: hoch/lims/impress/templates/controls.pt:44
+msgid "Number of attachments rendered within one row per Analysis Request"
+msgstr ""
+
+#: hoch/lims/config.py:31
+msgid "Ointment"
+msgstr ""
+
+#: hoch/lims/config.py:67
+msgid "Oral"
+msgstr ""
+
+#: hoch/lims/config.py:41
+msgid "Over-the-counter"
+msgstr ""
+
+#: hoch/lims/config.py:54
+msgid "Over-the-counter (OTC)"
+msgstr ""
+
+#: hoch/lims/config.py:86
+msgid "Pallet"
+msgstr ""
+
+#: hoch/lims/profiles/default/types/PharmaceuticalProduct.xml
+msgid "Pharmaceutical Product"
+msgstr ""
+
+#: hoch/lims/profiles/default/types/PharmaceuticalProducts.xml
+msgid "Pharmaceutical Products"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:172
+msgid "Pharmaceutical dosage forms"
+msgstr ""
+
+#: hoch/lims/config.py:34
+msgid "Powder for solution"
+msgstr ""
+
+#: hoch/lims/config.py:55
+msgid "Prescription required"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:255
+msgid "Primary Presentations"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:256
+msgid "Primary product presentations"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:185
+msgid "Product Lines"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:110
+msgid "Product lines"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:143
+msgid "Product presentations"
+msgstr ""
+
+#: hoch/lims/browser/content/pharmaceuticalproducts.py:38
+msgid "Products"
+msgstr ""
+
+#: hoch/lims/impress/templates/alerts.pt:20
+msgid "Provisional report"
+msgstr ""
+
+#: hoch/lims/impress/templates/signatures.pt:31
+#: hoch/lims/impress/templates/summary.pt:80
+msgid "Published by"
+msgstr ""
+
+#: hoch/lims/impress/templates/results.pt:47
+msgid "Range"
+msgstr ""
+
+#: hoch/lims/config.py:61
+msgid "Refrigerated (2-8Â°C)"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:157
+msgid "Regulatory Authorities"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:94
+msgid "Regulatory Settings"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:158
+msgid "Regulatory bodies that grant marketing authorizations"
+msgstr ""
+
+#: hoch/lims/impress/templates/controls.pt:10
+msgid "Report Options"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:228
+msgid "Required storage conditions"
+msgstr ""
+
+#: hoch/lims/impress/templates/signatures.pt:7
+msgid "Responsibles"
+msgstr ""
+
+#: hoch/lims/impress/templates/results.pt:41
+msgid "Result"
+msgstr ""
+
+#: hoch/lims/impress/templates/discreeter.pt:14
+msgid "Result out of client specified range."
+msgstr ""
+
+#: hoch/lims/impress/templates/results_transposed.pt:9
+msgid "Results"
+msgstr ""
+
+#: hoch/lims/config.py:60
+msgid "Room temperature (15-25Â°C)"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:213
+msgid "Sale Conditions"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:126
+msgid "Sale and storage conditions"
+msgstr ""
+
+#: hoch/lims/impress/templates/summary.pt:29
+msgid "Sample ID"
+msgstr ""
+
+#: hoch/lims/impress/templates/summary.pt:60
+msgid "Sample Type"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:269
+msgid "Secondary Presentations"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:270
+msgid "Secondary product presentations"
+msgstr ""
+
+#: hoch/lims/impress/templates/controls.pt:26
+msgid "Show Sample Remarks"
+msgstr ""
+
+#: hoch/lims/config.py:28
+msgid "Solution"
+msgstr ""
+
+#: hoch/lims/impress/templates/summary.pt:64
+msgid "Specification"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:227
+msgid "Storage Conditions"
+msgstr ""
+
+#: hoch/lims/config.py:71
+msgid "Subcutaneous"
+msgstr ""
+
+#: hoch/lims/impress/templates/summary.pt:25
+msgid "Summary"
+msgstr ""
+
+#: hoch/lims/impress/templates/info.pt:59
+msgid "Supervisor"
+msgstr ""
+
+#: hoch/lims/config.py:29
+msgid "Suspension"
+msgstr ""
+
+#: hoch/lims/config.py:26
+msgid "Tablet"
+msgstr ""
+
+#: hoch/lims/impress/templates/discreeter.pt:45
+msgid "Test results are at a ${lab_confidence}% confidence level"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:38
+msgid "The key will be stored in the database and must be unique"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:46
+msgid "The value will be displayed in selection fields"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:199
+msgid "Therapeutic Indications"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:118
+msgid "Therapeutic actions"
+msgstr ""
+
+#: hoch/lims/impress/templates/alerts.pt:9
+msgid "This Analysis Request has been invalidated due to erroneously published results"
+msgstr ""
+
+#: hoch/lims/impress/templates/alerts.pt:12
+msgid "This Analysis request has been replaced by"
+msgstr ""
+
+#: hoch/lims/impress/templates/discreeter.pt:41
+msgid "This document shall not be reproduced except in full, without the written approval of ${name_lab}"
+msgstr ""
+
+#: hoch/lims/config.py:68
+msgid "Topical"
+msgstr ""
+
+#: hoch/lims/config.py:79
+msgid "Tube"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:186
+msgid "Types of pharmaceutical products"
+msgstr ""
+
+#: hoch/lims/impress/templates/results.pt:44
+msgid "Unit"
+msgstr ""
+
+#: hoch/lims/browser/controlpanel.py:45
+msgid "Value"
+msgstr ""
+
+#: hoch/lims/config.py:80
+msgid "Vial"
+msgstr ""
+
+#. Default: "Select the product for this batch."
+#: hoch/lims/extender/batch.py:38
+msgid "description_batch_product"
+msgstr ""
+
+#. Default: "How the product is administered"
+#: hoch/lims/content/marketingauthorization.py:186
+msgid "description_marketingauthorization_administration_route"
+msgstr ""
+
+#. Default: "Anatomical Therapeutic Chemical classification code"
+#: hoch/lims/content/marketingauthorization.py:140
+msgid "description_marketingauthorization_atq_code"
+msgstr ""
+
+#. Default: "Form in which the product is administered"
+#: hoch/lims/content/marketingauthorization.py:92
+msgid "description_marketingauthorization_dosage_form"
+msgstr ""
+
+#. Default: "Date when the authorization expires"
+#: hoch/lims/content/marketingauthorization.py:219
+msgid "description_marketingauthorization_expiration_date"
+msgstr ""
+
+#. Default: "Non-proprietary name or chemical name given to a drug"
+#: hoch/lims/content/marketingauthorization.py:79
+msgid "description_marketingauthorization_generic_name"
+msgstr ""
+
+#. Default: "Entity holding the authorization"
+#: hoch/lims/content/marketingauthorization.py:245
+msgid "description_marketingauthorization_holder"
+msgstr ""
+
+#. Default: "Date when the authorization was issued"
+#: hoch/lims/content/marketingauthorization.py:203
+msgid "description_marketingauthorization_issue_date"
+msgstr ""
+
+#. Default: "Authority that issued the certification"
+#: hoch/lims/content/marketingauthorization.py:40
+msgid "description_marketingauthorization_issuing_organization"
+msgstr ""
+
+#. Default: "Entity that manufactured the product"
+#: hoch/lims/content/marketingauthorization.py:258
+msgid "description_marketingauthorization_manufacturer"
+msgstr ""
+
+#. Default: "Product line or category"
+#: hoch/lims/content/marketingauthorization.py:105
+msgid "description_marketingauthorization_product_line"
+msgstr ""
+
+#. Default: "Unique identifier assigned by the authority"
+#: hoch/lims/content/marketingauthorization.py:53
+msgid "description_marketingauthorization_registration_number"
+msgstr ""
+
+#. Default: "Conditions under which the product may be sold"
+#: hoch/lims/content/marketingauthorization.py:160
+msgid "description_marketingauthorization_sale_condition"
+msgstr ""
+
+#. Default: "Product stability period"
+#: hoch/lims/content/marketingauthorization.py:231
+msgid "description_marketingauthorization_shelf_life"
+msgstr ""
+
+#. Default: "Conditions under which the product may be stored"
+#: hoch/lims/content/marketingauthorization.py:173
+msgid "description_marketingauthorization_storage_conditions"
+msgstr ""
+
+#. Default: "List of approved therapeutic uses"
+#: hoch/lims/content/marketingauthorization.py:125
+msgid "description_marketingauthorization_therapeutic_actions"
+msgstr ""
+
+#. Default: "Commercial name under which the product is sold"
+#: hoch/lims/content/marketingauthorization.py:66
+msgid "description_marketingauthorization_trade_name"
+msgstr ""
+
+#. Default: "Select a marketing authorization to be used for this product. "
+#: hoch/lims/content/pharmaceuticalproduct.py:64
+msgid "description_pharmaceuticalproduct_marketingauthorization"
+msgstr ""
+
+#. Default: "Unique product code"
+#: hoch/lims/content/pharmaceuticalproduct.py:33
+msgid "description_product_code"
+msgstr ""
+
+#. Default: "Number of dosage units contained in the primary presentation."
+#: hoch/lims/content/pharmaceuticalproduct.py:116
+msgid "description_product_dosage_unit_per_primary_presentation"
+msgstr ""
+
+#. Default: "Number of dosage units contained in the secondary presentation."
+#: hoch/lims/content/pharmaceuticalproduct.py:141
+msgid "description_product_dosage_unit_per_secondary_presentation"
+msgstr ""
+
+#. Default: "Description of the product"
+#: hoch/lims/content/pharmaceuticalproduct.py:79
+msgid "description_product_name"
+msgstr ""
+
+#. Default: "Description of the product presentation"
+#: hoch/lims/content/pharmaceuticalproduct.py:91
+msgid "description_product_presentation"
+msgstr ""
+
+#. Default: "Select the primary presentation for this product."
+#: hoch/lims/content/pharmaceuticalproduct.py:103
+msgid "description_product_primary_presentation"
+msgstr ""
+
+#. Default: "Select the secondary presentation for this product."
+#: hoch/lims/content/pharmaceuticalproduct.py:128
+msgid "description_product_secundary_presentation"
+msgstr ""
+
+#. Default: "Registration number must be unique."
+#: hoch/lims/content/marketingauthorization.py:280
+msgid "error_marketingauthorization_registration_number_unique"
+msgstr ""
+
+#. Default: "Product"
+#: hoch/lims/extender/batch.py:35
+msgid "label_batch_product"
+msgstr ""
+
+#. Default: "Route of Administration"
+#: hoch/lims/browser/content/marketingauthorizations.py:134
+#: hoch/lims/content/marketingauthorization.py:182
+msgid "label_marketingauthorization_administration_route"
+msgstr ""
+
+#. Default: "A.T.Q. Code"
+#: hoch/lims/browser/content/marketingauthorizations.py:106
+#: hoch/lims/content/marketingauthorization.py:136
+msgid "label_marketingauthorization_atq_code"
+msgstr ""
+
+#. Default: "Dosage Form"
+#: hoch/lims/browser/content/marketingauthorizations.py:79
+#: hoch/lims/content/marketingauthorization.py:88
+msgid "label_marketingauthorization_dosage_form"
+msgstr ""
+
+#. Default: "Expiration Date"
+#: hoch/lims/browser/content/marketingauthorizations.py:148
+#: hoch/lims/content/marketingauthorization.py:215
+msgid "label_marketingauthorization_expiration_date"
+msgstr ""
+
+#. Default: "Generic Name"
+#: hoch/lims/browser/content/marketingauthorizations.py:72
+#: hoch/lims/content/marketingauthorization.py:75
+msgid "label_marketingauthorization_generic_name"
+msgstr ""
+
+#. Default: "Marketing Authorization Holder"
+#: hoch/lims/browser/content/marketingauthorizations.py:161
+#: hoch/lims/content/marketingauthorization.py:241
+msgid "label_marketingauthorization_holder"
+msgstr ""
+
+#. Default: "Issue Date"
+#: hoch/lims/browser/content/marketingauthorizations.py:141
+#: hoch/lims/content/marketingauthorization.py:199
+msgid "label_marketingauthorization_issue_date"
+msgstr ""
+
+#. Default: "Issuing Regulatory Authority"
+#: hoch/lims/browser/content/marketingauthorizations.py:53
+#: hoch/lims/content/marketingauthorization.py:36
+msgid "label_marketingauthorization_issuing_organization"
+msgstr ""
+
+#. Default: "Manufacturer"
+#: hoch/lims/browser/content/marketingauthorizations.py:168
+#: hoch/lims/content/marketingauthorization.py:254
+msgid "label_marketingauthorization_manufacturer"
+msgstr ""
+
+#. Default: "Medicine Code"
+#: hoch/lims/browser/content/marketingauthorizations.py:113
+#: hoch/lims/content/marketingauthorization.py:148
+msgid "label_marketingauthorization_medicine_code"
+msgstr ""
+
+#. Default: "Product Line"
+#: hoch/lims/browser/content/marketingauthorizations.py:85
+#: hoch/lims/content/marketingauthorization.py:101
+msgid "label_marketingauthorization_product_line"
+msgstr ""
+
+#. Default: "Registered Presentations"
+#: hoch/lims/browser/content/marketingauthorizations.py:92
+#: hoch/lims/content/marketingauthorization.py:115
+msgid "label_marketingauthorization_registered_presentations"
+msgstr ""
+
+#. Default: "Marketing Authorization Number"
+#: hoch/lims/browser/content/marketingauthorizations.py:59
+#: hoch/lims/content/marketingauthorization.py:49
+msgid "label_marketingauthorization_registration_number"
+msgstr ""
+
+#. Default: "Sale Condition"
+#: hoch/lims/browser/content/marketingauthorizations.py:120
+#: hoch/lims/content/marketingauthorization.py:156
+msgid "label_marketingauthorization_sale_condition"
+msgstr ""
+
+#. Default: "Shelf Life (months)"
+#: hoch/lims/browser/content/marketingauthorizations.py:155
+#: hoch/lims/content/marketingauthorization.py:227
+msgid "label_marketingauthorization_shelf_life"
+msgstr ""
+
+#. Default: "Storage Conditions"
+#: hoch/lims/browser/content/marketingauthorizations.py:127
+#: hoch/lims/content/marketingauthorization.py:169
+msgid "label_marketingauthorization_storage_conditions"
+msgstr ""
+
+#. Default: "Therapeutic Indications"
+#: hoch/lims/browser/content/marketingauthorizations.py:99
+#: hoch/lims/content/marketingauthorization.py:121
+msgid "label_marketingauthorization_therapeutic_actions"
+msgstr ""
+
+#. Default: "Title"
+#: hoch/lims/browser/content/marketingauthorizations.py:48
+msgid "label_marketingauthorization_title"
+msgstr ""
+
+#. Default: "Trade Name (Brand)"
+#: hoch/lims/browser/content/marketingauthorizations.py:65
+#: hoch/lims/content/marketingauthorization.py:62
+msgid "label_marketingauthorization_trade_name"
+msgstr ""
+
+#. Default: "API URL"
+#: hoch/lims/browser/content/pharmaceuticalproducts.py:65
+msgid "label_product_api"
+msgstr ""
+
+#. Default: "Code"
+#: hoch/lims/browser/content/pharmaceuticalproducts.py:45
+#: hoch/lims/content/pharmaceuticalproduct.py:29
+msgid "label_product_code"
+msgstr ""
+
+#. Default: "Description"
+#: hoch/lims/browser/content/pharmaceuticalproducts.py:74
+msgid "label_product_description"
+msgstr ""
+
+#. Default: "Dosage Unit per Primary Presentation"
+#: hoch/lims/content/pharmaceuticalproduct.py:112
+msgid "label_product_dosage_unit_per_primary_presentation"
+msgstr ""
+
+#. Default: "Dosage Unit per Secondary Presentation"
+#: hoch/lims/content/pharmaceuticalproduct.py:137
+msgid "label_product_dosage_unit_per_secondary_presentation"
+msgstr ""
+
+#. Default: "Dosage form"
+#: hoch/lims/browser/content/pharmaceuticalproducts.py:61
+msgid "label_product_dosageform"
+msgstr ""
+
+#. Default: "Marketing Authorization"
+#: hoch/lims/browser/content/pharmaceuticalproducts.py:56
+msgid "label_product_marketingauthorization"
+msgstr ""
+
+#. Default: "Name"
+#: hoch/lims/browser/content/pharmaceuticalproducts.py:50
+#: hoch/lims/content/pharmaceuticalproduct.py:75
+msgid "label_product_name"
+msgstr ""
+
+#. Default: "Presentation"
+#: hoch/lims/content/pharmaceuticalproduct.py:87
+msgid "label_product_presentation"
+msgstr ""
+
+#. Default: "Primary Presentation"
+#: hoch/lims/content/pharmaceuticalproduct.py:99
+msgid "label_product_primary_presentation"
+msgstr ""
+
+#. Default: "Secondary Presentation"
+#: hoch/lims/content/pharmaceuticalproduct.py:124
+msgid "label_product_secundary_presentation"
+msgstr ""
+
+#. Default: "Title"
+#: hoch/lims/browser/content/pharmaceuticalproducts.py:69
+msgid "label_product_title"
+msgstr ""
+
+#: hoch/lims/config.py:84
+msgid "plastic box"
+msgstr ""
+
+#. Default: "Marketing Authorization"
+#: hoch/lims/content/pharmaceuticalproduct.py:60
+msgid "title_pharmaceuticalproduct_marketingauthorization"
+msgstr ""
+
+#. Default: "Code"
+#: hoch/lims/content/pharmaceuticalproduct.py:20
+msgid "title_product_itemcode"
+msgstr ""
+
+#. Default: "Item Name"
+#: hoch/lims/content/pharmaceuticalproduct.py:41
+msgid "title_product_itemname"
+msgstr ""

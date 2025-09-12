@@ -1,0 +1,25 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:plone="http://namespaces.plone.org/plone"
+    i18n_domain="hoch.lims">
+
+  <include package="plone.behavior" file="meta.zcml"/>
+
+  <plone:behavior
+      name="hoch.lims.extender.behavior.variablestable"
+      title="VariablesTable"
+      description="Custom variables"
+      provides=".variablestable.IVariablesTableBehavior"
+      factory=".variablestable.VariablesTable"
+      for="senaite.core.interfaces.ISampleMatrix" />
+  
+  <subscriber
+      for="senaite.core.interfaces.ISampleMatrix
+           zope.lifecycleevent.interfaces.IObjectAddedEvent"
+      handler=".variablestable.on_samplematrix_added" />
+
+  <subscriber
+      for="senaite.core.interfaces.ISampleMatrix
+           zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+      handler=".variablestable.on_samplematrix_modified" />
+</configure>

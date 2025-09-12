@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:monkey="http://namespaces.plone.org/monkey"
+    i18n_domain="hoch.lims">
+
+    <monkey:patch
+    description="Formated spect"
+    class="senaite.impress.analysisrequest.model.SuperModel"
+    original="get_formatted_specs2"
+    ignoreOriginal="True"
+    replacement=".analysisrequest.get_formatted_specs2" />
+
+    <monkey:patch
+    description="Formated result"
+    class="senaite.impress.analysisrequest.model.SuperModel"
+    original="getFormattedResultForService"
+    ignoreOriginal="True"
+    replacement=".analysisrequest.getFormattedResultForService" />
+
+    <monkey:patch
+    description="Formated result"
+    class="senaite.impress.analysisrequest.reportview.ReportView"
+    original="getFormattedResultForServices"
+    ignoreOriginal="True"
+    replacement=".analysisrequest.getFormattedResultForServices" />
+
+    <monkey:patch
+    description="Formated result"
+    class="senaite.impress.analysisrequest.reportview.ReportView"
+    original="generateId"
+    ignoreOriginal="True"
+    replacement=".analysisrequest.generateId" />
+
+</configure>

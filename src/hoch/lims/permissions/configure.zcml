@@ -1,8 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <configure xmlns="http://namespaces.zope.org/zope"
-           i18n_domain="hoch.lims">
+  i18n_domain="hoch.lims">
 
   <!-- Sample permissions -->
-  <permission id="hoch.lims.permissions.FieldEditExtendedField" title="hoch.lims: Field: Edit Extended Field"/>
+  <permission id="hoch.lims.permissions.FieldEditExtendedField"
+    title="hoch.lims: Field: Edit Extended Field" />
 
+  <!-- Manage permissions-->
+  <permission id="hoch.lims.permissions.ManageMarketingAuthorizations"
+    title="hoch.lims: Manage MarketingAuthorizations"/>
+
+  <!-- Marketing Authorization permissions-->
+
+  <permission id="hoch.lims.permissions.AddMarketingAuthorization"
+    title="hoch.lims: Add MarketingAuthorization"/>
+
+  <permission id="hoch.lims.permissions.EditMarketingAuthorization"
+    title="hoch.lims: Edit MarketingAuthorization"/>
+
+  <permission id="hoch.lims.permissions.ViewMarketingAuthorization"
+    title="hoch.lims: View MarketingAuthorization"/>
+
+  <!-- Transition Permissions -->
+  <permission id="hoch.lims.permissions.TransitionMarketingAuthorization"
+    title="hoch.lims: Transition MarketingAuthorization"/>
+  
 </configure>

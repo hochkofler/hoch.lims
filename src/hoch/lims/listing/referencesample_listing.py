@@ -4,21 +4,28 @@ from bika.lims import api
 from senaite.app.listing.interfaces import IListingView
 from senaite.app.listing.interfaces import IListingViewAdapter
 from senaite.app.listing.utils import add_column
+from bika.lims.browser.referencesample import ReferenceSamplesView
 from zope.component import adapter
 from zope.interface import implementer
 from bika.lims.utils import get_link
 from hoch.lims import messageFactory as _
+from hoch.lims import logger
+from zope.interface import providedBy
 
 ADD_COLUMNS = [
-    ("Code", {
-        "title": _("Code"),
+    ("Concentration", {
+        "title": _("Concentration"),
+        "sortable": True,
+    }),
+    ("Sensitivity", {
+        "title": _("Sensitivity"),
         "sortable": True,
     }),
 ]
 
 @implementer(IListingViewAdapter)
-@adapter(IListingView)
-class SampleMatrixListingViewAdapter(object):
+@adapter(ReferenceSamplesView)
+class ReferenceSampleListingViewAdapter(object):
 
     def __init__(self, listing, context):
         self.listing = listing
@@ -26,6 +33,7 @@ class SampleMatrixListingViewAdapter(object):
 
     def before_render(self):
         # Add new column for all available states
+        logger.info(">>> before_render called for ReferenceSampleListingViewAdapter")
         states = map(lambda r: r["id"], self.listing.review_states)
         for column_id, column_values in ADD_COLUMNS:
             add_column(
@@ -40,5 +48,10 @@ class SampleMatrixListingViewAdapter(object):
 
     def folder_item(self, obj, item, index):
         obj = api.get_object(obj)
-        item["Code"] = getattr(obj, "code", "")
+        concentration = getattr(obj, "Concentration", "")
+        sensitivity = getattr(obj, "Sensitivity", "")
+        concentration_unit = getattr(obj, "ConcentrationUnit", "")
+        sensitivity_unit = getattr(obj, "SensitivityUnit", "")
+        item["Concentration"] = str(concentration) + " " + concentration_unit if concentration else "-"
+        item["Sensitivity"] = str(sensitivity) + " " + sensitivity_unit if sensitivity else "-"
         return item

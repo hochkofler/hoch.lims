@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:monkey="http://namespaces.plone.org/monkey"
+    i18n_domain="hoch.lims">
+
+    <monkey:patch
+    description="Formated result"
+    class="senaite.core.exportimport.setupdata.Sample_Templates"
+    original="Import"
+    ignoreOriginal="True"
+    replacement=".setupdata.Import_sample_templates" />
+
+    <monkey:patch
+    description="Calculation interim fields"
+    class="senaite.core.exportimport.setupdata.Calculations"
+    original="get_interim_fields"
+    ignoreOriginal="True"
+    replacement=".setupdata.get_interim_fields" />
+
+    <monkey:patch
+    description="AnalysisService interim fields"
+    class="senaite.core.exportimport.setupdata.Analysis_Services"
+    original="load_interim_fields"
+    ignoreOriginal="True"
+    replacement=".setupdata.load_interim_fields" />
+
+</configure>

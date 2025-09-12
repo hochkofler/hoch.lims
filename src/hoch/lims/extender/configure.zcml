@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:plone="http://namespaces.plone.org/plone"
+    xmlns:browser="http://namespaces.zope.org/browser">
+
+    <include package=".behaviors" />
+
+    <!-- Batch Schema Extender (AT) -->
+    <adapter
+    factory=".batch.BatchSchemaExtender"
+    name="batch-extender"
+    provides="archetypes.schemaextender.interfaces.ISchemaExtender"/>
+
+    <adapter
+    factory=".referenceSample.ReferenceSampleSchemaExtender"
+    name="referencesample-extender"
+    provides="archetypes.schemaextender.interfaces.ISchemaExtender"/>
+
+    <plone:behavior
+    for="senaite.core.interfaces.ISampleMatrix"
+    name="samplematrix-extender"
+    title="Custom SampleMatrix Fields"
+    description="Add custom fields to SampleMatrix"
+    provides=".samplematrix.ISampleMatrixSchemaExtender"
+    factory=".samplematrix.SampleMatrixSchemaExtender"
+    />
+    
+</configure>

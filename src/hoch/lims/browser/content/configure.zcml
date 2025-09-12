@@ -1,0 +1,33 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:grok="http://namespaces.zope.org/grok"
+    i18n_domain="hoch.lims">
+
+  <!-- marketing authorizations View -->
+  <browser:page
+      name="view"
+      for="hoch.lims.content.marketingauthorizations.IMarketingAuthorizations"
+      class=".marketingauthorizations.MarketingAuthorizationsView"
+      permission="zope2.View"
+      layer="hoch.lims.interfaces.IHochLims"
+      />
+  
+  <!-- Products View -->
+  <browser:page
+      name="view"
+      for="hoch.lims.content.pharmaceuticalproducts.IPharmaceuticalProducts"
+      class=".pharmaceuticalproducts.PharmaceuticalProductsView"
+      permission="zope2.View"
+      layer="hoch.lims.interfaces.IHochLims"
+      />
+
+<browser:page
+  name="edit"
+  for="hoch.lims.content.marketingauthorization.IMarketingAuthorization"
+  class=".marketingauthorization.EditForm"
+  permission="hoch.lims.permissions.EditMarketingAuthorization"
+  layer="hoch.lims.interfaces.IHochLims"
+  />
+
+</configure>
