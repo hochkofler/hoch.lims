@@ -19,6 +19,7 @@ from senaite.core.schema import UIDReferenceField
 from bika.lims.api import get_object_by_uid
 from senaite.core.interfaces import ISampleMatrix
 from zope.lifecycleevent.interfaces import IObjectModifiedEvent, IObjectAddedEvent
+from hoch.lims import check_installed
 
 class IVariablesTableSchema(Interface):
     directives.widget(
@@ -114,11 +115,12 @@ def compute_variables_dict(obj):
             if param and value is not None:
                 data.setdefault(code, {})[param] = value
     return data
-    
+@check_installed(None)
 @adapter(ISampleMatrix, IObjectAddedEvent)
 def on_samplematrix_added(obj, event):
     obj.variables_dict = compute_variables_dict(obj)
 
+@check_installed(None)
 @adapter(ISampleMatrix, IObjectModifiedEvent)
 def on_samplematrix_modified(obj, event):
     obj.variables_dict = compute_variables_dict(obj)
