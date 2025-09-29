@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from hoch.lims.content.pharmaceuticalproduct import IPharmaceuticalProductSchema
 from zope.event import notify
 from Products.Archetypes.event import ObjectInitializedEvent
@@ -17,6 +18,7 @@ from plone.dexterity.utils import createObject
 from senaite.core.catalog import CLIENT_CATALOG
 from senaite.core.catalog import SENAITE_CATALOG
 from bika.lims.content.abstractbaseanalysis import RESULT_TYPES
+from hoch.lims.config import VARIABLES
 
 class Hochlims_Custom(WorksheetImporter):
     """Import Analysis Services Hidden"""
@@ -67,40 +69,7 @@ class Hochlims_Custom(WorksheetImporter):
             if row.get('SortKey'):           
                 category.setSortKey(row.get('SortKey'))
             category.reindexObject()
-    
-    def edit_method_instruments(self):
-        folder = self.context.methods
-        sheetname = 'Method Instruments'
-        worksheet = self.workbook[sheetname]
-        method_instruments = {}
-        if not worksheet:
-            return
-        bsc = getToolByName(self.context, SETUP_CATALOG)
-        # Obtain all created methods
-        methods_brains = bsc.searchResults({'portal_type': 'Method'})
-        methods_ids = [m.getObject.get('Method', '') for m in methods_brains]
-        
-        for row in self.get_rows(3, worksheet=worksheet):
-            if not row.get('Method', '') or not row.get('Instrument', ''):
-                continue
-                        
-            if row['Method'] not in methods_ids:
-                continue
-            
-            instrument = self.get_object(
-                bsc, 'Instrument', row.get('Instrument'))
-            if not instrument:
-                continue
-            
-            method_instruments[row['Method']].append(instrument)
-        
-        for method, instruments in method_instruments:
-            method_obj = self.get_object(bsc, 'Method', title=row.get('Method'))
-            if method_obj:
-                method_obj.setInstruments(set(instruments))
-                logger.info("set instruments '%s' for method '%s'", instruments, method)
-            
-            
+                       
     def Import(self):
         """Import Analysis Services Hidden"""
         if "Analysis Services" in self.workbook.sheetnames:
@@ -333,6 +302,194 @@ class Batch(WorksheetImporter):
             )
             logger.info("Batch '%s' created" % obj.__dict__)
             
+class Instruments_Methods(WorksheetImporter):
+    def Import(self):
+        logger.info("Importing instrument methods worksheet")
+        bsc = getToolByName(self.context, SETUP_CATALOG)
+        method_instruments = {}
+        for row in self.get_rows(3):
+            method = self.get_object(bsc, 'Method',
+                                      row.get('method_title'))
+            if not method:
+                continue
+            
+            instrument = self.get_object(bsc, 'Instrument',
+                                      row.get('Instrument_title'))
+            if not instrument:
+                continue
+            
+            method_uid = api.get_uid(method)
+            instrument_uid = api.get_uid(instrument)
+            if method_uid not in method_instruments:
+                method_instruments[method_uid] = [instrument_uid]
+            else:
+                method_instruments[method_uid].append(instrument_uid)
+    
+        for method_uid, instruments_uids in method_instruments.items():
+            method = api.get_object_by_uid(method_uid)
+            logger.info("setting instruments '%s' to method: '%s'", instruments_uids, method)
+            method.setInstruments(instruments_uids)
+
+class Methods_Calculations(WorksheetImporter):
+    def Import(self):
+        logger.info("Importing methods calculations worksheet")
+        bsc = getToolByName(self.context, SETUP_CATALOG)
+        method_calculations = {}
+        for row in self.get_rows(3):
+            method = self.get_object(bsc, 'Method',
+                                      row.get('method_title'))
+            if not method:
+                continue
+            
+            calculation = self.get_object(bsc, 'Calculation',
+                                      row.get('calculation_title'))
+            if not calculation:
+                continue
+            
+            method_uid = api.get_uid(method)
+            calculation_uid = api.get_uid(calculation)
+            if method_uid not in method_calculations:
+                method_calculations[method_uid] = [calculation_uid]
+            else:
+                method_calculations[method_uid].append(calculation_uid)
+    
+        for method_uid, calculation_uids in method_calculations.items():
+            method = api.get_object_by_uid(method_uid)
+            logger.info("setting instruments '%s' to method: '%s'", calculation_uids, method)
+            method.setCalculations(calculation_uids)
+            
+class AnalysisService_SubInstruments(WorksheetImporter):
+    def Import(self):
+        logger.info("Importing subinstruments for analysis services")
+        bsc = getToolByName(self.context, SETUP_CATALOG)
+        services_subinstruments = {}
+        for row in self.get_rows(3):
+            service = self.get_object(bsc, 'AnalysisService',
+                                      row.get('service_title'))
+            if not service:
+                continue
+            
+            subinstrument = self.get_object(bsc, 'Instrument',
+                                      row.get('subinstrument_title'))
+            if not subinstrument:
+                continue
+            
+            is_default_subinstrument = row.get('default') and True or False
+            
+            service_uid = api.get_uid(service)
+            if service_uid not in services_subinstruments:
+                services_subinstruments[service_uid] = {}
+                services_subinstruments[service_uid]["instruments"]=[]
+                services_subinstruments[service_uid]["defaults"]=[]
+                services_subinstruments[service_uid]["allowed"] = self.getSubInstrumentAllowed(service)
+            
+            if subinstrument in services_subinstruments[service_uid]["allowed"]:
+                services_subinstruments[service_uid]["instruments"].append(subinstrument)
+                if is_default_subinstrument:
+                    services_subinstruments[service_uid]["defaults"].append(subinstrument)
+            else:
+                logger.info("SubInstrument: '%s' not allowed, allowed instruments are: '%s'", row.get('subinstrument_title'), services_subinstruments[service_uid]["allowed"])
+
+        for service_uid, subinstruments in services_subinstruments.items():
+            service = api.get_object_by_uid(service_uid)
+            service.setSubInstrumentsAllowed(subinstruments["instruments"])
+            if subinstruments["defaults"]:   
+                service.setSubInstruments(subinstruments["defaults"])
+                
+    def getSubInstrumentAllowed(self, service):
+        sub_instruments = []
+        instruments_asigned = service.getInstruments()
+        # When methods are selected, display only instruments from the methods
+        methods = service.getMethods()
+        for method in methods:
+            for instrument in method.getInstruments():
+                if instrument in sub_instruments or instrument in instruments_asigned:
+                    continue
+                sub_instruments.append(instrument)
+
+        if not methods:
+            # query all available instruments when no methods are selected
+            sub_instruments = self.query_available_instruments()
+        
+        return sub_instruments
+
+class Sample_Matrices_Variables(WorksheetImporter):
+    """Importador optimizado para variables de matrices de muestra"""
+    sample_matrices_data = {}
+    
+    def process_row(self, row, bsc):
+        """Procesa una fila individual del worksheet"""
+        samplematrix_title = row.get('samplematrix_title')
+        service_title = row.get('service_title')
+        parameter = row.get('parameter')
+        value_str = row.get('value')
+        
+        # Validaciones básicas
+        if not all([samplematrix_title, service_title, parameter, value_str]):
+            logger.warning(u"Fila omitida: datos incompletos")
+            return
+            
+        try:
+            value = float(value_str)
+        except (ValueError, TypeError):
+            logger.warning(u"Valor no numérico omitido: %s", value_str)
+            return
+            
+        # Obtener objetos
+        samplematrix = self.get_object(bsc,'SampleMatrix', samplematrix_title)
+        service = self.get_object(bsc,'AnalysisService', service_title)
+        
+        if not samplematrix or not service:
+            logger.warning(u"Objeto no encontrado: %s o %s", samplematrix_title, service_title)
+            return
+            
+        # Almacenar datos en estructura eficiente
+        samplematrix_uid = samplematrix.UID()
+        service_uid = service.UID()
+        
+        if samplematrix_uid not in self.sample_matrices_data:
+            self.sample_matrices_data[samplematrix_uid] = {
+                'obj': samplematrix,
+                'services': {}
+            }
+            
+        if service_uid not in self.sample_matrices_data[samplematrix_uid]['services']:
+            self.sample_matrices_data[samplematrix_uid]['services'][service_uid] = {}
+            
+        self.sample_matrices_data[samplematrix_uid]['services'][service_uid][parameter] = value
+    
+    def save_data(self):
+        """Guarda los datos procesados en las matrices de muestra"""
+        for sm_uid, data in self.sample_matrices_data.items():
+            samplematrix = data['obj']
+            variables_data = []
+            
+            for service_uid, parameters in data['services'].items():
+                for param_name, param_value in parameters.items():
+                    variables_data.append({
+                        'parameter': param_name,
+                        'service': service_uid,
+                        'value': param_value
+                    })
+            
+            # Actualizar la matriz de muestra
+            samplematrix.variables_table = variables_data
+            logger.info("Actualizada matriz de muestra: %s", samplematrix.Title())
+    
+    def Import(self):
+        """Método principal de importación"""
+        logger.info("Iniciando importación de variables de matrices de muestra")
+        bsc = getToolByName(self.context, 'senaite_catalog_setup')
+        # Procesar todas las filas
+        for row in self.get_rows(3):  # Empezar desde la fila 3
+            self.process_row(row, bsc)
+        
+        # Guardar todos los datos
+        self.save_data()
+        
+        logger.info("Importación completada: %d matrices actualizadas", 
+                   len(self.sample_matrices_data))
+              
 class Dosage_Forms(WorksheetImporter):
     """Import Dosage Forms"""
     

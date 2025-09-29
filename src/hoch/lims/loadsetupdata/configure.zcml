@@ -85,4 +85,28 @@
       factory=".Batch"
       provides="bika.lims.interfaces.ISetupDataImporter"
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
+
+    <adapter
+      name="Instruments_Methods"
+      factory=".Instruments_Methods"
+      provides="bika.lims.interfaces.ISetupDataImporter"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
+    
+    <adapter
+      name="Methods_Calculations"
+      factory=".Methods_Calculations"
+      provides="bika.lims.interfaces.ISetupDataImporter"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
+    
+    <adapter
+      name="AnalysisService_SubInstruments"
+      factory=".AnalysisService_SubInstruments"
+      provides="bika.lims.interfaces.ISetupDataImporter"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
+
+    <adapter
+      name="Sample_Matrices_Variables"
+      factory=".Sample_Matrices_Variables"
+      provides="bika.lims.interfaces.ISetupDataImporter"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
 </configure>

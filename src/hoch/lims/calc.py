@@ -1,90 +1,143 @@
+# -*- coding: utf-8 -*-
 from bika.lims import api
 from bika.lims.api.analysis import is_reference_analysis
 from hoch.lims import logger
 from hoch.lims.utils import is_interim_editable
+from Products.statusmessages.interfaces import IStatusMessage
+from zope.globalrequest import getRequest
 
-def calc_lal(analysis_brain_uid, default_return='0'):
-    analysis = api.get_object(analysis_brain_uid)
-    interim_fields = api.safe_getattr(analysis, "getInterimFields", None)
-    sample = api.safe_getattr(analysis, "getRequest", None)
-    analysis_qcs = sample.getQCAnalyses()
-    if not analysis_qcs:
-        logger.info("No QCs found for analysis %s" % analysis_brain_uid)
-        return
-    sensitivity = next((qc.Sensitivity for qc in analysis_qcs if qc.Sensitivity), None)
-    logger.info("No sensitivity found in QCs")
-    if not sensitivity:
-        return
-    if not interim_fields:
-        logger.info("No interim fields found for analysis %s" % analysis_brain_uid)
-        return
-    logger.info("Interim fields: %s" % interim_fields)
-    if is_reference_analysis(analysis):
-        logger.info("Reference analysis")
-        logger.info("Interim fields: %s" % interim_fields)
-        for interim in interim_fields:
+def show_message(msg, msg_type="error"):
+    """Muestra un mensaje en la UI"""
+    request = getRequest()
+    if request:
+        IStatusMessage(request).addStatusMessage(msg, type=msg_type)
+
+class LALCalculator:
+    """Clase dedicada al cálculo de LAL con responsabilidades separadas"""
+    
+    def __init__(self, analysis_brain_uid):
+        self.analysis = api.get_object(analysis_brain_uid)
+        self.sample = api.safe_getattr(self.analysis, "getRequest", None)
+        self.interim_fields = api.safe_getattr(self.analysis, "getInterimFields", [])
+    
+    def get_sensitivity(self):
+        """Obtener sensibilidad de los análisis QC"""
+        analysis_qcs = self.sample.getQCAnalyses() if self.sample else None
+        if not analysis_qcs:
+            raise LALCalculationError("No QCs found for analysis %s" % self.analysis.UID())
+        
+        sensitivity = next((qc.Sensitivity for qc in analysis_qcs if qc.Sensitivity), None)
+        if not sensitivity:
+            raise LALCalculationError("No sensitivity found for analysis %s" % self.analysis.UID())
+        return sensitivity
+    
+    def get_concentration_and_dilution(self):
+        """Obtener concentración y dilución de la matriz de muestra"""
+        samplematrix = self.sample.getSampleType().getSampleMatrix() if self.sample else None
+        if not samplematrix:
+            raise LALCalculationError("Sample matrix not found")
+        
+        dict_variables = getattr(samplematrix, 'variables_dict', {})
+        concentration = dict_variables.get('LAL', {}).get('concentration')
+        dilution = dict_variables.get('LAL', {}).get('dilution', 1)
+        
+        if not concentration:
+            raise LALCalculationError("Concentration not found in sample matrix variables")
+        
+        return concentration, dilution
+    
+    def calculate_reference_analysis(self):
+        """Calcular para análisis de referencia"""
+        for interim in self.interim_fields:
             if not is_interim_editable(interim):
                 continue
             if interim.get("keyword", "") == "d1":
-                result = api.to_float(interim["value"], -1)
-                logger.info("d1 value: %s" % result)
+                result = api.to_float(interim.get("value"), -1)
                 if result == -1:
-                    return
-                if result > 0:
-                    return 1
-                else:
-                    return 0
-            return
-                
-    else :
-        logger.info("Analysis not reference")
-        result_range = api.safe_getattr(analysis, "getResultsRange", None)
+                    return None
+                return 1 if result > 0 else 0
+        
+        raise LALCalculationError("Reference Sample not valid interim (d1)")
+    
+    def calculate_regular_analysis(self, sensitivity):
+        """Calcular para análisis regular"""
+        result_range = api.safe_getattr(self.analysis, "getResultsRange", None)
         if not result_range:
             return 0
-        specs_lim = max(api.to_float(result_range.max, 0), api.to_float(result_range.min, 0))
-        conc, dilution = getConcentrationAndDilution(sample)
         
-        if not conc or not dilution:
-            logger.info("Concentration or dilution not found")
-            return
+        # Obtener límites de especificación
+        specs_lim = max(
+            api.to_float(getattr(result_range, 'max', 0), 0),
+            api.to_float(getattr(result_range, 'min', 0), 0)
+        )
         
-        mdv = (specs_lim * conc) / (sensitivity * dilution)        
-        for interim in interim_fields:
-            if not is_interim_editable(interim):
-                continue
-            if interim.get("keyword", "") == "mdv":
-                interim.update({"value": str(mdv)})
+        # Obtener concentración y dilución
+        conc, dilution = self.get_concentration_and_dilution()
+
+        # Calcular MDV
+        mdv = (specs_lim * conc) / (sensitivity * dilution) if sensitivity and dilution else 0
+        
+        # Actualizar campos interinos
         max_dilution = 0
-        for interim in interim_fields:
+        for interim in self.interim_fields:
             if not is_interim_editable(interim):
                 continue
-            if interim.get("keyword", "") == "dmdv":
-                dmdv = interim["value"]
-                if dmdv not in [None, "", 0, "0"]:
-                    interim.update({"value": str(mdv)})
-            if interim.get("keyword", "")[0] == "d":
+                
+            keyword = interim.get("keyword", "")
+            value = interim.get("value", "")
+            
+            # Actualizar campo mdv
+            if keyword == "mdv":
+                interim["value"] = str(mdv)
+            
+            # Actualizar campo dmdv si existe
+            elif keyword == "dmdv" and value not in [None, "", 0, "0"]:
+                interim["value"] = str(mdv)
+            
+            # Manejar campos de dilución
+            elif keyword.startswith("d") and len(keyword) > 1:
                 try:
-                    max_dilution = max(max_dilution, api.to_float(interim["value"], 1))
-                except ValueError:
-                    logger.error("Invalid interim field value: %s" % interim["value"])
+                    dilution_key_number = api.to_float(keyword[1:], 1)
+                    current_value = api.to_float(value, 1)
+                    max_dilution = max(max_dilution, current_value)
                     
-        analysis.setInterimFields(interim_fields)
+                    # Actualizar permitir vacío basado en MDV
+                    interim["allow_empty"] = "on" if dilution_key_number > mdv else "off"
+                except ValueError:
+                    logger.error("Invalid interim field value: %s", value)
+        
+        # Guardar campos actualizados
+        self.analysis.setInterimFields(self.interim_fields)
+        
+        # Calcular resultado final
         result_ue_ml = max_dilution * sensitivity
-        #logger.info("LAL result in UE/ml: %s" % result_ue_ml)
-        result_ue_mg = result_ue_ml * dilution / conc
+        result_ue_mg = result_ue_ml * dilution / conc if conc else 0
+        
         return result_ue_mg
     
-def getConcentrationAndDilution(sample):
-    samplematrix = sample.getSampleType().getSampleMatrix()
-    if not samplematrix:
-        return None
-    logger.info("Sample matrix: %s" % samplematrix.__dict__)
-    logger.info("Variables table: %s" % samplematrix.variables_dict)
-    dict_variables = samplematrix.variables_dict
-    if not dict_variables:
-        return None
-    concentration = dict_variables.get('LAL',{}).get('lal_concentration', None)
-    dilution = dict_variables.get('LAL', {}).get('lal_dilution',1)
+    def calculate(self):
+        """Método principal para realizar el cálculo"""
+        try:
+            sensitivity = self.get_sensitivity()
+            
+            if is_reference_analysis(self.analysis):
+                return self.calculate_reference_analysis()
+            else:
+                return self.calculate_regular_analysis(sensitivity)
+                
+        except LALCalculationError as e:
+            logger.error("LAL calculation error: %s", str(e))
+            show_message(str(e))
+            raise LALCalculationError(str(e))
+
+class LALCalculationError(Exception):
+    """Excepción personalizada para errores en el cálculo de LAL"""
+
+def calc_lal(analysis_brain_uid, default_return='0'):
+    """Función principal para cálculo de LAL (versión mejorada)"""
+    logger.info("Calculating LAL for analysis: %s", analysis_brain_uid)
     
-    logger.info("Concentration: %s, Dilution: %s" % (concentration, dilution))
-    return concentration, dilution
+    calculator = LALCalculator(analysis_brain_uid)
+    result = calculator.calculate()
+    
+    return result if result is not None else default_return
