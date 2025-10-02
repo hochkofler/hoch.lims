@@ -40,8 +40,8 @@ class AnalysisSettingsField(RecordsField):
             "analysis": AnalysisServiceVocabulary,
             "parameter": DisplayList((
                 ("", _("-- Select --")),
-                ("lal_concentration", _("LAL Concentration")),
-                ("lal_dilution", _("LAL Dilution")),
+                ("concentration", _("Concentration")),
+                ("dilution", _("Dilution")),
             )),
         },
     })

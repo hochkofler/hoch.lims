@@ -13,6 +13,16 @@
     provides="archetypes.schemaextender.interfaces.ISchemaExtender"/>
 
     <adapter
+      factory=".sample.SampleSchemaExtender"
+      name="sample-extender"
+      provides="archetypes.schemaextender.interfaces.ISchemaExtender"/>
+    
+    <adapter
+      factory=".sample.SampleSchemaModifier"
+      name="sample-modifier"
+      provides="archetypes.schemaextender.interfaces.ISchemaModifier"/>
+
+    <adapter
     factory=".referenceSample.ReferenceSampleSchemaExtender"
     name="referencesample-extender"
     provides="archetypes.schemaextender.interfaces.ISchemaExtender"/>
