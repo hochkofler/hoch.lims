@@ -25,4 +25,11 @@
     ignoreOriginal="True"
     replacement=".setupdata.load_interim_fields" />
 
+    <monkey:patch
+    description="AnalysisService import"
+    class="senaite.core.exportimport.setupdata.Analysis_Services"
+    original="Import"
+    ignoreOriginal="True"
+    replacement=".setupdata.import_analysis_services" />
+
 </configure>
