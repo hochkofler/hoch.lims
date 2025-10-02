@@ -413,6 +413,56 @@ class AnalysisService_SubInstruments(WorksheetImporter):
         
         return sub_instruments
 
+class AnalysisService_Conditions(WorksheetImporter):
+    def Import(self):
+        logger.info("Importing conditions for analysis services")
+        bsc = getToolByName(self.context, SETUP_CATALOG)
+        services_conditions = {}
+        for row in self.get_rows(3):
+            service = self.get_object(bsc, 'AnalysisService',
+                                      row.get('Service_title'))
+            if not service:
+                continue
+            
+            condition_title = row.get('title')
+            if not condition_title:
+                continue
+            
+            condition_type = row.get('type')
+            if not condition_type or condition_type not in ['text','number','checkbox','select','file']:
+                continue
+            
+            service_uid = api.get_uid(service)
+            if service_uid not in services_conditions:
+                services_conditions[service_uid] = {}
+                services_conditions[service_uid][condition_title] = {
+                    "title": condition_title,
+                    "description": row.get('description'),
+                    "type": condition_type,
+                    "choices": row.get('choices'),
+                    "default": row.get('default'),
+                    "required": row.get('required') and True or False,
+                    "report": row.get('report') and True or False,
+                }
+        
+        for service_uid, condition_titles in services_conditions.items():
+            conditions = []
+            for condition_title, condition in condition_titles.items():
+                conditions.append(condition)
+            services_conditions[service_uid]["conditions"] = conditions
+            
+            service = api.get_object_by_uid(service_uid)
+            logger.info("setting conditions '%s' to service: '%s'", conditions, service)
+            actual_conditions = service.getConditions()
+            conditions_to_add = []
+            for actual_condition in actual_conditions:
+                if actual_condition['title'] not in condition_titles:
+                    conditions_to_add.append(actual_condition)
+            
+            conditions_to_add = conditions_to_add + conditions
+            service.setConditions(conditions_to_add)
+            service.reindexObject()
+    
 class Sample_Matrices_Variables(WorksheetImporter):
     """Importador optimizado para variables de matrices de muestra"""
     sample_matrices_data = {}

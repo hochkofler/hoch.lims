@@ -109,4 +109,10 @@
       factory=".Sample_Matrices_Variables"
       provides="bika.lims.interfaces.ISetupDataImporter"
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
+
+    <adapter
+      name="AnalysisService_Conditions"
+      factory=".AnalysisService_Conditions"
+      provides="bika.lims.interfaces.ISetupDataImporter"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
 </configure>
