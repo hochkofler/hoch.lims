@@ -1,0 +1,26 @@
+<tal:section-reference-samples
+tal:define="qcs_analyses python: options.get('qcs_analyses', []);
+            title python: options.get('title', 'ESTANDARES DE REFERENCIA');
+            title_number python: options.get('title_number', 2);">
+    <div class="font-size-120 font-weight-bold"
+        tal:content="python: str(title_number) + ' ' + title"></div>
+    <table class="table table-sm table-condensed nopadding">
+        <tr>
+            <th>DESCRIPCIÓN</th>
+            <th>LOTE</th>
+            <th>VENCIMIENTO</th>
+        </tr>
+        <tal:qcs tal:repeat="reference_sample python: set(qc.getSample() for qc in qcs_analyses)">
+            <tr>
+                <td>
+                    <span>
+                        <a tal:content="python: reference_sample.getReferenceDefinition().Title() + ' (' + reference_sample.getReferenceDefinition().Description() + ')'"
+                            tal:attributes="href reference_sample/absolute_url"></a></span>
+                </td>
+                <td tal:content="python:reference_sample.getLotNumber()"></td>
+                <td tal:content="python:reference_sample.getExpiryDate().strftime('%d-%m-%Y')"></td>
+            </tr>
+
+        </tal:qcs>
+    </table>
+</tal:section-reference-samples>

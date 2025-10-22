@@ -1,0 +1,114 @@
+<tal:ESTERILIDAD
+                    tal:define="analyses python:view.get_analyses_by(view.collection, keyword='EST');
+                                model view/model;
+                                batch python: options.get('batch', None);
+                                mktauth python: options.get('mktauth', None);">
+        <div class="section-sterility">
+            <h1 class="page-title">PRUEBA DE ESTERILIDAD</h1>
+                <tal:EST-ANALYSIS tal:repeat="analysis analyses">
+                    <div class="page-break-after"
+                        tal:define="sample python: analysis.getRequest();
+                                    qc_analyses python: sample.getQCAnalyses();
+                                    specs python:model.get_formatted_specs2(analysis);
+                                    result python:model.get_formatted_result(analysis);
+                                    out_of_range  python: model.is_out_of_range(analysis);
+                                    unit python:model.get_formatted_unit(analysis);
+                                    sample_type sample/getSampleType;
+                                    sample_matrix sample_type/getSampleMatrix;
+                                    interim_fields python:analysis.getInterimFields();">
+                        <div class="text-center">DPTO. CONTROL DE CALIDAD</div>
+                        <div class="text-center" tal:content="analysis/Method/Title"></div>
+                        <tal:t tal:define="est_dates python: analysis.getInterimFields();
+                                            start_date python: view.to_date(next((f['value'] for f in est_dates if f['keyword']=='date_ini'), ''));
+                                            end_date python: start_date + 14;
+                                            q_analysis python: next((c['value'] for c in analysis.getConditions() if c['title'] == 'Unidades analizadas'), '');
+                                            data python: [
+                                                ('FECHA INICIO DE INCUBACIÓN', start_date.strftime('%d-%m-%Y')),
+                                                ('FECHA FIN DE INCUBACIÓN', end_date.strftime('%d-%m-%Y')),
+                                                ('CANTIDAD MUESTREADA (ud)', sample.SampledUnits),
+                                                ('CANTIDAD ANALIZADA (ud)', q_analysis)];"
+                                    replace="structure python:view.render_sample_data(context, sample=sample, data=data)" />
+                        <tal:t  replace="structure python:view.render_batch_data(context, batch=batch, mktauth=mktauth, analysis=analysis)" />
+                        <tal:t  replace="structure python:view.render_reference_sample_data(context, 
+                                                qcs_analyses=qc_analyses,
+                                                title= 'MEDIOS DE CULTIVO Y MICROORGANISMOS DE CONTROL UTILIZADOS (CEPA ATCC)',
+                                                title_number=2)" />
+                        <tal:t  replace="structure python:view.render_instrument_data(context, analysis=analysis, qcs_analyses=qc_analyses)" />
+
+                        <tal:section-results>
+                            <div class="font-size-120 font-weight-bold">4.- RESULTADOS</div>
+                            <table class="table table-sm table-condensed nopadding"
+                                    tal:define="analysis_dependencies python: analysis.getDependencies();
+                                            analysis_dependencies_and_qc_sorted python: analysis_dependencies+sorted(qc_analyses, key=lambda x: x.getSortKey());
+                                            mediums python: ['ASB','TSA','TSB','TMF'];
+                                            analyses_names python: {
+                                                'EST_TSB': 'Resultado',
+                                                'EST_TMF': 'Resultado',
+                                                'AMB_ASB_EQ': 'Placas control ambiente campana de flujo laminar',
+                                                'AMB_TSA_EQ': 'Placas control ambiente campana de flujo laminar',
+                                                'AMB_ASB_EST': 'Placas control ambiente área de esterilidad',
+                                                'AMB_TSA_EST': 'Placas control ambiente área de esterilidad',
+                                                'EST_TSB_CP': 'Control positivo',
+                                                'EST_TMF_CP': 'Control positivo',
+                                                'EST_TSB_CN': 'Control negativo',
+                                                'EST_TMF_CN': 'Control negativo',
+                                            };
+                                            analyses_names_in_use python: [analyses_names[a.getKeyword()] if a.getKeyword() in analyses_names else '' for a in analysis_dependencies_and_qc_sorted];">
+                                <colgroup>
+                                    <col style="width: 30%;">
+                                </colgroup>
+                                <tr class="text-center">
+                                    <th>PRUEBA</th>
+                                    <th>MEDIO  CULTIVO</th>
+                                    <th>1</th>
+                                    <th>2</th>
+                                    <th>3</th>
+                                    <th>4</th>
+                                    <th>5</th>
+                                    <th>6</th>
+                                    <th>7</th>
+                                    <th>8</th>
+                                    <th>9</th>
+                                    <th>10</th>
+                                    <th>11</th>
+                                    <th>12</th>
+                                    <th>13</th>
+                                    <th>14</th>
+                                </tr>
+                                <tal:block tal:repeat="analysis analysis_dependencies_and_qc_sorted">
+                                    <tr tal:define="medium python: next((medium for medium in mediums if medium in analysis.getKeyword()), analysis);
+                                                    index python: analysis_dependencies_and_qc_sorted.index(analysis);
+                                                    reference_definitions python: analysis.getSample().getReferenceDefinition().Title() if analysis in qc_analyses else '';
+                                                    medium_to_display python: medium + ' + ' + reference_definitions if reference_definitions and medium and medium not in reference_definitions else medium;
+                                                    name_to_display python: analyses_names_in_use[index];
+                                                    check_repeats python: index == 0 or name_to_display != analyses_names_in_use[index-1];
+                                                    next_repeated_names python: next((analyses_names_in_use[index:].index(i) for i in analyses_names_in_use[index:] if i != name_to_display), len(analyses_names_in_use[index:])) if check_repeats else '';">
+                                        <td tal:attributes="rowspan string:${next_repeated_names}" tal:content="name_to_display" tal:condition="check_repeats"></td>
+                                        <td class="text-center" tal:content="python: medium_to_display"></td>
+                                        <tal:block tal:repeat="interim python: analysis.getInterimFields()">
+                                            <td class="text-center"
+                                                tal:define="value python: view.formatted_interim(interim, ',');
+                                                            formatted python: '('+value+')' if value in ['+', '-'] else ('<1' if value=='0' else value)"
+                                                tal:content="formatted"></td>
+                                        </tal:block>
+                                    </tr>
+                                </tal:block>
+                                
+                            </table>
+                            <span>Los resultados se basan en la ausencia/presencia de crecimiento microbiano tras la incubación de las muestras en los medios de cultivo indicados.</span><br>
+                            <span>(-): Ausencia de microorganimos en medios de cultivos líquidos</span><br>
+                            <span>(+): Presencia de microorganismos en medios de cultivos líquidos</span><br>
+                            <span> <1: Ausencia de microorganismos en medios de cultivos sólidos (recuento total de microorganimos) </span><br>
+
+                        </tal:section-results>
+                        <tal:section-conclusion>
+                            <div class="font-size-120 font-weight-bold">5.- DICTAMEN</div>
+                            <div class="font-size-120 font-weight-bold text-center"
+                                tal:content="python: 'APROBADO' if out_of_range == False else 'RECHAZADO'">
+                            </div>
+                        </tal:section-conclusion>
+                        <tal:t replace="structure python:view.render_signatures(context, sample=sample, analyses=[analysis]+qc_analyses)" />
+                    </div>
+                </tal:EST-ANALYSIS>
+        </div>
+    </tal:ESTERILIDAD>

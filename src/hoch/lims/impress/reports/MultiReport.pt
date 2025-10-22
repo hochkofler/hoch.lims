@@ -15,7 +15,9 @@
                                 sciformat=1,
                                 html=True,
                                 is_max_date=True);
-                    all_analyses python:view.get_analyses_by(collection);">
+                    all_analyses python:view.get_analyses_by(collection);
+                    LAL_analyses python:view.get_analyses_by(collection, keyword='LAL');
+                    EST_analyses python:view.get_analyses_by(collection, keyword='EST');">
 
     <!-- REPORT CONTROLS -->
     <tal:t replace="structure python:view.render_controls(context, **options)" />
@@ -44,6 +46,10 @@
 
         .report .section-lal {
             page: lal;
+        }
+
+        .report .section-sterility {
+            page: sterility;
         }
 
         h1.page-title {
@@ -91,6 +97,34 @@
         }
 
         @page lal {
+
+            @top-left {
+                content: url("senaite_theme/icon/logo-ifa-rojo.svg");
+                margin-top: 10mm;
+            }
+
+            @top-center {
+                content: "REPORTE SENAITE \A" String(title);
+                white-space: pre;
+                margin-top: 10mm;
+                font-size: 10pt;
+            }
+
+            @top-right {
+                font-size: 8pt;
+                white-space: pre;
+                content: "COD. INT.: " string(document-number) "\A VER.:" String(document-version) "\A EMISIÓN:" String(document-date);
+                margin-top: 10mm;
+            }
+
+            @bottom-right {
+                content: "Pág. " counter(page) " de " counter(pages);
+                font-size: 8pt;
+                margin-bottom: 10mm;
+            }
+        }
+
+        @page sterility {
 
             @top-left {
                 content: url("senaite_theme/icon/logo-ifa-rojo.svg");
@@ -414,8 +448,7 @@
         </div>
 
     </tal:REVIEW-RESULTS>
-    <tal:LALs tal:condition="True" 
-            tal:define="LAL_analyses python:view.get_analyses_by(collection, keyword='LAL')">
+    <tal:LALs tal:condition="python: True and LAL_analyses">
         <div class="section-lal">
             <h1 class="page-title">PRUEBA DE ENDOTOXINAS BACTERIANAS</h1>
             <tal:LAL-ANALYSIS tal:repeat="LAL_analysis LAL_analyses">
@@ -436,6 +469,7 @@
                     <div class="text-center">DPTO. CONTROL DE CALIDAD</div>
                     <div class="text-center" tal:content="LAL_analysis/Method/Title"></div>
                     <div class="font-size-120 font-weight-bold">1. DATOS GENERALES DEL PRODUCTO</div>
+
                     <table class="table table-sm table-condensed">
                         <tr>
                             <td class="label noborder-right">
@@ -746,4 +780,6 @@
             </tal:LAL-ANALYSIS>
         </div>
     </tal:LALs>
+    <!--STERILITY REPORT-->
+    <tal:t  replace="structure python:view.render_sterility_report(context, batch=batch, mktauth=mktauth)" />
 </tal:report>

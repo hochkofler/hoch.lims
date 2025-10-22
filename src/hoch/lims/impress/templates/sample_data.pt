@@ -1,0 +1,40 @@
+<tal-block tal:define="sample python: options.get('sample', view.model);
+                        title python: options.get('title', 'DATOS GENERALES DE LA MUESTRA');
+                        title_number python: options.get('title_number', 1);">
+    <div class="font-size-120 font-weight-bold"
+        tal:content="python: str(title_number) + ' ' + title"></div>
+    <table class="table table-sm table-condensed nopadding">
+        <tr>
+            <th>ID MUESTRA</th>
+            <th>TIPO DE MUESTRA</th>
+            <th>MUESTREO</th>
+            <th>PUNTO DE MUESTREO</th>
+            <th>SUB-GRUPO</th>
+        </tr>
+        <tr tal:define="sampling_date python:sample.getDateSampled();
+                        sampling_point sample/getSamplePoint;
+                        sample_type sample/getSampleType;">
+            <td>
+                <a tal:content="sample/getId" tal:attributes="href sample/absolute_url"></a>
+            </td>
+            <td tal:content="sample_type/Title"></td>
+            <td tal:content="python:sampling_date.strftime('%d-%m-%Y') if sampling_date else ''"></td>
+            <td tal:content="sampling_point/Title"></td>
+            <td tal:content="python: sample.getSubGroup().Title() if sample.getSubGroup() else ''"></td>
+        </tr>
+    </table>
+    <table tal:define="data python: options.get('data', None);" class="table table-sm table-condensed nopadding"
+        tal:condition="data" style="margin-top: -3mm;">
+        <thead>
+            <tr>
+                <th tal:repeat="item data" tal:content="python:item[0]"> </th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td tal:repeat="item data" tal:content="python:item[1]"></td>
+            </tr>
+        </tbody>
+    </table>
+</tal-block>

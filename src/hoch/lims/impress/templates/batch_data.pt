@@ -1,0 +1,27 @@
+<table tal:define="batch python: options.get('batch', None);
+                    mktauth python: options.get('mktauth', None);
+                    analysis python: options.get('analysis', None);" class="table table-sm table-condensed nopadding">
+    <tr>
+        <td class="label noborder-right">
+            <span class="colon-after">PRODUCTO</span>
+        </td>
+        <td class="label">
+            <span tal:content="mktauth/TradeName"></span>
+        </td>
+        <td class="label">
+            <span class="colon-after">LOTE</span>
+        </td>
+        <td class="text-center">
+            <span>
+                <a tal:content="batch/ClientBatchID" tal:attributes="href batch/absolute_url"></a></span>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <span class="colon-after"><strong>FORMA FARMACÉUTICA</strong></span>
+        </td>
+        <td>
+            <span tal:content="mktauth/DosageForm"></span>
+        </td>
+    </tr>
+</table>

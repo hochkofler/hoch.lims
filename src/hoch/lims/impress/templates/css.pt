@@ -45,6 +45,11 @@ content_height options/content_height|nothing;
       font-size: 100%;
     }
 
+    .report .font-size-85 {
+      font-size: 100%;
+    }
+
+
     .report .is-out-of-range {
       font-size: 120%;
       font-weight: bold;
@@ -75,8 +80,18 @@ content_height options/content_height|nothing;
       break-after: page;
     }
 
+    .report table {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
     .report table.nopadding td {
-      padding: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
+    .report table.nopadding th {
+      padding-bottom: 0;
     }
 
     .report table td.label {

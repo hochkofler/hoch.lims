@@ -1,0 +1,30 @@
+<tal:block tal:define="analysis python: options.get('analysis', []);
+                        qcs_analyses python: options.get('qcs_analyses', []);
+                        title python: options.get('title', 'EQUIPOS UTILIZADOS');
+                        title_number python: options.get('title_number', 3);" 
+                        tal:condition="analysis">
+    <div class="font-size-120 font-weight-bold"
+        tal:content="python: str(title_number) + ' ' + title"></div>
+    <table class="table table-sm table-condensed nopadding">
+        <tr>
+            <th>CLASIFICACIÓN</th>
+            <th>NOMBRE</th>
+            <th>CERTIFICADO CALIBRACIÓN</th>
+        </tr>
+        <tal:instruments
+            tal:repeat="instrument python: set([i.getInstrument() for i in [analysis]+qcs_analyses if i.getInstrument() ])">
+            <tr tal:define="instrument_type instrument/getInstrumentType;
+                                                instrument_manufacturer instrument/getManufacturer;
+                                                insturment_certification instrument/getLatestValidCertification">
+                <td tal:content="instrument_type/Title"></td>
+                <td tal:content="instrument/Title"></td>
+                <td>
+                    <span>Id:</span><span tal:content="insturment_certification/Title"></span>
+
+                    <span>Vcto:</span><span
+                        tal:content="python:insturment_certification.getValidTo().strftime('%m-%Y')"></span>
+                </td>
+            </tr>
+        </tal:instruments>
+    </table>
+</tal:block>
