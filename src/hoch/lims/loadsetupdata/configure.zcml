@@ -121,4 +121,10 @@
       factory=".Calculations_python_imports"
       provides="bika.lims.interfaces.ISetupDataImporter"
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
+
+    <adapter
+      name="Reference_Samples_Concentration"
+      factory=".Reference_Samples_Concentration"
+      provides="bika.lims.interfaces.ISetupDataImporter"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
 </configure>

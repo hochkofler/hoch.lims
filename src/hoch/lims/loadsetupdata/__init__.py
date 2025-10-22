@@ -501,6 +501,24 @@ class Calculations_python_imports(WorksheetImporter):
             calculation.setPythonImports([python_import])
             calculation.reindexObject()
             logger.info("Calculation '%s' python imports updated", calculation.Title())
+
+class Reference_Samples_Concentration(WorksheetImporter):
+    """Importer for reference samples concentrations"""
+    def Import(self):
+        bsc = getToolByName(self.context, SENAITE_CATALOG)
+        for row in self.get_rows(3):
+            reference_sample = self.get_object(bsc, 'ReferenceSample',
+                                       row.get('id', ''))
+            if not reference_sample:
+                continue
+            
+            reference_sample.edit(
+                Concentration = row.get('Concentration',''),
+                ConcentrationUnit=row.get('ConcentrationUnit',''),
+                Sensitivity=row.get('Sensitivity',''),
+                SensitivityUnit=row.get('SensitivityUnit','')
+            )
+            reference_sample.reindexObject()
             
 class Sample_Matrices_Variables(WorksheetImporter):
     """Importador optimizado para variables de matrices de muestra"""
