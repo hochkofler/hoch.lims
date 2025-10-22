@@ -42,6 +42,9 @@ class AnalysisSettingsField(RecordsField):
                 ("", _("-- Select --")),
                 ("concentration", _("Concentration")),
                 ("dilution", _("Dilution")),
+                ("buffer", _("Buffer")),
+                ("ph", _("pH")),
+                ("temperature", _("Temperature")),
             )),
         },
     })
