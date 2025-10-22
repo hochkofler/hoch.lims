@@ -261,6 +261,8 @@ class Batch(WorksheetImporter):
         client_cat = api.get_tool(CLIENT_CATALOG)
         product_cat = api.get_tool(HOCHLIMS_CATALOG)
         senaite_cat = api.get_tool(SENAITE_CATALOG)
+        bsc = getToolByName(self.context, SETUP_CATALOG)
+        
         for row in self.get_rows(3):
             batch_id = row.get("BatchID")
             if not batch_id:
@@ -287,6 +289,15 @@ class Batch(WorksheetImporter):
             if not product:
                 logger.error("Skipping %s: product '%s' not found" % (batch_id, product_code))
                 continue
+            
+            batch_labels_titles = row.get("BatchLabels").split(",")
+            batch_labels = []
+            for batch_label_title in batch_labels_titles:
+                batch_label = self.get_object(bsc, 'BatchLabel',
+                                      batch_label_title)
+                if batch_label:
+                    batch_labels.append(api.get_uid(batch_label))
+            
             # create the batch
             obj = api.create(
                 client, "Batch",
@@ -295,6 +306,7 @@ class Batch(WorksheetImporter):
                 BatchID = batch_id,
                 ClientBatchID = batch_id,
                 BatchDate =  row.get("BatchDate"),
+                BatchLabels = batch_labels,
                 ManufactureDate = row.get("ManufactureDate"),
                 ReleasedBatchSize = row.get("ReleasedBatchSize"),
                 Product = product,
@@ -462,7 +474,34 @@ class AnalysisService_Conditions(WorksheetImporter):
             conditions_to_add = conditions_to_add + conditions
             service.setConditions(conditions_to_add)
             service.reindexObject()
+
+class Calculations_python_imports(WorksheetImporter):
+    """Import Calculations python imports"""
     
+    def Import(self):
+        """Import Calculations python imports"""
+        logger.info("Importing Calculations python imports custom")
+        bsc = getToolByName(self.context, SETUP_CATALOG)
+        for row in self.get_rows(3):
+            calculation = self.get_object(bsc, 'Calculation',
+                                      row.get('Calculation_title'))
+            if not calculation:
+                continue
+            
+            python_module = row.get('python_module')
+            python_function = row.get('python_function')
+            if not python_function or not python_module:
+                continue
+            
+            python_import = {
+                'module': python_module,
+                'function': python_function
+            }
+            
+            calculation.setPythonImports([python_import])
+            calculation.reindexObject()
+            logger.info("Calculation '%s' python imports updated", calculation.Title())
+            
 class Sample_Matrices_Variables(WorksheetImporter):
     """Importador optimizado para variables de matrices de muestra"""
     sample_matrices_data = {}
