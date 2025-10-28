@@ -11,6 +11,8 @@ from Products.CMFCore.utils import getToolByName
 from bika.lims.utils import tmpID
 from senaite.core.exportimport.setupdata import Float
 from senaite.core.idserver import renameAfterCreation
+from Products.CMFPlone.utils import safe_unicode
+from hoch.lims import logger
 
 def Import_sample_templates(self):
         self.load_sampletemplate_services()
@@ -99,6 +101,8 @@ def load_interim_fields(self):
                 'unit': row['unit'] and row['unit'] or ''})
      
 def import_analysis_services(self):
+    # Only Change line Method=defaultmethod,
+    # And add line Instrument = defaultinstrument,
         self.load_interim_fields()
         folder = self.context.bika_setup.bika_analysisservices
         bsc = getToolByName(self.context, SETUP_CATALOG)
@@ -231,3 +235,63 @@ def import_analysis_services(self):
             notify(ObjectInitializedEvent(obj))
         self.load_result_options()
         self.load_service_uncertainties()
+        
+def import_Analysis_Specifications(self):
+        """change all bucket[parent][title][resultsrange]"""
+        bucket = {}
+        client_catalog = getToolByName(self.context, CLIENT_CATALOG)
+        setup_catalog = getToolByName(self.context, SETUP_CATALOG)
+        # collect up all values into the bucket
+        for row in self.get_rows(3):
+            field = row.get("Title", False)
+            if not field:
+                field = row.get("title", False)
+                if not field:
+                    continue
+            parent = row["Client_title"] if row["Client_title"] else "lab"
+            st = row["SampleType_title"] if row["SampleType_title"] else ""
+            service = self.resolve_service(row)
+
+            if parent not in bucket:
+                bucket[parent] = {}
+            if field not in bucket[parent]:
+                bucket[parent][field] = {"sampletype": st, "resultsrange": []}
+            resultsrange_dict = {
+                "keyword": service.getKeyword(),
+                "min": row.get("min", ""),
+                "max": row.get("max", ""),
+                "max_operator": 'lt' if row.get("max_operator", 'leq') == '<' else 'leq',
+                "min_operator": 'gt' if row.get("min_operator", 'geq') == '>' else 'geq',
+                "warn_min": row.get("warn_min", ""),
+                "warn_max": row.get("warn_max", ""),
+                "hidemin": row.get("hidemin", ""),
+                "hidemax": row.get("hidemax", ""),
+                "rangecomment": row.get("rangecomment", ""),
+                "min_panic": row.get("min_panic", ""),
+                "max_panic": row.get("max_panic", ""),
+                }
+            logger.info("Result range dict %s", resultsrange_dict)
+            bucket[parent][field]["resultsrange"].append(resultsrange_dict)
+                
+        # write objects.
+        for parent in bucket.keys():
+            for field in bucket[parent]:
+                if parent == "lab":
+                    folder = self.context.bika_setup.bika_analysisspecs
+                else:
+                    proxy = client_catalog(
+                        portal_type="Client", getName=safe_unicode(parent))[0]
+                    folder = proxy.getObject()
+                st = bucket[parent][field]["sampletype"]
+                resultsrange = bucket[parent][field]["resultsrange"]
+                if st:
+                    st_uid = setup_catalog(
+                        portal_type="SampleType", title=safe_unicode(st))[0].UID
+                obj = _createObjectByType("AnalysisSpec", folder, tmpID())
+                obj.edit(title=field)
+                obj.setResultsRange(resultsrange)
+                if st:
+                    obj.setSampleType(st_uid)
+                obj.unmarkCreationFlag()
+                renameAfterCreation(obj)
+                notify(ObjectInitializedEvent(obj))
