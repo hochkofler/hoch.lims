@@ -19,6 +19,7 @@ from senaite.core.catalog import CLIENT_CATALOG
 from senaite.core.catalog import SENAITE_CATALOG
 from bika.lims.content.abstractbaseanalysis import RESULT_TYPES
 from hoch.lims.config import VARIABLES
+from senaite.core.idserver import renameAfterCreation
 
 class Hochlims_Custom(WorksheetImporter):
     """Import Analysis Services Hidden"""
@@ -309,10 +310,15 @@ class Batch(WorksheetImporter):
                 BatchLabels = batch_labels,
                 ManufactureDate = row.get("ManufactureDate"),
                 ReleasedBatchSize = row.get("ReleasedBatchSize"),
+                BatchSize = api.to_int(row.get("BatchSize", 1000),1000),
                 Product = product,
+                Description = product.Description(),
                 Remarks = row.get("Remarks"),
             )
-            logger.info("Batch '%s' created" % obj.__dict__)
+            logger.info("Batch '%s' created" % obj)
+            obj.unmarkCreationFlag()
+            renameAfterCreation(obj)
+            notify(ObjectInitializedEvent(obj))
             
 class Instruments_Methods(WorksheetImporter):
     def Import(self):
@@ -530,17 +536,14 @@ class Sample_Matrices_Variables(WorksheetImporter):
         service_title = row.get('service_title')
         parameter = row.get('parameter')
         value_str = row.get('value')
+        unit = row.get('unit')
         
         # Validaciones básicas
         if not all([samplematrix_title, service_title, parameter, value_str]):
             logger.warning(u"Fila omitida: datos incompletos")
             return
             
-        try:
-            value = float(value_str)
-        except (ValueError, TypeError):
-            logger.warning(u"Valor no numérico omitido: %s", value_str)
-            return
+        value = (api.to_float(value_str, 0), unit)
             
         # Obtener objetos
         samplematrix = self.get_object(bsc,'SampleMatrix', samplematrix_title)
@@ -576,7 +579,8 @@ class Sample_Matrices_Variables(WorksheetImporter):
                     variables_data.append({
                         'parameter': param_name,
                         'service': service_uid,
-                        'value': param_value
+                        'value': param_value[0],
+                        'unit': param_value[1],
                     })
             
             # Actualizar la matriz de muestra
