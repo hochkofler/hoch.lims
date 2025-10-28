@@ -35,5 +35,10 @@
     provides=".samplematrix.ISampleMatrixSchemaExtender"
     factory=".samplematrix.SampleMatrixSchemaExtender"
     />
+
+    <adapter
+    factory=".idserver.IDServerVariablesAdapter"
+    provides="bika.lims.interfaces.IIdServerVariables"
+    for="*" />
     
 </configure>
