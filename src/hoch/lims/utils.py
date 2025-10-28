@@ -1,6 +1,9 @@
 from collections import OrderedDict
 from bika.lims.utils import formatDecimalMark
 from bika.lims import api
+import re
+from hoch.lims import logger
+from bika.lims.api import get_object_by_uid
 
 _marker = object()
 
@@ -93,6 +96,17 @@ def get_formatted_interim(interim, dmk=","):
         values = filter(None, values)
         return "<br/>".join(values)
 
+def separate_number_from_text(text):
+    text.strip()
+    match = re.search(r"[\d.,]+", text)
+    if not match:
+        logger.info("Separate retrun '%s'", {"number": None, "text": text})
+        return {"number": None, "text": text}
+    
+    number = match.group(0)
+    not_number = text[match.end():].strip()
+    return {"number": number, "text": not_number}
+
 def compute_variables_dict(obj):
     """Build variables_dict from variables_table"""
     data = {}
@@ -101,14 +115,15 @@ def compute_variables_dict(obj):
         param = row.get("parameter")
         value = row.get("value")
         uids = row.get("service")
+        unit = row.get("unit")
         if not uids:
             continue
         for uid in (uids if isinstance(uids, (list, tuple)) else [uids]):
             if uid not in cache:
-                service = api.get_object_by_uid(uid)
+                service = get_object_by_uid(uid)
                 cache[uid] = service.getKeyword() if service else uid
             code = cache[uid]
             
             if param and value is not None:
-                data.setdefault(code, {})[param] = value
+                data.setdefault(code, {})[param] = (value, unit)
     return data
