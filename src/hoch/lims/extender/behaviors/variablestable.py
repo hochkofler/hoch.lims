@@ -20,6 +20,7 @@ from bika.lims.api import get_object_by_uid
 from senaite.core.interfaces import ISampleMatrix
 from zope.lifecycleevent.interfaces import IObjectModifiedEvent, IObjectAddedEvent
 from hoch.lims import check_installed
+from hoch.lims.utils import compute_variables_dict
 
 class IVariablesTableSchema(Interface):
     directives.widget(
@@ -41,7 +42,7 @@ class IVariablesTableSchema(Interface):
         ),
         allowed_types=("AnalysisService", ),
         multi_valued=False,
-        required=False)
+        required=True)
     
     parameter = schema.Choice(
         title=_(
@@ -49,15 +50,22 @@ class IVariablesTableSchema(Interface):
             default=u"Parameter"
         ),
         source=VARIABLES,
-        required=False,
+        required=True,
     )
     value = schema.Float(
         title=_(
-            u"label_variable_vakye",
+            u"label_variable_value",
             default=u"Value"
         ),
         min=0.0,
         default=1.0,
+        required=True,
+    )
+    unit = schema.TextLine(
+        title=_(
+            u"label_variable_unit",
+            default=u"Unit"
+        ),
         required=False,
     )
     
@@ -95,26 +103,7 @@ class VariablesTable(object):
         self.context.variables_table = value
 
     variables_table = property(_get_variables_table, _set_variables_table)
-    
-def compute_variables_dict(obj):
-    """Build variables_dict from variables_table"""
-    data = {}
-    cache = {}
-    for row in (obj.variables_table or []):
-        param = row.get("parameter")
-        value = row.get("value")
-        uids = row.get("service")
-        if not uids:
-            continue
-        for uid in (uids if isinstance(uids, (list, tuple)) else [uids]):
-            if uid not in cache:
-                service = get_object_by_uid(uid)
-                cache[uid] = service.getKeyword() if service else uid
-            code = cache[uid]
-            
-            if param and value is not None:
-                data.setdefault(code, {})[param] = value
-    return data
+
 @check_installed(None)
 @adapter(ISampleMatrix, IObjectAddedEvent)
 def on_samplematrix_added(obj, event):
