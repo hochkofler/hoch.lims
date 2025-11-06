@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from archetypes.schemaextender.interfaces import IBrowserLayerAwareExtender
 from archetypes.schemaextender.interfaces import IOrderableSchemaExtender
 from archetypes.schemaextender.interfaces import ISchemaExtender
@@ -5,12 +6,13 @@ from archetypes.schemaextender.interfaces import ISchemaModifier
 from zope.component import adapts
 from zope.interface import implements
 from bika.lims.interfaces import IReferenceSample
-from hoch.lims.content.fields import ExtFloatFieldAT, ExtStringFieldAT
 from hoch.lims.interfaces import IHochLims
-from Products.Archetypes.Widget import StringWidget
-from Products.Archetypes.Widget import DecimalWidget
+
 from hoch.lims import messageFactory as _
-from hoch.lims import logger
+from bika.lims.browser.widgets.recordswidget import RecordsWidget
+from hoch.lims.content.fields import ExtVariablesSettingsFieldAT
+from Products.CMFCore.permissions import View
+from Products.Archetypes import DisplayList
 
 class ReferenceSampleSchemaExtender(object):
     """Extend Schema Fields for Reference Sample content type."""
@@ -22,46 +24,24 @@ class ReferenceSampleSchemaExtender(object):
     adapts(IReferenceSample)
     
     fields = [
-        ExtFloatFieldAT(
-            "Concentration",
-            schemata = 'Description',
+        ExtVariablesSettingsFieldAT(
+            "VariablesSettings",
+            schemata="Vairables",
             required=0,
-            widget=DecimalWidget(
-              label=_(
-                u"label_referencesample_concentration",
-                default=u"Concentration",),  
+            subfield_vocabularies={
+                "keyword": DisplayList((
+                    ('', ''),
+                    ('concentration', _('Concentration')),
+                    ('sensitivity', _('Sensitivity')),
+                    ('other', _('Other')),
+                )),
+            },
+            widget=RecordsWidget(
+                label=_("Extra Variable Fields"),
+                description=_("Extra variable fields that can be used."),
             ),
         ),
-        ExtStringFieldAT(
-            "ConcentrationUnit",
-            schemata = 'Description',
-            required=0,
-            widget=StringWidget(
-              label=_(
-                u"label_referencesample_concentrationunit",
-                default=u"Concentration Unit",),  
-            ),
-        ),
-        ExtFloatFieldAT(
-            "Sensitivity",
-            schemata = 'Description',
-            required=0,
-            widget=DecimalWidget(
-              label=_(
-                u"label_referencesample_sensitivity",
-                default=u"Sensitivity",),  
-            ),
-        ),
-        ExtStringFieldAT(
-            "SensitivityUnit",
-            schemata = 'Description',
-            required=0,
-            widget=StringWidget(
-              label=_(
-                u"label_referencesample_sensitivityunit",
-                default=u"Sensitivity Unit",),  
-            ),
-        ),
+        
     ]
     def __init__(self, context):
         self.context = context
@@ -72,17 +52,6 @@ class ReferenceSampleSchemaExtender(object):
     def getOrder(self, original):
         """Change the order of the extended fields
         """
-        # get the fields of the default schemata
-        default = original["default"]
-
-        # move  Order Number 
-        index = default.index("ReferenceDefinitionUID")
-        # remove any existing field
-        if "Concentration" in default:
-            default.remove("Concentration")
-        # add the field below the reference index
-        default.insert(index - 1, "Concentration")
-
         return original
 
 class ReferenceSampleSchemaModifier(object):
