@@ -8,17 +8,9 @@ from zope.component import adapter
 from zope.interface import implementer
 from zope.interface import provider
 from hoch.lims.content.fields import UIDReferenceFieldDx
-from bika.lims.browser.widgets.recordswidget import RecordsWidget
 from senaite.core.z3cform.widgets.uidreference import UIDReferenceWidgetFactory
 from hoch.lims.catalog import HOCHLIMS_CATALOG
 from hoch.lims import messageFactory as _
-from hoch.lims.content.AnalysisSettingsField import AnalysisSettingsField
-from hoch.lims.content.AnalysisSettingsField import IVariableRow
-from zope import schema
-from senaite.core.browser.fields.records import RecordField
-from senaite.core.z3cform.widgets.datagrid import DataGridWidgetFactory
-from senaite.core.schema.registry import DataGridRow
-from zope.interface import Interface
 
 @provider(IFormFieldProvider)
 class ISampleMatrixSchemaExtender(model.Schema):
