@@ -312,7 +312,7 @@ class Batch(WorksheetImporter):
                 ReleasedBatchSize = row.get("ReleasedBatchSize"),
                 BatchSize = api.to_int(row.get("BatchSize", 1000),1000),
                 Product = product,
-                Description = product.Description(),
+                description = product.getName(),
                 Remarks = row.get("Remarks"),
             )
             logger.info("Batch '%s' created" % obj)
