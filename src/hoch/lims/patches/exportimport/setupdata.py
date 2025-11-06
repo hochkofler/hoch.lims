@@ -98,7 +98,8 @@ def load_interim_fields(self):
                 'result_type': row.get('result_type', ''),
                 'allow_empty': ('allow_empty' in row and row['allow_empty']) and True or False,
                 'wide': ('wide' in row and row['wide']) and True or False,
-                'unit': row['unit'] and row['unit'] or ''})
+                'unit': row['unit'] and row['unit'] or '',
+                'report': row.get('report', '')})
      
 def import_analysis_services(self):
     # Only Change line Method=defaultmethod,
