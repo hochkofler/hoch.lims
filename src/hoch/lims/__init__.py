@@ -7,6 +7,7 @@ from hoch.lims.interfaces import IHochLims
 from hoch.lims.config import DEFAULT_ROLES
 from hoch.lims.config import DEFAULT_TYPES
 from hoch.lims.config import PRODUCT_NAME
+from hoch.lims.validators import *
 
 PROFILE_ID = "profile-{}:default".format(PRODUCT_NAME)
 UNINSTALL_PROFILE_ID = "profile-{}:uninstall".format(PRODUCT_NAME)

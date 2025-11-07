@@ -29,6 +29,13 @@ class VariablesSettingsField(RecordsField):
         "subfield_types": {
             "value": "string",
         },
+        
+        "subfield_validators": {
+            "keyword": "VariablesSettingsFieldsValidator",
+            "value": "VariablesSettingsFieldsValidator",
+            "unit": "VariablesSettingsFieldsValidator",
+        },
+        
         "subfield_sizes": {
             "keyword": 1,
             "value": 10,
@@ -53,7 +60,13 @@ class VariablesSettingsField(RecordsField):
 
     def set(self, instance, value, **kwargs):
         """Override setter to auto-fill title/unit"""
-
+        vocab = self._properties.get("subfield_vocabularies", {}).get("keyword", None)
+        if vocab and isinstance(vocab, DisplayList):
+            display_map = dict(vocab.items())
+            for record in value:
+                keyword = record.get("keyword")
+                if keyword in display_map:
+                    record["title"] = display_map[keyword]
         RecordsField.set(self, instance, value, **kwargs)
 
 
