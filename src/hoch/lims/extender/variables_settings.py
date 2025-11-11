@@ -5,36 +5,28 @@ from archetypes.schemaextender.interfaces import ISchemaExtender
 from archetypes.schemaextender.interfaces import ISchemaModifier
 from zope.component import adapts
 from zope.interface import implements
-from bika.lims.interfaces import IReferenceSample
 from hoch.lims.interfaces import IHochLims
-
 from hoch.lims import messageFactory as _
 from bika.lims.browser.widgets.recordswidget import RecordsWidget
 from hoch.lims.content.fields import ExtVariablesSettingsFieldAT
-from Products.CMFCore.permissions import View
-from Products.Archetypes import DisplayList
+from bika.lims.interfaces import IInstrument, IReferenceSample
 
-class ReferenceSampleSchemaExtender(object):
+class VariablesSettingsSchemaExtender(object):
     """Extend Schema Fields for Reference Sample content type."""
     layer = IHochLims
     implements(
         ISchemaExtender,
         IBrowserLayerAwareExtender,
         IOrderableSchemaExtender)
-    adapts(IReferenceSample)
+    adapts(IReferenceSample, IInstrument)
     
     fields = [
         ExtVariablesSettingsFieldAT(
             "VariablesSettings",
-            schemata="Vairables",
+            schemata=_("Variables"),
             required=0,
             subfield_vocabularies={
-                "keyword": DisplayList((
-                    ('', ''),
-                    ('concentration', _('Concentration')),
-                    ('sensitivity', _('Sensitivity')),
-                    ('other', _('Other')),
-                )),
+                "keyword": "getVariablesSettingsFieldVocabulary",
             },
             widget=RecordsWidget(
                 label=_("Extra Variable Fields"),
@@ -54,14 +46,14 @@ class ReferenceSampleSchemaExtender(object):
         """
         return original
 
-class ReferenceSampleSchemaModifier(object):
+class VariablesSettingsSchemaModifier(object):
     """Modify Reference Sample Schema Fields
     """
     layer = IHochLims
     implements(
         ISchemaModifier,
         IBrowserLayerAwareExtender)
-    adapts(IReferenceSample)
+    adapts(IReferenceSample, IInstrument)
 
     def __init__(self, context):
         self.context = context

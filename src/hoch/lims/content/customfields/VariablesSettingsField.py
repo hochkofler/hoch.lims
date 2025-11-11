@@ -5,6 +5,9 @@ from hoch.lims import messageFactory as _
 from Products.Archetypes import DisplayList
 from Products.Archetypes.Registry import registerField
 from senaite.core.browser.fields.records import RecordsField
+from zope.component import queryAdapter
+from hoch.lims.interfaces import IVariablesSettingsVocabularyProvider
+from hoch.lims import logger
 
 class VariablesSettingsField(RecordsField):
     """a list of VariablesSettingsField for calculations """
@@ -42,12 +45,7 @@ class VariablesSettingsField(RecordsField):
             "unit": 10,
         },
         "subfield_vocabularies": {
-            "keyword": DisplayList((
-                    ('', ''),
-                    ('concentration', _('Concentration')),
-                    ('sensitivity', _('Sensitivity')),
-                    ('other', _('Other')),
-                )),
+            "keyword": "getVariablesSettingsFieldVocabulary",
         },
     })
     security = ClassSecurityInfo()
@@ -60,14 +58,29 @@ class VariablesSettingsField(RecordsField):
 
     def set(self, instance, value, **kwargs):
         """Override setter to auto-fill title/unit"""
-        vocab = self._properties.get("subfield_vocabularies", {}).get("keyword", None)
+        vocab = self.getVariablesSettingsFieldVocabulary(instance)
+        filled_items = []
         if vocab and isinstance(vocab, DisplayList):
             display_map = dict(vocab.items())
             for record in value:
                 keyword = record.get("keyword")
                 if keyword in display_map:
                     record["title"] = display_map[keyword]
-        RecordsField.set(self, instance, value, **kwargs)
+                    filled_items.append(record)
+        if value and not filled_items:
+            logger.info("No data to set in variables field, valid kewords are: '%s'", vocab)
+        RecordsField.set(self, instance, filled_items, **kwargs)
+        
+    def getVariablesSettingsFieldVocabulary(self, instance=None, **kwargs):
+        if not instance:
+            return DisplayList((('', ''),))
+        
+        provider = queryAdapter(instance, IVariablesSettingsVocabularyProvider)
+        if not provider:
+            # fallback genérico
+            return DisplayList((('', ''), ('notdefined', 'Not Defined')))
+        
+        return provider.getVocabulary()
 
 
 registerField(

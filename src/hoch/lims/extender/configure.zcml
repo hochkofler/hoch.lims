@@ -23,9 +23,33 @@
       provides="archetypes.schemaextender.interfaces.ISchemaModifier"/>
 
     <adapter
-    factory=".referenceSample.ReferenceSampleSchemaExtender"
-    name="referencesample-extender"
-    provides="archetypes.schemaextender.interfaces.ISchemaExtender"/>
+    factory=".variables_settings_vocabulary.DefaultVariablesSettingsVocabularyProvider"
+    provides="hoch.lims.interfaces.IVariablesSettingsVocabularyProvider"
+    for="zope.interface.Interface" />
+
+    <adapter
+    factory=".variables_settings_vocabulary.InstrumentVariablesVocabulary"
+    provides="hoch.lims.interfaces.IVariablesSettingsVocabularyProvider"
+    for="bika.lims.interfaces.IInstrument" />
+
+    <adapter
+    factory=".variables_settings_vocabulary.ReferenceSampleVariablesVocabulary"
+    provides="hoch.lims.interfaces.IVariablesSettingsVocabularyProvider"
+    for="bika.lims.interfaces.IReferenceSample"/>
+
+<adapter
+    factory=".variables_settings.VariablesSettingsSchemaExtender"
+    name="variables settings extender"
+    provides="archetypes.schemaextender.interfaces.ISchemaExtender"
+    for="bika.lims.interfaces.IReferenceSample"
+/>
+
+<adapter
+    factory=".variables_settings.VariablesSettingsSchemaExtender"
+    name="variables settings extender"
+    provides="archetypes.schemaextender.interfaces.ISchemaExtender"
+    for="bika.lims.interfaces.IInstrument"
+/>
 
     <plone:behavior
     for="senaite.core.interfaces.ISampleMatrix"

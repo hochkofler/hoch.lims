@@ -20,7 +20,79 @@ from senaite.core.catalog import SENAITE_CATALOG
 from bika.lims.content.abstractbaseanalysis import RESULT_TYPES
 from hoch.lims.config import VARIABLES
 from senaite.core.idserver import renameAfterCreation
+from collections import OrderedDict
 
+class BaseImporter(WorksheetImporter):
+    
+    def process_variables_data(self, bsc, portal_type, id_title_row_name="title", field_name="VariablesSettings", mode='matching'):
+        """Process data from worksheet and return a nested dict"""
+        MODE_ALL = "all"
+        MODE_MATCHING = "matching"
+        MODE_SKIP = "skip"
+        if mode not in [MODE_ALL, MODE_MATCHING, MODE_SKIP]:
+            logger.error("Invalid mode '%s' specified. Using 'matching' mode.", mode)
+            mode = MODE_MATCHING
+        data = []
+        objects_founds = {}
+        objects_not_found = set()
+        
+        for row in self.get_rows(3):
+            title = row.get(id_title_row_name, '')
+            if not title:
+                logger.info("Row without title found, skipping")
+                continue
+            if title in objects_not_found:
+                continue
+            
+            if title not in objects_founds:
+                obj = self.get_object(bsc, portal_type,
+                                      title)
+                if not obj:
+                    objects_not_found.add(title)
+                    logger.info("'%s' '%s' not found",portal_type, title)
+                    continue
+                objects_founds[title] = obj
+                
+                if mode != MODE_ALL:
+                    data_from_object = api.safe_getattr(obj, 'VariablesSettings', [])
+                    for r in data_from_object:
+                        r['object'] = title
+                        
+                    if data_from_object:
+                        data = data_from_object + data
+                    
+            key = row.get('keyword', '')
+            value = row.get('value', '')
+            unit = row.get('unit', '')
+                
+            if not key or not value:
+                continue
+                
+            data.append({
+                'object': title,
+                'keyword': key,
+                'value': value,
+                'unit': unit,})
+            
+        is_overwrite = mode == MODE_MATCHING
+        variables_dict = variables_table_to_nested_dict(data, is_overwrite)
+        if not variables_dict:
+            logger.info("No variables data found to import")
+            return
+        
+        field = objects_founds[list(objects_founds.keys())[0]].getField(field_name)
+        
+        for title, obj in objects_founds.items():
+            variables = variables_dict.get(title, {})
+            if not variables:
+                logger.info("No variables to set for '%s' '%s'",portal_type, title)
+                continue
+            flatten_data = flatten_grouped(variables)
+            field.set(obj, flatten_data)
+
+            obj.reindexObject()
+            logger.info("'%s' '%s' variables settings updated",portal_type, title)    
+    
 class Hochlims_Custom(WorksheetImporter):
     """Import Analysis Services Hidden"""
     def edit_analysis_services(self):
@@ -525,6 +597,13 @@ class Reference_Samples_Concentration(WorksheetImporter):
                 SensitivityUnit=row.get('SensitivityUnit','')
             )
             reference_sample.reindexObject()
+
+class Reference_Sample_Variables(BaseImporter):
+    """Import Reference Sample Variables"""
+    def Import(self):
+        """Import Reference Sample Variables"""
+        bsc = getToolByName(self.context, SENAITE_CATALOG)
+        self.process_variables_data(bsc, portal_type="ReferenceSample", id_title_row_name="title", field_name="VariablesSettings")
             
 class Sample_Matrices_Variables(WorksheetImporter):
     """Importador optimizado para variables de matrices de muestra"""
@@ -862,3 +941,41 @@ class Secundary_Presentation(WorksheetImporter):
                 default=[]
             )
             logger.info("this is new secundary presentations: %s" % actual_values)
+                  
+def variables_table_to_nested_dict(data, overwrite_values=True):
+    """Convert variable settings field to nested dictionary"""
+    grouped = OrderedDict()
+
+    for item in data:
+        obj = item["object"]
+        key = item["keyword"]
+        value = item.get("value", "")
+        unit = item.get("unit", "")
+        
+        data_final_data = {"object": obj, "keyword": key, "value": value, "unit": unit}
+
+        # Si no existe el objeto, lo creamos
+        if obj not in grouped:
+            grouped[obj] = OrderedDict()
+
+        if overwrite_values or key not in grouped[obj]:
+            grouped[obj][key] = data_final_data
+        
+    return dict(grouped)
+
+def flatten_grouped(keywords_grouped):
+    return [
+        {
+            "keyword": key,
+            "value": str(values["value"]),
+            "unit": values["unit"],
+        }
+        for key, values in keywords_grouped.items()
+    ]
+
+class Instruments_Variables(BaseImporter):
+    """Import Instrument Sample Variables"""
+    def Import(self):
+        """Import Instrument Variables"""
+        bsc = getToolByName(self.context, SETUP_CATALOG)
+        self.process_variables_data(bsc, portal_type="Instrument", id_title_row_name="title", field_name="VariablesSettings")

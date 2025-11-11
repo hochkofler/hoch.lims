@@ -28,3 +28,9 @@ class IPharmaceuticalProducts(Interface):
 class IHochLimsCatalog(ISenaiteCatalogObject):
     """Marker interface for HochLims Catalog
     """
+    
+class IVariablesSettingsVocabularyProvider(Interface):
+    """Provide the vocabulary for VariablesSettingsField keyword subfield"""
+
+    def getVocabulary():
+        """Return a DisplayList"""

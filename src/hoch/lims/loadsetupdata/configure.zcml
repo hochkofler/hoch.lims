@@ -127,4 +127,16 @@
       factory=".Reference_Samples_Concentration"
       provides="bika.lims.interfaces.ISetupDataImporter"
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
+
+    <adapter
+      name="Reference_Sample_Variables"
+      factory=".Reference_Sample_Variables"
+      provides="bika.lims.interfaces.ISetupDataImporter"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
+
+    <adapter
+      name="Instruments_Variables"
+      factory=".Instruments_Variables"
+      provides="bika.lims.interfaces.ISetupDataImporter"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
 </configure>

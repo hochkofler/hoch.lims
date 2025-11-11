@@ -1,6 +1,6 @@
+# -*- coding: utf-8 -*-
 import re
-
-from hoch.lims import messageFactory as _
+from bika.lims import bikaMessageFactory as _
 from bika.lims.utils import to_utf8
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
@@ -8,6 +8,9 @@ from Products.validation import validation
 from Products.validation.interfaces.IValidator import IValidator
 from zope.interface import implements
 from Products.Archetypes import DisplayList
+from hoch.lims.interfaces import IVariablesSettingsVocabularyProvider
+from bika.lims import api
+from zope.component import queryAdapter
 
 class VariablesSettingsFieldsValidator:
     """Validating VariablesSettingsField keywords.
@@ -26,9 +29,22 @@ class VariablesSettingsFieldsValidator:
         request = instance.REQUEST
         form = request.form
         variables_fields = form.get(fieldname, [])
-
+        context = api.get_object(instance)
         translate = getToolByName(instance, 'translation_service').translate
+        
+        provider = queryAdapter(context, IVariablesSettingsVocabularyProvider)
+        if provider:
+            vocab = provider.getVocabulary()
+            
+        else:
+            msg = _("not provider data, the context are: '%s'", context)
+            instance.REQUEST[key] = msg
+            return instance.REQUEST[key]
+            # Fallback: intenta el método local del campo
+        #vocab_func_name = field._properties.get("subfield_vocabularies", {}).get("keyword")
+        #vocab = getattr(field, vocab_func_name)(instance) if vocab_func_name else DisplayList(())
 
+        #logger.info("vocabulary for data is: '%s'", vocab)
         # We run through the validator once per form submit, and check all
         # values
         # this value in request prevents running once per subfield value.
@@ -36,7 +52,8 @@ class VariablesSettingsFieldsValidator:
         if request.get(key, False):
             return True
 
-        keywords_options = kwargs['field']._properties.get("subfield_vocabularies", {}).get("keyword", None)
+        #keywords_options = kwargs['field']._properties.get("subfield_vocabularies", {}).get("keyword", None)
+        keywords_options = vocab
         if not keywords_options:
             instance.REQUEST[key] = to_utf8(
                 translate(_("Validation failed: no keywords defined")))

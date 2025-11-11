@@ -13,12 +13,12 @@
     for="bika.lims.browser.referencesample.ReferenceSamplesView
          bika.lims.interfaces.IReferenceSamplesFolder"
     provides="senaite.app.listing.interfaces.IListingViewAdapter"
-    factory=".referencesample_listing.ReferenceSampleListingViewAdapter" />
+    factory=".variables_settings_listing.VariablesSettingsListingsViewAdapter" />
 
   <subscriber
     for="senaite.core.browser.controlpanel.suppliers.referencesamples.SupplierReferenceSamplesView
          senaite.core.interfaces.ISupplier"
     provides="senaite.app.listing.interfaces.IListingViewAdapter"
-    factory=".referencesample_listing.ReferenceSampleListingViewAdapter" />
+    factory=".variables_settings_listing.VariablesSettingsListingsViewAdapter" />
 
 </configure>

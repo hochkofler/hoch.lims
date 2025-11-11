@@ -2,9 +2,12 @@
 from bika.lims import api
 from bika.lims.api.analysis import is_reference_analysis
 from hoch.lims import logger
-from hoch.lims.utils import is_interim_editable, compute_variables_dict
+from hoch.lims.utils import is_interim_editable
 from Products.statusmessages.interfaces import IStatusMessage
 from zope.globalrequest import getRequest
+from hoch.lims.utils import compute_variables_dict
+import math
+from hoch.lims import messageFactory as _
 
 def show_message(msg, msg_type="error"):
     """Muestra un mensaje en la UI"""
@@ -22,29 +25,51 @@ class LALCalculator:
     
     def get_sensitivity(self):
         """Obtener sensibilidad de los análisis QC"""
+        LAL_KEYWORD_QC = "Reactivo LAL"
         analysis_qcs = self.sample.getQCAnalyses() if self.sample else None
         if not analysis_qcs:
-            raise LALCalculationError("No QCs found for analysis %s" % self.analysis.UID())
+            raise LALCalculationError(_("No QCs found for analysis %s" % self.analysis.UID()))
         
-        sensitivity = next((qc.Sensitivity for qc in analysis_qcs if qc.Sensitivity), None)
+        valid_qc = None
+        
+        for qc in analysis_qcs:
+            rd = qc.getReferenceDefinition()
+            if not rd:
+                continue
+            if rd.Title() == LAL_KEYWORD_QC:
+                valid_qc = qc
+                break
+        
+        if not valid_qc:
+            raise LALCalculationError(_("Not valid qcs with reference definition '%s'"%(LAL_KEYWORD_QC)))
+
+        variables = getattr(valid_qc,'VariablesSettings', [])
+        
+        if not variables:
+            raise LALCalculationError(_("Variables for qc analysis not set for qc '%s'"%(analysis_qcs)))
+        
+        sensitivity = next((var["value"] for var in variables if var["keyword"] == "sensitivity"), None)
         if not sensitivity:
-            raise LALCalculationError("No sensitivity found for analysis %s" % self.analysis.UID())
-        return sensitivity
+            raise LALCalculationError(_("No sensitivity found for analysis %s" % self.analysis.UID()))
+        
+        return api.to_float(sensitivity,0)
     
     def get_concentration_and_dilution(self):
         """Obtener concentración y dilución de la matriz de muestra"""
         samplematrix = self.sample.getSampleType().getSampleMatrix() if self.sample else None
         if not samplematrix:
-            raise LALCalculationError("Sample matrix not found")
+            raise LALCalculationError(_("Sample matrix not found"))
         
         dict_variables = compute_variables_dict(samplematrix)
-        concentration = dict_variables.get('LAL', {}).get('concentration')
-        dilution = dict_variables.get('LAL', {}).get('dilution', 1)
+        concentration_raw = dict_variables.get('LAL', {}).get('concentration')
+        dilution_raw = dict_variables.get('LAL', {}).get('dilution', (1, 'mL'))
         
-        if not concentration:
-            raise LALCalculationError("Concentration not found in sample matrix variables")
+        if not concentration_raw:
+            raise LALCalculationError(_("Concentration not found in sample matrix variables, actual sample matrices for samplematrix '%s' are: '%s'", samplematrix, dict_variables))
         
-        return concentration, dilution
+        logger.info("Este es concentracion '%s' y dilution '%s'", concentration_raw, dilution_raw)
+        
+        return concentration_raw[0], dilution_raw[0], concentration_raw[1], dilution_raw[1]
     
     def calculate_reference_analysis(self):
         """Calcular para análisis de referencia"""
@@ -57,10 +82,11 @@ class LALCalculator:
                     return None
                 return 1 if result > 0 else 0
         
-        raise LALCalculationError("Reference Sample not valid interim (d1)")
+        raise LALCalculationError(_("Reference Sample not valid interim (d1)"))
     
     def calculate_regular_analysis(self, sensitivity):
         """Calcular para análisis regular"""
+        logger.info("Calculating regular analysis of LAL calc")
         result_range = api.safe_getattr(self.analysis, "getResultsRange", None)
         if not result_range:
             return 0
@@ -72,11 +98,11 @@ class LALCalculator:
         )
         
         # Obtener concentración y dilución
-        conc, dilution = self.get_concentration_and_dilution()
+        conc, dilution, conc_unit, dilution_unit = self.get_concentration_and_dilution()
+        logger.info("Data for LAL Calc--->conc:='%s'---dilution:='%s'---sensitivity:='%s'", conc, dilution, sensitivity)
 
         # Calcular MDV
         mdv = (specs_lim * conc) / (sensitivity * dilution) if sensitivity and dilution else 0
-        
         # Actualizar campos interinos
         max_dilution = 0
         for interim in self.interim_fields:
@@ -89,6 +115,17 @@ class LALCalculator:
             # Actualizar campo mdv
             if keyword == "mdv":
                 interim["value"] = str(mdv)
+                
+            elif keyword == "concentration":
+                interim["value"] = str(conc)
+                interim["unit"] = conc_unit
+            
+            elif keyword == "dilution":
+                interim["value"] = str(dilution)
+                interim["unit"] = dilution_unit
+            
+            elif keyword == "sensitivity":
+                interim["value"] = str(sensitivity) 
             
             # Actualizar campo dmdv si existe
             elif keyword == "dmdv" and value not in [None, "", 0, "0"]:
@@ -110,6 +147,7 @@ class LALCalculator:
         self.analysis.setInterimFields(self.interim_fields)
         
         # Calcular resultado final
+        logger.info("Data for LAL Calc--->mdv:='%s'---max dilution:='%s'", mdv, max_dilution)
         result_ue_ml = max_dilution * sensitivity
         result_ue_mg = result_ue_ml * dilution / conc if conc else 0
         
@@ -136,69 +174,64 @@ class LALCalculationError(Exception):
 class MicrobialAssaysCalculationError(Exception):
     """Excepción personalizada para errores en el cálculo de Microbial Assays"""
 
-def calc_lal(analysis_brain_uid, default_return='0'):
-    """Función principal para cálculo de LAL (versión mejorada)"""
-    logger.info("Calculating LAL for analysis: %s", analysis_brain_uid)
-    
-    calculator = LALCalculator(analysis_brain_uid)
-    result = calculator.calculate()
-    
-    return result if result is not None else default_return
+class DensityCalculationError(Exception):
+    """Excepción personalizada para errores en el cálculo de densidad"""
 
 class MicrobialAssaysCalculator:
     """Clase dedicada al cálculo de Ensayos Microbianos con responsabilidades separadas"""
-    DEPENDENCIES_SERVICES_KEYS =['val_micro_1', 'val_micro_2', 'val_micro_3']
+    DEPENDENCIES_SERVICES_KEY_M =('DIAMETRO_HALO_M1', 'DIAMETRO_HALO_M2', 'DIAMETRO_HALO_M3')
+    DEPENDENCIES_SERVICES_KEY_ST = ('DIAMETRO_HALO_ST1', 'DIAMETRO_HALO_ST2', 'DIAMETRO_HALO_ST3')
+    DEPENDENCIES_SERVICES_KEYS = DEPENDENCIES_SERVICES_KEY_ST+DEPENDENCIES_SERVICES_KEY_M
     DIAMETER_KEYS = ['diameter1', 'diameter2']
-    INTERIM_KEYS = ['st_diameter1', 'st_diameter2', 'st_diameter3', 'st_diameter4', 'st_diameter5', 'st_diameter6']
+    CONCENTRATION_ANALYSIS = ['ST']
+    REQUIRED_QC_KEYS = ('ST', 'ORGANISM')
     ALLOWED_EDITABLE_STATUS = ["to_be_verified", "verified", "published"]
-    def __init__(self, analysis_brain_uid, *args):
+    
+    def __init__(self, analysis_brain_uid):
         self.analysis = api.get_object(analysis_brain_uid)
         self.dependencies = self.analysis.getDependencies()
         self.sample = api.safe_getattr(self.analysis, "getRequest", None)
         self.qc_analyses = self.sample.getQCAnalyses() if self.sample else []
         self.interim_fields = api.safe_getattr(self.analysis, "getInterimFields", [])
+        #logger.info("Qc analysis for analysis: '%s'", self.qc_analyses)
+        #logger.info("dependencies for analysis: '%s'", self.dependencies)
         
     def get_diameters(self):
         """Get diameter from QC analyses"""
         "Check if there are all necesary QC analyses keywords"
-        qc_keywords = [a.getKeyword() for a in self.qc_analyses]
         dependencies_keys = [a.getKeyword() for a in self.dependencies]
         
-        if not all(key in qc_keywords for key in self.DEPENDENCIES_SERVICES_KEYS):
-            raise MicrobialAssaysCalculationError("Missing value dependencies in qc analysis %s" % self.analysis.UID())
-        
         if not all(key in dependencies_keys for key in self.DEPENDENCIES_SERVICES_KEYS):
-            raise MicrobialAssaysCalculationError("Missing value dependencies in analysis %s" % self.analysis.UID())
+            raise MicrobialAssaysCalculationError(_("Missing value dependencies in analysis %s" % self.analysis.UID()))
         
-        self.valid_qc_analyses = [qc for qc in self.qc_analyses if qc.getKeyword() in self.DEPENDENCIES_SERVICES_KEYS]
-        self.valid_dependencies = [dep for dep in self.dependencies if dep.getKeyword() in self.DEPENDENCIES_SERVICES_KEYS]
-        
-        self.qc_diameters = []
-        self.qc_diameters_editable = []
-        for qc in self.valid_qc_analyses:
-            #logger.info("Interim fields of QC %s: %s", qc.UID(), qc.getInterimFields())
-            for interim in qc.getInterimFields():
-                if interim.get("keyword") in self.DIAMETER_KEYS:
-                    diameter_value = api.to_float(interim.get("value", 0), 0)
-                    if diameter_value > 0:
-                        self.qc_diameters.append(diameter_value)
+        self.valid_qc_analyses = [qc for qc in self.qc_analyses if qc.getKeyword() in self.REQUIRED_QC_KEYS]
+        valid_dependencies = [dep for dep in self.dependencies if dep.getKeyword() in self.DEPENDENCIES_SERVICES_KEYS]
 
-        self.dependencies_diameters = []
-        for dep in self.valid_dependencies:
+        self.dependencies_diameters_m = []
+        self.dependencies_diameters_st = []
+        for dep in valid_dependencies:
             #logger.info("Interim fields of dep %s: %s", dep.UID(), dep.getInterimFields())
             for interim in dep.getInterimFields():
                 if interim.get("keyword") in self.DIAMETER_KEYS:
                    if interim.get("keyword") in self.DIAMETER_KEYS:
                     diameter_value = api.to_float(interim.get("value", 0), 0)
                     if diameter_value > 0:
-                        self.dependencies_diameters.append(diameter_value)
+                        if dep.getKeyword() in self.DEPENDENCIES_SERVICES_KEY_M:
+                            self.dependencies_diameters_m.append(diameter_value)
+                            
+                        elif dep.getKeyword() in self.DEPENDENCIES_SERVICES_KEY_ST:
+                            self.dependencies_diameters_st.append(diameter_value)
         
     def get_reference_concentration(self):
         """Get reference concentration from qc analysis"""
         if not self.qc_analyses:
-            raise MicrobialAssaysCalculationError("No QC analyses found for analysis %s" % self.analysis.UID())
+            raise MicrobialAssaysCalculationError(_("No QC analyses found for analysis %s" % self.analysis.UID()))
         
-        reference_sample = self.qc_analyses[0].getSample()
+        reference_sample = next((qc.getSample() for qc in self.qc_analyses if qc.getKeyword() in self.CONCENTRATION_ANALYSIS), None)
+        
+        if not reference_sample:
+            raise MicrobialAssaysCalculationError(_("No QC analyses found to get concentration for analysis %s" % self.analysis.UID()))    
+        
         self.reference_concentration = api.to_float(api.safe_getattr(reference_sample, "getConcentration", lambda: 1)(), 1)
         return self.reference_concentration
     
@@ -221,24 +254,10 @@ class MicrobialAssaysCalculator:
         if any(is_qc_analyses_editable):
             logger.info("Some interim fields in QC analyses are editable, skipping setting interim fields")
             return
-                    
-        valid_interim_fields = [
-            interim
-            for qc in self.valid_qc_analyses
-            for interim in qc.getInterimFields()
-            if interim.get("keyword") in self.DIAMETER_KEYS
-            ]
         
-        logger.info("valid interim fields '%s'", valid_interim_fields)
-        
-        valid_interim_fields_values = [api.to_float(interim.get("value"), 0) for interim in valid_interim_fields]
         for interim in self.interim_fields:
             if not is_interim_editable(interim):
                 continue
-            
-            if interim.get("keyword", "") in self.INTERIM_KEYS:
-                logger.info("Setting interim field %s with value 0 of list %s", interim.get("keyword", ""), valid_interim_fields_values)
-                interim["value"] = str(valid_interim_fields_values.pop(0))
             
             if interim.get("keyword", "") == "st_concentration":
                 interim["value"] = str(self.reference_concentration)
@@ -248,29 +267,146 @@ class MicrobialAssaysCalculator:
     def calculate(self):
         """Método principal para realizar el cálculo de Ensayos Microbianos"""
         self.get_diameters()
-        sum_dependencies_diameters = sum(self.dependencies_diameters)
-        sum_qc_diameters = sum(self.qc_diameters)
-        if not sum_qc_diameters:
-            raise MicrobialAssaysCalculationError("Sum of QC diameters is zero for analysis %s" % self.analysis.UID())
+        sum_dependencies_diameters_st = sum(self.dependencies_diameters_st)
+        sum_dependencies_diameters_m = sum(self.dependencies_diameters_m)
         
-        if not sum_dependencies_diameters:
-            raise MicrobialAssaysCalculationError("Sum of dependency diameters is zero for analysis %s" % self.analysis.UID())
+        if not sum_dependencies_diameters_st or not sum_dependencies_diameters_m:
+            raise MicrobialAssaysCalculationError(_("Sum of dependency diameters is zero for analysis %s" % self.analysis.UID()))
         
         concentration = self.get_reference_concentration()
         unit = self.analysis.getUnit()
         unit_factor = 100 if unit == "%" else 1
         water_content = self.get_water_content_factor()
-        result = sum_dependencies_diameters / sum_qc_diameters * unit_factor * concentration * (1 - water_content / 100)
+        result = sum_dependencies_diameters_m / sum_dependencies_diameters_st * unit_factor * concentration * (1 - water_content / 100)
         return result
+
+class VariationCoeficientCalculator:
+    """Calculate Variation Coeficient from interim fields"""
     
+    def __init__(self, analysis_brain_uid):
+        self.analysis = api.get_object(analysis_brain_uid)
+        self.dependencies = self.analysis.getDependencies()
+        logger.info("Dependencies for analysis '%s': '%s'", self.analysis.UID(), self.dependencies)
+    
+    def calculate(self):
+        """Calculate Variation Coeficient"""
+        self.data = []
+        logger.info("Calculating Variation Coeficient for analysis '%s'", self.analysis.UID())
+        for dependency in self.dependencies:
+            interim_fields = api.safe_getattr(dependency, "getInterimFields", [])
+            for interim in interim_fields:
+                if api.to_float(interim.get("value"), 0) > 0:
+                    self.data.append(api.to_float(interim.get("value"), 0))
+        
+        mean = sum(self.data) / len(self.data)
+        variance = sum((x - mean) ** 2 for x in self.data) / (len(self.data) - 1)
+        std_dev = math.sqrt(variance)
+        cv = std_dev / mean * 100 if mean != 0 else 0
+        return cv
+
+class DensityCalculator:
+    def __init__(self, analysis_brain_uid):
+        logger.info(">>>> Calculating Density")
+        self.analysis = api.get_object(analysis_brain_uid)
+        self.instrument = self.analysis.getInstrument()
+        self.interim_fields = api.safe_getattr(self.analysis, "getInterimFields", [])
+        
+        logger.info("the instrument is:'%s'", self.instrument)
+        
+        if not self.instrument:
+            raise DensityCalculationError(_("Not instrument selected"))
+        
+        if not self.interim_fields:
+            raise DensityCalculationError(_("Interim fields not defined"))
+        
+        self.weight_sample = next((intreim["value"] for intreim in self.interim_fields if intreim["keyword"] == 'pycnometer_sample_weight'), None)
+        self.weight_sample = api.to_float(self.weight_sample, None)
+        
+        if not self.weight_sample:
+            logger.info("not weigh sample assigned")
+            return
+            
+        self.pycnometer_data()
+        self.calculate()
+        self.setInterimFieldsWithValues()
+            
+    
+    def pycnometer_data(self):
+        self.variables = getattr(self.instrument,'VariablesSettings', [])
+        
+        if not self.variables:
+            raise DensityCalculationError(_("Not variables defined"))
+        
+        self.weight = next((api.to_float(var["value"]) for var in self.variables if var["keyword"] == 'weight'), None)
+        self.water_filled_weight = next((api.to_float(var["value"], None) for var in self.variables if var["keyword"] == 'water_filled_weight'), None)
+
+        if not self.weight:
+            raise DensityCalculationError(_("weight variable not defined"))
+        
+        if not self.water_filled_weight:
+            raise DensityCalculationError(_("water filled weight variable not defined"))
+    
+    def calculate(self):
+        if self.weight_sample <= self.weight:
+            raise DensityCalculationError(_("The weight of the pycnometer with the sample cannot be less than the weight of the empty pycnometer."))
+        
+        if self.water_filled_weight <= self.weight:
+            raise DensityCalculationError(_("The weight of the pycnometer with the water cannot be less than the weight of the empty pycnometer."))
+        
+        self.water_weight = self.water_filled_weight - self.weight
+        self.result = (self.weight_sample - self.weight)/self.water_weight
+    
+    def setInterimFieldsWithValues(self):
+        for interim in self.interim_fields:
+            if not is_interim_editable(interim):
+                logger.info("Not editable field")
+                continue
+            
+            if interim.get("keyword", "") == "pycnometer_void_weight":
+                interim["value"] = str(self.weight) if self.result else ""
+                continue
+            
+            if interim.get("keyword", "") == "pycnometer_water_filled_weight":
+                interim["value"] = str(self.water_filled_weight) if self.result else ""
+                continue
+            
+        self.analysis.setInterimFields(self.interim_fields)
+        
+def calc_lal(analysis_brain_uid, default_return='0'):
+    """Función principal para cálculo de LAL (versión mejorada)"""
+    logger.info("Calculating LAL for analysis: %s", analysis_brain_uid)
+    
+    calculator = LALCalculator(analysis_brain_uid)
+    result = calculator.calculate()
+    
+    return result if result is not None else default_return
+
 def calc_val_micro(analysis_brain_uid, *args):
     """Función principal para cálculo de Ensayos Microbianos"""
     
-    calculator = MicrobialAssaysCalculator(analysis_brain_uid, *args)
+    try:
+        calculator = MicrobialAssaysCalculator(analysis_brain_uid)
+        result = calculator.calculate()
+        calculator.set_interim_fields()
+        return result
+
+    except MicrobialAssaysCalculationError as e:
+        logger.error("MicrobialAssaysError Calculation error: %s", str(e))
+        show_message(str(e))
+        raise MicrobialAssaysCalculationError(str(e))
+
+def calc_val_micro_cv(analysis_brain_uid, *args):
+    """Función de cálculo estándar que devuelve 0"""
+    
+    calculator = VariationCoeficientCalculator(analysis_brain_uid)
     result = calculator.calculate()
-    calculator.set_interim_fields()
     return result
 
-def calc_std(self, *args, **kwargs):
-    """Función de cálculo estándar que devuelve 0"""
-    return 0
+def calc_densidad(analysis_brain_uid, *args):
+    try:
+        calculator = DensityCalculator(analysis_brain_uid)
+        return calculator.result
+    except DensityCalculationError as e:
+            logger.error("Density Calculation error: %s", str(e))
+            show_message(str(e))
+            raise DensityCalculationError(str(e))
