@@ -190,7 +190,22 @@ def import_analysis_services(self):
             usedefaultcalculation = False if deferredcalculation else True
             _calculation = deferredcalculation if deferredcalculation else \
                 (defaultmethod.getCalculation() if defaultmethod else None)
+                
+            lld = self.to_float(
+                    row.get('LowerDetectionLimit', '0.0'), 0)
+            uld = self.to_float(
+                    row.get('UpperDetectionLimit', '1000000000.0'), 1000000000.0)
+            llq = self.to_float(
+                    row.get('LowerLimitOfQuantification', '0.0'), 0)
+            ulq = self.to_float(
+                    row.get('UpperLimitOfQuantification', '1000000000.0'), 1000000000.0)
 
+            if ulq <= uld:
+                ulq = uld
+            
+            if llq >= lld:
+                llq = llq
+                
             obj.edit(
                 title=row['title'],
                 ShortTitle=row.get('ShortTitle', row['title']),
@@ -203,12 +218,12 @@ def import_analysis_services(self):
                 Precision=row['Precision'] and str(row['Precision']) or '0',
                 ExponentialFormatPrecision=str(self.to_int(
                     row.get('ExponentialFormatPrecision', 7), 7)),
-                LowerDetectionLimit='%06f' % self.to_float(
-                    row.get('LowerDetectionLimit', '0.0'), 0),
-                UpperDetectionLimit='%06f' % self.to_float(
-                    row.get('UpperDetectionLimit', '1000000000.0'), 1000000000.0),
+                LowerDetectionLimit='%06f' % lld,
+                UpperDetectionLimit='%06f' % uld,
                 DetectionLimitSelector=self.to_bool(
                     row.get('DetectionLimitSelector', 0)),
+                LowerLimitOfQuantification='%06f' % llq,
+                UpperLimitOfQuantification='%06f' % ulq,
                 MaxTimeAllowed=MTA,
                 Price="%02f" % Float(row['Price']),
                 BulkPrice="%02f" % Float(row['BulkPrice']),
