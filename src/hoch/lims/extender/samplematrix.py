@@ -22,7 +22,7 @@ class ISampleMatrixSchemaExtender(model.Schema):
         catalog=HOCHLIMS_CATALOG,
         query={
             "is_active": True,
-            "sort_on": "title",
+            "sort_on": "mktauth_trade_name",
             "sort_order": "ascending",
         },
     )

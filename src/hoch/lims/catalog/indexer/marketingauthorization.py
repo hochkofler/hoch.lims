@@ -92,10 +92,11 @@ def mktauth_registered_presentations(instance):
     return instance.getRegisteredPresentations()
 
 @indexer(IMarketingAuthorization)
-def mktauth_searchable_text(instance):
+def marketingauthorization_searchable_text(instance):
     """Index for searchable text queries
     """
     tokens = [
+        instance.getRegistrationNumber(),
         instance.getTradeName(),
         instance.getGenericName(),
         instance.getDosageForm(),

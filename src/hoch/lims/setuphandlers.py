@@ -14,6 +14,7 @@ from hoch.lims.catalog.hochlims_catalog import HochLimsCatalog
 from zope.component import getUtility
 from plone import api as ploneapi
 from hoch.lims import messageFactory as _
+from senaite.core.catalog import SETUP_CATALOG
 
 PROFILE_ID = "profile-{}:default".format(PRODUCT_NAME)
 
@@ -62,6 +63,7 @@ SETUP_FOLDERS = [
 
 # Tuples of (catalog, index_name, index_attribute, index_type)
 INDEXES = [
+    (SETUP_CATALOG, "marketingauthorization_uid_for_sampletype", "", "KeywordIndex"),
     #(SAMPLE_CATALOG, "is_temporary_mrn", "", "BooleanIndex"),
     #(SAMPLE_CATALOG, "medical_record_number", "", "KeywordIndex"),
 ]

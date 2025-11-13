@@ -10,7 +10,7 @@ from Products.Archetypes.public import StringField
 from senaite.core.browser.fields.records import RecordsField
 from hoch.lims.content.customfields import VariablesSettingsField
 
-class UIDReferenceFieldDx(UIDReferenceField):
+class UIDReferenceFieldDx(UIDReferenceField, ExtensionField):
     """Extends the UIDReferenceField to be used in Dexterity content types.
     """
 

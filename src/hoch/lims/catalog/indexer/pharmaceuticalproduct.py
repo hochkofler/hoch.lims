@@ -48,7 +48,7 @@ def product_dosage_unit_per_secundary_presentation(instance):
     return instance.getDosageUnitPerSecundaryPresentation()
 
 @indexer(IPharmaceuticalProduct)
-def product_searchable_text(instance):
+def pharmaceuticalproduct_searchable_text(instance):
     """Index for searchable text queries
     """
     tokens = [

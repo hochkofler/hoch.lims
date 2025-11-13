@@ -43,7 +43,7 @@ class BatchSchemaExtender(object):
                 default=u"Select the product for this batch."),
             visible=True,
             catalog=HOCHLIMS_CATALOG,
-            search_index="product_searchable_text",
+            search_index="pharmaceuticalproduct_searchable_text",
             search_wildcard=True,
             query={
                 "is_active": True,

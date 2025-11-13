@@ -73,7 +73,7 @@ class PharmaceuticalProductsView(ListingView):
             ("Description", {
                 "title": _(u"label_product_description",
                             default=u"Description"),
-                "index": "product_searchable_text",
+                "index": "pharmaceuticalproduct_searchable_text",
                 "toggle": False}),
         ))
 
