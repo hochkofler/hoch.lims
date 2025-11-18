@@ -64,5 +64,13 @@
     factory=".idserver.IDServerVariablesAdapter"
     provides="bika.lims.interfaces.IIdServerVariables"
     for="*" />
+
+  <!-- Extender filter for sample creation -->
+    <adapter
+    factory=".add2_AR.BatchProductSampleTypeFilter"
+    for="*"
+    provides="bika.lims.interfaces.IAddSampleObjectInfo"
+    name="batch_product_sampletype_filter"
+/>
     
 </configure>

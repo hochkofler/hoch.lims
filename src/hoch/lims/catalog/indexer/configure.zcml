@@ -31,5 +31,6 @@
   <adapter name="product_secundary_presentation" factory=".pharmaceuticalproduct.product_secundary_presentation" />
   <adapter name="product_dosage_unit_per_secundary_presentation" factory=".pharmaceuticalproduct.product_dosage_unit_per_secundary_presentation" />
   <adapter name="product_dosage_unit_per_primary_presentation" factory=".pharmaceuticalproduct.product_dosage_unit_per_primary_presentation" />
+  <adapter name="marketingauthorization_uid_for_sampletype" factory=".marketingauthorization.marketingauthorization_uid_for_sampletype" />
   
 </configure>

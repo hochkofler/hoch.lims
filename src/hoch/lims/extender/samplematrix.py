@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from AccessControl import ClassSecurityInfo
 from plone.autoform import directives
 from plone.autoform.interfaces import IFormFieldProvider
@@ -20,6 +21,7 @@ class ISampleMatrixSchemaExtender(model.Schema):
         "marketingauthorization",
         UIDReferenceWidgetFactory,
         catalog=HOCHLIMS_CATALOG,
+        searchable_index="mktauth_trade_name",
         query={
             "is_active": True,
             "sort_on": "mktauth_trade_name",
@@ -58,6 +60,13 @@ class SampleMatrixSchemaExtender(object):
     def set_marketingauthorization(self, value):
         mutator = self.context.mutator("marketingauthorization")
         mutator(self.context, value)
+        
+    def marketingauthorization_uid(self):
+        """UID for marketin authorization"""
+        ma = getattr(self.context, "marketingauthorization", None)
+        if ma:
+            return ma.UID()
+        return ""
     
     marketingauthorization = property(get_marketingauthorization, set_marketingauthorization)
     

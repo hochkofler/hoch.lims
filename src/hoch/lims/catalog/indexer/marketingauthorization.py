@@ -1,6 +1,8 @@
 from plone.indexer import indexer
 from hoch.lims.interfaces import IMarketingAuthorization
+from senaite.core.interfaces import ISampleType
 from bika.lims import api
+from hoch.lims import logger
 
 
 @indexer(IMarketingAuthorization)
@@ -104,3 +106,15 @@ def marketingauthorization_searchable_text(instance):
     # remove duplicates and filter out emtpies
     tokens = filter(None, set(tokens))
     return u" ".join(map(api.safe_unicode, tokens))
+
+@indexer(ISampleType)
+def marketingauthorization_uid_for_sampletype(self):
+    """UID de la MarketingAuthorization asociada a la matriz del SampleType"""
+    matrix = getattr(self, "getSampleMatrix", lambda: None)()
+    if not matrix:
+        return ""
+    #ma = matrix.get("marketingauthorization", None)
+    ma = getattr(matrix, "marketingauthorization", None)
+    logger.info("Reindex object '%s' matrix data: '%s' ma '%s'", self, matrix, ma)
+        #logger.info("matrix data '%s'", dir(matrix))
+    return ma if ma else []
