@@ -8,6 +8,9 @@ from zope.component import adapter
 from zope.interface import implementer
 from bika.lims.utils import get_link
 from hoch.lims import messageFactory as _
+from AccessControl import ClassSecurityInfo
+from bika.lims.utils import check_permission
+from Products.CMFCore.permissions import ManagePortal
 
 ADD_COLUMNS = [
     ("APIURL", {
@@ -19,12 +22,17 @@ ADD_COLUMNS = [
 @implementer(IListingViewAdapter)
 @adapter(IListingView)
 class APIListingViewAdapter(object):
+    security = ClassSecurityInfo()
 
     def __init__(self, listing, context):
         self.listing = listing
         self.context = context
 
+    security.declareProtected(ManagePortal, "before_render")
     def before_render(self):
+        
+        if not check_permission(ManagePortal,self.context):
+            return
         # Add new column for all available states
         states = map(lambda r: r["id"], self.listing.review_states)
         for column_id, column_values in ADD_COLUMNS:
@@ -38,6 +46,7 @@ class APIListingViewAdapter(object):
         for review_state in review_states:
             review_state.update({"columns": self.listing.columns.keys()})
 
+    security.declareProtected(ManagePortal, "folder_item")
     def folder_item(self, obj, item, index):
         obj = api.get_object(obj)
         uid = api.get_uid(obj)

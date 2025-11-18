@@ -16,6 +16,12 @@
     factory=".variables_settings_listing.VariablesSettingsListingsViewAdapter" />
 
   <subscriber
+    for="senaite.app.listing.interfaces.IListingView
+         zope.interface.Interface"
+    provides="senaite.app.listing.interfaces.IListingViewAdapter"
+    factory=".generic_api.APIListingViewAdapter" />
+
+  <subscriber
     for="senaite.core.browser.controlpanel.suppliers.referencesamples.SupplierReferenceSamplesView
          senaite.core.interfaces.ISupplier"
     provides="senaite.app.listing.interfaces.IListingViewAdapter"
