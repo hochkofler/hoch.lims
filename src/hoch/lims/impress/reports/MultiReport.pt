@@ -8,8 +8,8 @@
                     product model_summary/Batch/Product;
                     mktauth product/MarketingAuthorization;
                     arr_results python:view.getFormattedResultForServices(hidden=False,
-                                retracted=True,
-                                rejected=True,
+                                retracted=False,
+                                rejected=False,
                                 specs=None,
                                 decimalmark=',',
                                 sciformat=1,
@@ -151,10 +151,43 @@
                 margin-bottom: 10mm;
             }
         }
+
+        .report .section-titration-micro {
+            page: titration-micro;
+        }
+
+        @page titration-micro {
+
+            @top-left {
+                content: url("senaite_theme/icon/logo-ifa-rojo.svg");
+                margin-top: 10mm;
+            }
+
+            @top-center {
+                content: "REPORTE SENAITE \A" String(title);
+                white-space: pre;
+                margin-top: 10mm;
+                font-size: 10pt;
+            }
+
+            @top-right {
+                font-size: 8pt;
+                white-space: pre;
+                content: "COD. INT.: " string(document-number) "\A VER.:" String(document-version) "\A EMISIÓN:" String(document-date);
+                margin-top: 10mm;
+            }
+
+            @bottom-right {
+                content: "Pág. " counter(page) " de " counter(pages);
+                font-size: 8pt;
+                margin-bottom: 10mm;
+            }
+        }
+
     </style>
 
     <!-- REPORT COA -->
-    <tal:COA tal:condition="False" 
+    <tal:COA tal:condition="True" 
             define="verified_date python: max([a.getDateVerified() for a in all_analyses]);
                     received_date python: min([a.getDateReceived() for a in all_analyses]);
                     final_interpretations python:[svc['results_formatted']['interpretation'] 
@@ -168,7 +201,7 @@
                     in_aceptable_range_coa python: in_spec_range_mean and in_shoulder_range" i18n:domain="hoch.lims">
         <div class="COA page-break-after">
 
-            <table class="table table-sm table-condensed">
+            <table class="table table-sm table-condensed nopadding">
                 <colgroup>
                     <col style="width: 33%;">
                     <col style="width: 37%;">
@@ -291,7 +324,7 @@
                     </td>
                 </tr>
                 <tal:categories tal:define="analyses_by_category python:view.get_analyses_by_category(collection);"
-                    tal:repeat="category arr_results">
+                    tal:repeat="category python: view.sort_items(arr_results.keys())">
                     <tr tal:define="length_analyses_by_category python:len(view.get_analyses_by(collection, category=category))"
                         tal:condition="length_analyses_by_category">
                         <td colspan="3" class="text-center label">
@@ -301,7 +334,9 @@
                     <tal:services tal:repeat="service python: arr_results[category]">
                         <tr tal:define="analyses python: arr_results[category][service]['analyses'];
                                     analysis python:analyses[0];
-                                    specs python: model.get_formatted_specs2(analysis);
+                                    specs python: model.get_formatted_specs2(analysis, 
+                                                    leq_operator='NO >', 
+                                                    geq_operator= 'NO <');
                                     unit python:model.get_formatted_unit(analysis);
                                     formatted_result python: arr_results[category][service]['results_formatted'];
                                     is_out_of_shoulder_range_any python: not(formatted_result['interpretation'][1]);
@@ -319,10 +354,15 @@
                                 <span tal:content="specs">specs</span>
                                 <span class="units" tal:condition="specs" tal:content="structure unit"></span>
                             </td>
-                            <td
-                                tal:attributes="class python:'noborder-vertical text-center align-middle ' + ('text-danger' if is_out_of_range else '')">
-                                <span tal:content="python: formatted_result['result']"></span>
-                                <span class="units" tal:content="structure unit"></span>
+                            <td tal:attributes="class python:'noborder-vertical text-center align-middle ' + ('text-danger' if is_out_of_range else '')"
+                                tal:define="is_numeric_result python: analysis.get('ResultType') in ('numeric', '')">
+                                <tal:block tal:condition="not:is_numeric_result">
+                                    <span tal:content="python: 'Conforme' if not is_out_of_range else 'NO CONFORME'"></span>
+                                </tal:block>
+                                <tal:block tal:condition="is_numeric_result">
+                                    <span tal:content="python: formatted_result['result']"></span>
+                                    <span class="units" tal:content="structure unit"></span>
+                                </tal:block>
                             </td>
                         </tr>
                     </tal:services>
@@ -345,7 +385,7 @@
                         <td colspan="2" rowspan="2" class="align-top-left signature-space label colon-after">
                             <strong>OBSERVACIONES</strong>
                         </td>
-                        <td><span>Fecha:</span><span tal:content="python: verified_date.strftime('%d-%m-%Y')"></span>
+                        <td tal:condition="verified_date"><span>Fecha:</span><span tal:content="python: verified_date.strftime('%d-%m-%Y')"></span>
                         </td>
                     </tr>
                     <tr class="text-center">
@@ -355,11 +395,11 @@
             </table>
         </div>
     </tal:COA>
-    <tal:REVIEW-RESULTS tal:condition="False">  
+    <tal:REVIEW-RESULTS tal:condition="True">  
         <div class="section-review page-break-after">
             <h1 class="page-title">Resumen de resultados</h1>
             <tal:categories tal:repeat="category arr_results">
-                <table class="table table-sm table-condensed">
+                <table class="table table-sm table-condensed nopadding">
                     <colgroup>
                         <col style="width: 25%;">
                         <col style="width: 15%;">
@@ -448,338 +488,10 @@
         </div>
 
     </tal:REVIEW-RESULTS>
-    <tal:LALs tal:condition="python: True and LAL_analyses">
-        <div class="section-lal">
-            <h1 class="page-title">PRUEBA DE ENDOTOXINAS BACTERIANAS</h1>
-            <tal:LAL-ANALYSIS tal:repeat="LAL_analysis LAL_analyses">
-                <div class="page-break-after"
-                    tal:define="sample python: LAL_analysis.getRequest();
-                                LAL_analyses_qcs python: sample.getQCAnalyses();
-                                specs python:model.get_formatted_specs2(LAL_analysis);
-                                result python:model.get_formatted_result(LAL_analysis);
-                                out_of_range  python: model.is_out_of_range(LAL_analysis);
-                                unit python:model.get_formatted_unit(LAL_analysis);
-                                sample_type sample/getSampleType;
-                                sample_matrix sample_type/getSampleMatrix;
-                                interim_fields python:LAL_analysis.getInterimFields();
-                                LAL_ppcs python:sample.getAnalyses(getId='LALPPC', full_objects=True);
-                                mdv python:next((float(k['value']) for k in interim_fields if k['keyword'] == 'mdv'), None);
-                                dilutions python:[2**i for i in range(0, 99) if 2**i <= mdv];
-                                LAL_ppc python:LAL_ppcs[0] if LAL_ppcs else None;">
-                    <div class="text-center">DPTO. CONTROL DE CALIDAD</div>
-                    <div class="text-center" tal:content="LAL_analysis/Method/Title"></div>
-                    <div class="font-size-120 font-weight-bold">1. DATOS GENERALES DEL PRODUCTO</div>
-
-                    <table class="table table-sm table-condensed">
-                        <tr>
-                            <td class="label noborder-right">
-                                <span class="colon-after">PRODUCTO</span>
-                            </td>
-                            <td class="label">
-                                <span tal:content="mktauth/TradeName"></span>
-                            </td>
-                            <td class="label">
-                                <span class="colon-after">N° LOTE</span>
-                            </td>
-                            <td class="text-center">
-                                <span>
-                                    <a tal:content="batch/ClientBatchID"
-                                        tal:attributes="href batch/absolute_url"></a></span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="label noborder-right">
-                                <span class="colon-after">CONCENTRACIÓN</span>
-                            </td>
-                            <td class="noborder-left">
-                                <span tal:content="mktauth/Concentrations"></span>
-                            </td>
-                            <td class="label">
-                                <span class="colon-after">FECHA DE VENCIMIENTO</span>
-                            </td>
-                            <td class="text-center">
-                                <span tal:content="batch_expire"></span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <span class="colon-after"><strong>FORMA FARMACÉUTICA</strong></span>
-                            </td>
-                            <td>
-                                <span tal:content="mktauth/DosageForm"></span>
-                            </td>
-                            <td>
-                                <span class="colon-after">PARTIDA(S)</span>
-                            </td>
-                            <td>
-                                <span tal:condition="LAL_analysis/SubGroup"
-                                    tal:content="LAL_analysis/SubGroup/Title"></span>
-                            </td>
-                        </tr>
-                    </table>
-                    <div class="font-size-120 font-weight-bold">2.- INFORMACIÓN GENERAL DE LOS REACTIVOS</div>
-                    <table class="table table-sm table-condensed">
-                        <colgroup>
-                            <col style="width: 30%;">
-                            <col style="width: 25%;">
-                            <col style="width: 15%;">
-                            <col style="width: 12%;">
-                            <col style="width: 12%;">
-                            <col style="width: 12%;">
-                            <col style="width: 12%;">
-                            <col style="width: 12%;">
-                        </colgroup>
-                        <tr>
-                            <th>DESCRIPCIÓN</th>
-                            <th>LOTE</th>
-                            <th>FABRICANTE</th>
-                            <th>VENCIMIENTO</th>
-                            <th>SENSIBILIDAD</th>
-                            <th>CONCENTRACIÓN</th>
-                            <th>RECONST./APERTURA</th>
-                        </tr>
-                        <tal:qcs tal:repeat="LAL_analysis_qc LAL_analyses_qcs">
-                            <tr tal:define="reference_sample python:LAL_analysis_qc.getSample();
-                                            LAL_analysis_qc_inerim_fields python: LAL_analysis_qc.getInterimFields();">
-                                <td>
-                                    <span>
-                                        <a tal:content="python: reference_sample.getReferenceDefinition().Title()"
-                                            tal:attributes="href reference_sample/absolute_url"></a></span>
-                                </td>
-                                <td tal:content="python:reference_sample.getLotNumber()"></td>
-                                <td>
-                                    <span tal:condition="python:reference_sample.getManufacturer()">
-                                        <a tal:content="python:reference_sample.getManufacturer().Title()"
-                                            tal:attributes="href python:reference_sample.getManufacturer().absolute_url()"></a>
-                                    </span>
-                                </td>
-                                <td tal:content="python:reference_sample.getExpiryDate().strftime('%d-%m-%Y')"></td>
-                                <td tal:define="ref_sample_dic python: dir(reference_sample)">
-                                    <span tal:condition="python:reference_sample.Sensitivity">
-                                        <span tal:content="python:str(reference_sample.Sensitivity) + ' ' + reference_sample.SensitivityUnit"></span>
-                                    </span>
-                                </td>
-                                <td>
-                                    <span tal:condition="python:reference_sample.Concentration">
-                                        <span tal:content="python:str(reference_sample.Concentration) + ' ' + reference_sample.ConcentrationUnit"></span>
-                                    </span>
-                                </td>
-                                <td>
-                                    <span tal:condition="LAL_analysis_qc_inerim_fields">
-                                        <span tal:define="reconstitution_date python: [f['value'] for f in LAL_analysis_qc_inerim_fields if f['keyword']=='date'];">
-                                            <span tal:condition="reconstitution_date"
-                                                tal:content="python: reconstitution_date[0][:10]"></span>
-                                        </span>
-                                    </span>
-                                </td>
-                            </tr>
-
-                        </tal:qcs>
-                    </table>
-                    <div class="font-size-120 font-weight-bold">3.- INFORMACIÓN GENERAL DE EQUIPOS Y MATERIALES</div>
-                    <table class="table table-sm table-condensed">
-                        <colgroup>
-                            <col style="width: 20%;">
-                            <col style="width: 20%;">
-                            <col style="width: 15%;">
-                            <col style="width: 15%;">
-                            <col style="width: 15%;">
-                            <col style="width: 15%;">
-                        </colgroup>
-                        <tr>
-                            <th>CLASIFICACIÓN</th>
-                            <th>NOMBRE</th>
-                            <th>FABRICANTE</th>
-                            <th>MODELO</th>
-                            <th>N°SERIE</th>
-                            <th>CERTIFICADO CALIBRACIÓN</th>
-                        </tr>
-                            <tal:instruments tal:repeat="instrument python: set([i.getInstrument() for i in [LAL_analysis]+LAL_analyses_qcs if i.getInstrument() ])">
-                                <tr tal:define="instrument_type instrument/getInstrumentType;
-                                        instrument_manufacturer instrument/getManufacturer;
-                                        insturment_certification instrument/getLatestValidCertification">
-                                <td tal:content="instrument_type/Title"></td>
-                                <td tal:content="instrument/Title"></td>
-                                <td tal:content="python:instrument_manufacturer.Title() if instrument_manufacturer else ''">
-                                </td>
-                                <td tal:content="instrument/Model"></td>
-                                <td tal:content="instrument/SerialNo"></td>
-                                <td>
-                                    <span>Id:</span><span tal:content="insturment_certification/Title"></span>
-                                    <br>
-                                    <span>Vcto:</span><span
-                                        tal:content="python:insturment_certification.getValidTo().strftime('%m-%Y')"></span>
-                                </td>
-                            </tr>
-                        </tal:instruments>
-                        
-                    </table>
-                    <div class="font-size-120 font-weight-bold">4.- DATOS GENERALES DE LA MUESTRA</div>
-                    <table class="table table-sm table-condensed">
-                        <colgroup>
-                            <col style="width: 15%;">
-                            <col style="width: 20%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 20%;">
-                            <col style="width: 20%;">
-                        </colgroup>
-                        <tr>
-                            <th>ID MUESTRA</th>
-                            <th>TIPO DE MUESTRA</th>
-                            <th>MUESTREO</th>
-                            <th>ANÁLISIS</th>
-                            <th>PUNTO DE MUESTREO</th>
-                            <th>ESPECIFICACION</th>
-                        </tr>
-                        <tr tal:define="sampling_date python:sample.getDateSampled();
-                                    analysis_date python:LAL_analysis.getResultCaptureDate();
-                                    sampling_point sample/getSamplePoint;">
-                            <td>
-                                <a tal:content="sample/getId" tal:attributes="href sample/absolute_url"></a>
-                            </td>
-                            <td tal:content="sample_type/Title"></td>
-                            <td tal:content="python:sampling_date.strftime('%d-%m-%Y') if sampling_date else ''"></td>
-                            <td tal:content="python:analysis_date.strftime('%d-%m-%Y') if analysis_date else ''"></td>
-                            <td tal:content="sampling_point/Title"></td>
-                            <td>
-                                <span tal:content="specs"></span>
-                                <span class="units" tal:condition="specs" tal:content="structure unit"></span>
-                            </td>
-                        </tr>
-                    </table>
-                    <div class="metadata">
-                        <div class="inline"><strong>Temperatura del trabajo:</strong> 37°C</div>
-                        <div class="inline"><strong>Tiempo de incubación:</strong> 60 min.</div>
-                        <div class="inline"><strong>Diluyente utilizado:</strong> Agua apirógena</div>
-                    </div>
-
-                    <div class="font-size-120 font-weight-bold">5.- CUANTIFICACIÓN DE ENDOTOXINA EN LA MUESTRA</div>
-                    <table class="table table-sm table-condensed">
-                        <tr>
-                            <th>Factor de dilusión</th>
-                            <tal:block tal:repeat="dilution python:dilutions[:-1]">
-                                <th tal:content="python:'1:'+str(dilution)"></th>
-                            </tal:block>
-                            <th tal:content="python:'1:'+str(dilutions[-1]) + '(mdv=1:' +str(int(mdv))+')'"></th>
-                            <th>Resultado</th>
-                        </tr>
-                        <tr tal:define="analysis python:LAL_ppc;
-                                        interim_map python: {item['keyword']: item for item in analysis.getInterimFields()};">
-                            <td tal:content="analysis/title">Recuento de tubos positivos</td>
-                            <tal:block tal:repeat="dilution dilutions">
-                                <td tal:define="keyword python: 'd' + str(dilution);
-                                            value python: int(interim_map[keyword]['value']) if keyword in interim_map else ''">
-                                    <span tal:content="python:'' if value == '' else ('+' if int(value) > 0 else '-')"></span>
-                                </td>
-                            </tal:block>
-                            <td>
-                                <span tal:content="string:<"></span>
-                                <span class="result" tal:content="structure python:model.get_formatted_result(analysis)"></span>
-                                <span class="units" tal:content="structure python:model.get_formatted_unit(analysis)"></span>
-                            </td>
-                        </tr>
-                        <tr tal:define="analysis LAL_analysis;
-                                        interim_map python: {item['keyword']: item for item in analysis.getInterimFields()};">
-                            <td tal:content="analysis/title"></td>
-                            <tal:block tal:repeat="dilution dilutions">
-                                <td tal:define="keyword python: 'd' + str(dilution);
-                                            value python: int(interim_map[keyword]['value']) if keyword in interim_map else ''">
-                                    <span tal:content="python:'' if value == '' else ('+' if int(value) > 0 else '-')"></span>
-                                </td>
-                            </tal:block>
-                            <td>
-                                <span tal:content="string:<"></span>
-                                <span class="result" tal:content="structure python:model.get_formatted_result(analysis)"></span>
-                                <span class="units" tal:content="structure python:model.get_formatted_unit(analysis)"></span>
-                            </td>
-                        </tr>
-                            <tal:block tal:repeat="LAL_analysis_qc LAL_analyses_qcs">
-                                <tal:block2 tal:define="reference_sample python:LAL_analysis_qc.getSample();
-                                                        reference_definition python:reference_sample.getReferenceDefinition();
-                                                        reference_definition_title python: reference_definition.Title() if reference_definition else '';"
-                                            tal:condition="python: reference_definition_title =='Endotoxina estandar' or reference_definition_title =='LRW'">
-                                    <tr tal:define="interim_map python: {item['keyword']: item for item in LAL_analysis_qc.getInterimFields()};">
-                                        <td>
-                                        <span tal:content="LAL_analysis_qc/Title"></span>
-                                        </td>
-                                        <tal:block3 tal:repeat="dilution dilutions">
-                                            <td tal:define="keyword python: 'd' + str(dilution);
-                                                        value python: int(interim_map[keyword]['value']) if keyword in interim_map else ''"
-                                                tal:condition="python:value != ''">
-                                                <span tal:content="python:'' if value == '' else ('+' if int(value) > 0 else '-')"></span>
-                                            </td>
-                                        </tal:block3>
-                                    </tr>
-                                </tal:block2>
-                            </tal:block>
-                    </table>
-                    <span>Concentración de Endotoxina: Sensibilidad del reactivo del LAL x reciproco de la dilución en el punto final</span><br>
-                    <div class="font-size-120 font-weight-bold">6.- CONCLUSIÓN</div>
-                    <p class="font-size-100" tal:define="
-                    below_or_above python: 'menor' if out_of_range == False else 'mayor';
-                    aprove python: 'Aprobado' if out_of_range == False else 'Rechazado';">
-
-                        La muestra de <span class="font-size-100" tal:content="sample_matrix/Title" /> 
-                        <span class="font-size-120" tal:content="mktauth/TradeName" />, lote 
-                        <span class="font-size-120" tal:content="batch/ClientBatchID"/>, 
-                        obtuvo un resultado de <strong><span class="font-size-120" tal:content="result" /> 
-                        <span class="font-size-120" tal:content="unit" /></strong> en la prueba de endotoxinas bacterianas. 
-                        Dicho valor es <span class="font-size-120" tal:content="below_or_above" /> que el límite especificado 
-                        (<strong><span class="font-size-120" tal:content="specs" /> 
-                        <span class="font-size-120" tal:content="unit" /></strong>), 
-                        por lo cual se considera 
-                        <strong style="text-transform: uppercase;">
-                            <span tal:content="aprove" class="font-size-120"/>
-                        </strong>.
-                    </p>
-                    <tal:signatures tal:define="managers python: sample.getManagers();
-                                                analyses python:[LAL_analysis] + LAL_analyses_qcs + LAL_ppcs;
-                                                verificators_user_names python:view.uniquify_items(a.getVerificators()[-1] for a in analyses);
-                                                analysts_user_names python:view.uniquify_items(a.getAnalyst() for a in analyses);
-                                                verficators python: [managers[0].getContactByUsername(u) for u in verificators_user_names if managers[0].getContactByUsername(u)];
-                                                analysts python: [managers[0].getContactByUsername(u) for u in analysts_user_names if managers[0].getContactByUsername(u)];
-                                                user_signatures python: [{'users': analysts,'role':'Analizado por'}, 
-                                                                        {'users': verficators, 'role':'Verificado por'}, 
-                                                                        {'users':managers, 'role':'Responsable de Area'}];">
-                        <div class="font-size-120 font-weight-bold">7.- RESPONSABLES</div>
-                        <table class="table table-sm table-condensed">
-                            <tr>
-                                <tal:role tal:repeat="role user_signatures">
-                                    <tal:user repeat="user python:role.get('users')">
-                                        <td style="border:none">
-                                        <div tal:condition="python: user and user == role.get('users')[0]"
-                                            tal:content="python:role.get('role')"
-                                            class="font-weight-bold colon-after">
-                                        </div>
-                                        <div>
-                                            <img tal:condition="user/getSignature"
-                                                tal:attributes="src string:${manager/absolute_url}/Signature" style="height:75px"/>
-                                        </div>
-                                        <div class="font-weight-bold">
-                                            <span tal:content="user/Salutation"></span>
-                                            <span tal:condition="user/Salutation">&nbsp;</span>
-                                            <span tal:content="user/getFullname"></span>
-                                        </div>
-                                        <div>
-                                            <span tal:content="user/JobTitle"></span>
-                                        </div>
-                                        <div>
-                                            <span tal:content="user/DefaultDepartment/title|nothing"></span>
-                                        </div>
-                                        <div>
-                                            <span tal:content="user/getUsername"></span>
-                                        </div>
-                                        </td>
-                                    </tal:user>
-                                </tal:role>
-                            </tr>    
-                        </table>
-                    </tal:signatures>
-                </div>
-            </tal:LAL-ANALYSIS>
-        </div>
-    </tal:LALs>
-    <!--STERILITY REPORT-->
+    <!--LAL REPORTS-->
+    <tal:t  replace="structure python:view.render_lal_report(context, batch=batch, mktauth=mktauth)" />
+    <!--STERILITY REPORTS-->
     <tal:t  replace="structure python:view.render_sterility_report(context, batch=batch, mktauth=mktauth)" />
+    <!--MICROBIAL TITRATION REPORT-->
+    <tal:t  replace="structure python:view.render_microbial_titration_report(context, batch=batch, mktauth=mktauth)" />
 </tal:report>

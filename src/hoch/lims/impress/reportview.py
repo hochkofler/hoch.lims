@@ -30,6 +30,8 @@ class MultiReportView(BaseMultiReportView):
     INSTRUMENT_DATA_TEMPLATE = PT("templates/instrument_data.pt")
     REFERENCE_SAMPLE_DATA_TEMPLATE = PT("templates/reference_samples_data.pt")
     STERILITY_REPORT_TEMPLATE = PT("templates/sterility_report.pt")
+    LAL_REPORT_TEMPLATE = PT("templates/lal_report.pt")
+    MICROBIAL_TITRATION_REPORT_TEMPLATE = PT("templates/microbial_titration_report.pt")
 
     def __init__(self, context, collection, request):
         super(MultiReportView, self).__init__(collection, request)
@@ -79,6 +81,14 @@ class MultiReportView(BaseMultiReportView):
         """Render the sterility report template with the given context and options
         """
         return self.STERILITY_REPORT_TEMPLATE(context, **kw)
+    
+    def render_lal_report(self, context, **kw):
+        """Render the lal report template"""
+        return self.LAL_REPORT_TEMPLATE(context, **kw)
+    
+    def render_microbial_titration_report(self, context, **kw):
+        """Render microbial titration report"""
+        return self.MICROBIAL_TITRATION_REPORT_TEMPLATE(context, **kw)
 
     def formatted_interim(self, interim, dmk="."):
         return get_formatted_interim(interim, dmk)

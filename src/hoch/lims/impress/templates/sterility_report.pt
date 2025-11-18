@@ -2,7 +2,8 @@
                     tal:define="analyses python:view.get_analyses_by(view.collection, keyword='EST');
                                 model view/model;
                                 batch python: options.get('batch', None);
-                                mktauth python: options.get('mktauth', None);">
+                                mktauth python: options.get('mktauth', None);"
+                    tal:condition="analyses">
         <div class="section-sterility">
             <h1 class="page-title">PRUEBA DE ESTERILIDAD</h1>
                 <tal:EST-ANALYSIS tal:repeat="analysis analyses">
@@ -76,7 +77,7 @@
                                     <th>14</th>
                                 </tr>
                                 <tal:block tal:repeat="analysis analysis_dependencies_and_qc_sorted">
-                                    <tr tal:define="medium python: next((medium for medium in mediums if medium in analysis.getKeyword()), analysis);
+                                    <tr tal:define="medium python: next((medium for medium in mediums if medium in analysis.getKeyword()), analysis.getKeyword());
                                                     index python: analysis_dependencies_and_qc_sorted.index(analysis);
                                                     reference_definitions python: analysis.getSample().getReferenceDefinition().Title() if analysis in qc_analyses else '';
                                                     medium_to_display python: medium + ' + ' + reference_definitions if reference_definitions and medium and medium not in reference_definitions else medium;

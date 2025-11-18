@@ -2,7 +2,7 @@
                         title python: options.get('title', 'DATOS GENERALES DE LA MUESTRA');
                         title_number python: options.get('title_number', 1);">
     <div class="font-size-120 font-weight-bold"
-        tal:content="python: str(title_number) + ' ' + title"></div>
+        tal:content="python: str(title_number) + '.- ' + title"></div>
     <table class="table table-sm table-condensed nopadding">
         <tr>
             <th>ID MUESTRA</th>

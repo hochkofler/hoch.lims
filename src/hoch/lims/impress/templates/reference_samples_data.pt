@@ -1,24 +1,66 @@
 <tal:section-reference-samples
 tal:define="qcs_analyses python: options.get('qcs_analyses', []);
             title python: options.get('title', 'ESTANDARES DE REFERENCIA');
-            title_number python: options.get('title_number', 2);">
+            title_number python: options.get('title_number', 2);
+            variables_keys_to_show python: options.get('variables_keys_to_show', []);
+            interims_key_to_show python: options.get('interims_key_to_show', []);">
     <div class="font-size-120 font-weight-bold"
-        tal:content="python: str(title_number) + ' ' + title"></div>
+        tal:content="python: str(title_number) + '.- ' + title"></div>
     <table class="table table-sm table-condensed nopadding">
         <tr>
             <th>DESCRIPCIÓN</th>
             <th>LOTE</th>
             <th>VENCIMIENTO</th>
+            <tal:block tal:repeat="variable_key variables_keys_to_show">
+                <th tal:condition="variable_key">
+                    <span tal:content="python: variable_key['title']"></span>
+                </th>
+            </tal:block>
+            <tal:block tal:repeat="interim_to_show interims_key_to_show">
+                <th tal:condition="interim_to_show">
+                    <span tal:content="python: interim_to_show['title']"></span>
+                </th>
+            </tal:block>
         </tr>
         <tal:qcs tal:repeat="reference_sample python: set(qc.getSample() for qc in qcs_analyses)">
-            <tr>
+            <tr tal:define="analysis python:next((qc for qc in qcs_analyses if qc.getSample()==reference_sample), None);
+                            reference_definition reference_sample/getReferenceDefinition;
+                            interims python:analysis.getInterimFields();
+                            variables reference_sample/VariablesSettings">
+                <span tal:condition="python: reference_definition.Title() == 'Reactivo LAL'">
+                </span>
+
                 <td>
                     <span>
-                        <a tal:content="python: reference_sample.getReferenceDefinition().Title() + ' (' + reference_sample.getReferenceDefinition().Description() + ')'"
-                            tal:attributes="href reference_sample/absolute_url"></a></span>
+                        <a  tal:attributes="href reference_sample/absolute_url">
+                            <span tal:content="reference_definition/Title"/>
+                            <span tal:condition="reference_definition/Description"
+                                  tal:content="python: ' (' + reference_definition.Description() + ')'"/>
+                        </a>
+                    </span>
                 </td>
                 <td tal:content="python:reference_sample.getLotNumber()"></td>
                 <td tal:content="python:reference_sample.getExpiryDate().strftime('%d-%m-%Y')"></td>
+                <tal:block tal:repeat="variable_to_show variables_keys_to_show">
+                    <td tal:condition="variable_to_show"
+                        tal:define="variable_key python: variable_to_show['key'];
+                                    variable_data python: next((f for f in variables if f['keyword']==variable_key),'') if variables else [];">
+                        <span tal:condition="variable_data">
+                             <span tal:content="variable_data/value"></span>
+                             <span tal:content="variable_data/unit"></span>      
+                        </span>
+                    </td>
+                </tal:block>
+                <tal:block tal:repeat="interim_to_show interims_key_to_show">
+                    <td tal:condition="interim_to_show"
+                        tal:define="interim_key python: interim_to_show['key'];
+                                    interim_value python: next(f['value'] for f in interims if f['keyword']==interim_key);">
+                        <span tal:condition="interim_value">
+                            <span tal:content="interim_value"></span>            
+                        </span>
+                    </td>
+                </tal:block>
+                
             </tr>
 
         </tal:qcs>

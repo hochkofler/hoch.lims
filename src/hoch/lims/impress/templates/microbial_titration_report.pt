@@ -1,0 +1,144 @@
+<tal:titration tal:define="analyses python:view.get_analyses_by(view.collection, keyword='V_019');
+                            model view/model;
+                            batch python: options.get('batch', None);
+                            mktauth python: options.get('mktauth', None);
+                            valid_keys python: [('diameter1','Placa 1'), ('diameter2', 'Placa 2')]"
+                tal:condition="analyses">
+    <div class="section-titration-micro">
+        <h1 class="page-title">PRUEBA DE VALORACIÓN MICROBIOLOGICA</h1>
+        <tal:analyses tal:repeat="analysis analyses">
+            <div class="page-break-after" tal:define="sample python: analysis.getRequest();
+                            qc_analyses python: sample.getQCAnalyses();
+                            specs python:model.get_formatted_specs2(analysis);
+                            result python:model.get_formatted_result(analysis);
+                            out_of_range  python: model.is_out_of_range(analysis);
+                            unit python:model.get_formatted_unit(analysis);
+                            sample_type sample/getSampleType;
+                            sample_matrix sample_type/getSampleMatrix;
+                            interim_fields python:analysis.getInterimFields();
+                            dependencies python: view.sort_items(analysis.getDependencies());
+                            all_analyses python: sample.getAnalyses(full_objects=True);
+                            analysis_cv_st python: next((a for a in all_analyses if a.getKeyword() == 'CV_VAL_MICRO_ST'), None);
+                            analysis_cv_m python: next((a for a in all_analyses if a.getKeyword() == 'CV_VAL_MICRO_M'), None);">
+
+                <div class="text-center">DPTO. CONTROL DE CALIDAD</div>
+                <div class="text-center" tal:content="analysis/Method/Title"></div>
+                <tal:t replace="structure python:view.render_sample_data(context,sample=sample)" />
+                <tal:t
+                    replace="structure python:view.render_batch_data(context, batch=batch, mktauth=mktauth, analysis=analysis)" />
+                <tal:t replace="structure python:view.render_reference_sample_data(context, 
+                                                qcs_analyses=qc_analyses,
+                                                title= 'REACTIVOS',
+                                                title_number=2)" />
+                <tal:t replace="structure python:view.render_instrument_data(context, analysis=analysis, qcs_analyses=qc_analyses)" />
+
+                <tal:conditions tal:define = "interim_fields_report python: [item for item in interim_fields if item.get('report') in ('on', True)]">
+                    <table class="table-sm nopadding noborder" style="margin-bottom: 1rem;" tal:condition="interim_fields_report">
+                        <div class="font-size-120 font-weight-bold">4.- CONDICIONES DE ANÁLISIS</div>
+                        <tal:interims tal:repeat="interim interim_fields_report">
+                            <tr>
+                                <td class="label colon-after" tal:content="interim/title" />
+                                <td>
+                                    <span tal:content="interim/value" />
+                                    <span tal:condition="python: interim.get('unit')" tal:content="interim/unit" />
+                                </td>
+                            </tr>
+                        </tal:interims>
+                    </table>
+                </tal:conditions>
+                <tal:results>
+                    <div class="font-size-120 font-weight-bold">5.- RESULTADOS</div>
+                    <table class="table nopadding">
+                        <tr>
+                            <td></td>
+                            <tal:interim_titles tal:repeat="interim_title valid_keys">
+                                <th tal:content="python: interim_title[1]" />
+                            </tal:interim_titles>
+                        <tal:depen tal:repeat="dependency dependencies">
+                            <tr tal:define="dependency_interim_fields python: dependency.getInterimFields();
+                                            dependency_interim_fields_dict python: {f.get('keyword'): f for f in dependency_interim_fields};">
+
+                                <td class="label" tal:content="dependency/Description" />
+                                <tal:interim_titles tal:repeat="interim_keyword valid_keys">
+                                    <td tal:define="interim python: dependency_interim_fields_dict.get(interim_keyword[0])">
+                                        <span tal:condition="interim">
+                                            <span tal:content="python: '%.*f' % (2, float(interim.get('value')))" />
+                                            <span tal:condition="python: interim.get('unit')" tal:content="interim/unit" />
+                                        </span>
+                                    </td>
+                                </tal:interim_titles>
+                            </tr>
+
+                        </tal:depen>
+                    </table>
+                    <table class="nopadding noborder" style="margin-bottom: 1rem;">
+                        <tr>
+                            <th colspan="4" class="font-weight-bold">Cálculo:</th>
+                            <th class="font-weight-bold text-center" style="border-left: 1px solid black; padding-left: 0.5rem;">Especificación</th>
+                        </tr>
+
+                        <tr>
+                            <td rowspan="2" class="label text-right">Valoración =</td>
+                            <td>Promedio Diámetros del Halo del Muestra (D<sub>M</sub>)</td>
+                            <td rowspan="2" class="label">=</td>
+                            <td rowspan="2" class="label text-right">
+                                <span tal:content="result" />
+                                <span tal:condition="unit" tal:content="unit" />
+                            </td>
+                            <td rowspan="2" class="label" class="text-center" style="border-left: 1px solid black; padding-left: 0.5rem;">
+                                <span tal:content="specs" />
+                                <span tal:condition="unit" tal:content="unit" />
+                            </td>
+                        </tr>
+                        <tr style="border-top: 2px solid black;">
+                            <td>Promedio Diámetros del Halo del Estandar (D<sub>ST</sub>) </td>
+                        </tr>
+                        <tal:block>
+                            <tr tal:define="analysis python:analysis_cv_st;
+                                            result python: model.get_formatted_result(analysis);
+                                            unit python:model.get_formatted_unit(analysis);
+                                            specs python:model.get_formatted_specs2(analysis);">
+                                <td colspan="2" class="label">Coeficiente de variación del estandar (CV <sub>ST</sub>)</td>
+                                <td class="label">=</td>
+                                <td class="label text-right">
+                                    <span tal:content="result" />
+                                    <span tal:condition="unit" tal:content="unit" />
+                                </td>
+                                <td class="label" class="text-center" style="border-left: 1px solid black; padding-left: 0.5rem;">
+                                    <span tal:content="specs" />
+                                    <span tal:condition="unit" tal:content="unit" />
+                                </td>
+                            </tr>
+                            <tr tal:define="analysis python:analysis_cv_m;
+                                            result python: model.get_formatted_result(analysis);
+                                            unit python:model.get_formatted_unit(analysis);
+                                            specs python:model.get_formatted_specs2(analysis);">
+                                <td colspan="2" class="label">Coeficiente de variación de la muestra (CV <sub>M</sub>)</td>
+                                <td class="label">=</td>
+                                <td class="label text-right">
+                                    <span tal:content="result" />
+                                    <span tal:condition="unit" tal:content="unit" />
+                                </td>
+                                <td class="label" class="text-center" style="border-left: 1px solid black; padding-left: 0.5rem;">
+                                    <span tal:content="specs" />
+                                    <span tal:condition="unit" tal:content="unit" />
+                                </td>
+                            </tr>
+
+                        </tal:block>
+                    </table>
+                </tal:results>
+                <tal:section-conclusion>
+                    <div class="font-size-120 font-weight-bold">6.- DICTAMEN</div>
+                    <div class="font-size-120 font-weight-bold text-center"
+                        tal:content="python: 'APROBADO' if out_of_range == False else 'RECHAZADO'">
+                    </div>
+                </tal:section-conclusion>
+                
+                <tal:t replace="structure python:view.render_signatures(context, sample=sample, analyses=[analysis]+qc_analyses, title_number='7')" />
+            </div>
+
+        </tal:analyses>
+    </div>
+
+</tal:titration>

@@ -1,0 +1,131 @@
+<tal:LALs tal:define="analyses python:view.get_analyses_by(view.collection, keyword='LAL');
+                                model view/model;
+                                batch python: options.get('batch', None);
+                                mktauth python: options.get('mktauth', None);"
+            tal:condition="analyses">
+        <div class="section-lal">
+            <h1 class="page-title">PRUEBA DE ENDOTOXINAS BACTERIANAS</h1>
+            <tal:LAL-ANALYSIS tal:repeat="analysis analyses">
+                <div class="page-break-after"
+                    tal:define="sample python: analysis.getRequest();
+                                qc_analyses python: sample.getQCAnalyses();
+                                specs python:model.get_formatted_specs2(analysis);
+                                result python:model.get_formatted_result(analysis);
+                                out_of_range  python: model.is_out_of_range(analysis);
+                                unit python:model.get_formatted_unit(analysis);
+                                sample_type sample/getSampleType;
+                                sample_matrix sample_type/getSampleMatrix;
+                                interim_fields python:analysis.getInterimFields();
+                                LAL_ppcs python:sample.getAnalyses(getId='LALPPC', full_objects=True);
+                                mdv python:next((float(k['value']) for k in interim_fields if k['keyword'] == 'mdv'), None);
+                                concentration python:next((k['value'] + k['unit'] for k in interim_fields if k['keyword'] == 'concentration'), '');
+                                concentration_dilution python:next((k['value'] + k['unit'] for k in interim_fields if k['keyword'] == 'dilution'), '');
+                                dilutions python:[2**i for i in range(0, 99) if 2**i <= mdv];
+                                LAL_ppc python:LAL_ppcs[0] if LAL_ppcs else None;">
+                    <div class="text-center">DPTO. CONTROL DE CALIDAD</div>
+                    <div class="text-center" tal:content="analysis/Method/Title"></div>
+                    <tal:t  replace="structure python:view.render_sample_data(context,
+                                                                            sample=sample,
+                                                                            data={('Concentración:', concentration + '/' + concentration_dilution),
+                                                                                  ('MDV', int(mdv)),
+                                                                                  ('Especificación', specs + unit)
+                                                                            })" />
+                    <tal:t  replace="structure python:view.render_batch_data(context, batch=batch, mktauth=mktauth, analysis=analysis)" />
+                    <tal:t  replace="structure python:view.render_reference_sample_data(context, 
+                                                qcs_analyses=qc_analyses,
+                                                title= 'REACTIVOS',
+                                                title_number=2,
+                                                variables_keys_to_show=[{'title':'CONCENTRACIÓN', 'key':'concentration'},
+                                                                        {'title':'SENSIBILIDAD', 'key':'sensitivity'}],
+                                                interims_key_to_show=[{'title':'RECONSTITUCIÓN', 'key':'date_constitution'}])" />
+                    <tal:t  replace="structure python:view.render_instrument_data(context, analysis=analysis, qcs_analyses=qc_analyses)" />
+                    <div class="metadata">
+                        <div class="inline"><strong>Temperatura del trabajo:</strong> 37°C</div>
+                        <div class="inline"><strong>Tiempo de incubación:</strong> 60 min.</div>
+                        <div class="inline"><strong>Diluyente utilizado:</strong> Agua apirógena</div>
+                    </div>
+
+                    <div class="font-size-120 font-weight-bold">5.- CUANTIFICACIÓN DE ENDOTOXINA EN LA MUESTRA</div>
+                    <table class="table table-sm table-condensed">
+                        <tr>
+                            <th>Factor de dilusión</th>
+                            <tal:block tal:repeat="dilution python:dilutions[:-1]">
+                                <th tal:content="python:'1:'+str(dilution)"></th>
+                            </tal:block>
+                            <th tal:content="python:'1:'+str(dilutions[-1]) + '(mdv=1:' +str(int(mdv))+')'"></th>
+                            <th>Resultado</th>
+                        </tr>
+                        <tr tal:define="analysis python:LAL_ppc;
+                                        interim_map python: {item['keyword']: item for item in analysis.getInterimFields()};">
+                            <td tal:content="analysis/title">Recuento de tubos positivos</td>
+                            <tal:block tal:repeat="dilution dilutions">
+                                <td tal:define="keyword python: 'd' + str(dilution);
+                                            value python: int(interim_map[keyword]['value']) if keyword in interim_map else ''">
+                                    <span tal:content="python:'' if value == '' else ('+' if int(value) > 0 else '-')"></span>
+                                </td>
+                            </tal:block>
+                            <td>
+                                <span tal:content="string:<"></span>
+                                <span class="result" tal:content="structure python:model.get_formatted_result(analysis)"></span>
+                                <span class="units" tal:content="structure python:model.get_formatted_unit(analysis)"></span>
+                            </td>
+                        </tr>
+                        <tr tal:define="analysis analysis;
+                                        interim_map python: {item['keyword']: item for item in analysis.getInterimFields()};">
+                            <td tal:content="analysis/title"></td>
+                            <tal:block tal:repeat="dilution dilutions">
+                                <td tal:define="keyword python: 'd' + str(dilution);
+                                            value python: int(interim_map[keyword]['value']) if keyword in interim_map else ''">
+                                    <span tal:content="python:'' if value == '' else ('+' if int(value) > 0 else '-')"></span>
+                                </td>
+                            </tal:block>
+                            <td>
+                                <span tal:content="string:<"></span>
+                                <span class="result" tal:content="structure python:model.get_formatted_result(analysis)"></span>
+                                <span class="units" tal:content="structure python:model.get_formatted_unit(analysis)"></span>
+                            </td>
+                        </tr>
+                            <tal:block tal:repeat="qc_analysis qc_analyses">
+                                <tal:block2 tal:define="reference_sample python:qc_analysis.getSample();
+                                                        reference_definition python:reference_sample.getReferenceDefinition();
+                                                        reference_definition_title python: reference_definition.Title() if reference_definition else '';"
+                                            tal:condition="python: reference_definition_title =='E. Coli' or reference_definition_title =='LRW'">
+                                    <tr tal:define="interim_map python: {item['keyword']: item for item in qc_analysis.getInterimFields()};">
+                                        <td>
+                                        <span tal:content="qc_analysis/Title"></span>
+                                        </td>
+                                        <tal:block3 tal:repeat="dilution dilutions">
+                                            <td tal:define="keyword python: 'd' + str(dilution);
+                                                        value python: int(interim_map[keyword]['value']) if keyword in interim_map else ''"
+                                                tal:condition="python:value != ''">
+                                                <span tal:content="python:'' if value == '' else ('+' if int(value) > 0 else '-')"></span>
+                                            </td>
+                                        </tal:block3>
+                                    </tr>
+                                </tal:block2>
+                            </tal:block>
+                    </table>
+                    <span>Concentración de Endotoxina: Sensibilidad del reactivo del LAL x reciproco de la dilución en el punto final</span><br>
+                    <div class="font-size-120 font-weight-bold">6.- CONCLUSIÓN</div>
+                    <p class="font-size-100" tal:define="
+                    below_or_above python: 'menor' if out_of_range == False else 'mayor';
+                    aprove python: 'Aprobado' if out_of_range == False else 'Rechazado';">
+
+                        La muestra de <span class="font-size-100" tal:content="sample_matrix/Title" /> 
+                        <span class="font-size-120" tal:content="mktauth/TradeName" />, lote 
+                        <span class="font-size-120" tal:content="batch/ClientBatchID"/>, 
+                        obtuvo un resultado de <strong><span class="font-size-120" tal:content="result" /> 
+                        <span class="font-size-120" tal:content="unit" /></strong> en la prueba de endotoxinas bacterianas. 
+                        Dicho valor es <span class="font-size-120" tal:content="below_or_above" /> que el límite especificado 
+                        (<strong><span class="font-size-120" tal:content="specs" /> 
+                        <span class="font-size-120" tal:content="unit" /></strong>), 
+                        por lo cual se considera 
+                        <strong style="text-transform: uppercase;">
+                            <span tal:content="aprove" class="font-size-120"/>
+                        </strong>.
+                    </p>
+                    <tal:t replace="structure python:view.render_signatures(context, sample=sample, analyses=[analysis]+qc_analyses)" />
+                </div>
+            </tal:LAL-ANALYSIS>
+        </div>
+    </tal:LALs>

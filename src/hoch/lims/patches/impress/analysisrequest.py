@@ -17,7 +17,9 @@ from senaite.impress.analysisrequest.reportview import ReportView as view
 from senaite.impress.analysisrequest.model import SuperModel
 
 @check_installed(None)
-def get_formatted_specs2(self, analysis, with_shoulder_range=False):
+def get_formatted_specs2(self, analysis, with_shoulder_range=False,
+                         lt_operator=None, leq_operator=None, 
+                         gt_operator=None, geq_operator=None):
     specs = analysis.getResultsRange()
 
     # Get possible choice options (for choice-type results)
@@ -34,24 +36,29 @@ def get_formatted_specs2(self, analysis, with_shoulder_range=False):
     is_choice_type = result_type in [
         "select", "multiselect", "multiselect_duplicates", "multichoice"
     ]
-
+    
+    OPERATORS = {}
+    OPERATORS["gt"] = gt_operator or MAX_OPERATORS.getValue("gt", ">")
+    OPERATORS["geq"] = geq_operator or MAX_OPERATORS.getValue("geq", ">=")
+    OPERATORS["lt"] = lt_operator or MIN_OPERATORS.getValue("lt", "<")
+    OPERATORS["leq"] = leq_operator or MIN_OPERATORS.getValue("leq", "<=")
     # Get min and max operators (default values if missing)
     min_operator = specs.get("min_operator") or ""
-    min_operator = MIN_OPERATORS.getValue(min_operator, default=">=")
+    min_operator = OPERATORS.get(min_operator, ">=")
     max_operator = specs.get("max_operator") or ""
-    max_operator = MAX_OPERATORS.getValue(max_operator, default="<=")
+    max_operator = OPERATORS.get(max_operator, "<=")
 
     # Helper function to evaluate the operator condition
     def matches_operator(value, limit, operator):
         value = float(value)
         limit = float(limit)
-        if operator == ">=":
+        if operator == OPERATORS["geq"]:
             return value >= limit
-        elif operator == ">":
+        elif operator == OPERATORS["gt"]:
             return value > limit
-        elif operator == "<=":
+        elif operator == OPERATORS["leq"]:
             return value <= limit
-        elif operator == "<":
+        elif operator == OPERATORS["lt"]:
             return value < limit
         elif operator == "==":
             return value == limit
@@ -65,17 +72,20 @@ def get_formatted_specs2(self, analysis, with_shoulder_range=False):
     if with_shoulder_range:
         specs_min = specs.get("warn_min")
         specs_max = specs.get("warn_max")
-        
-    if (is_choice_type or values_texts) and (specs_min or specs_max):
+    
+    valid_min_specs = specs_min or specs_min == "0" or specs_min == 0
+    valid_max_specs = specs_max or specs_max == "0" or specs_max == 0
+    
+    if (is_choice_type or values_texts) and (valid_min_specs or valid_max_specs):
         filtered_texts = []
         for num, text in values_texts.items():
-            if (not specs_min or matches_operator(num, specs_min, min_operator)) and \
-               (not specs_max or matches_operator(num, specs_max, max_operator)):
+            if (not valid_min_specs or matches_operator(num, specs_min, min_operator)) and \
+               (not valid_max_specs or matches_operator(num, specs_max, max_operator)):
                 filtered_texts.append(text)
 
         # Optional: if all choices are included, return a single label
-        if len(filtered_texts) == len(values_texts):
-            return "All"
+        # if len(filtered_texts) == len(values_texts):
+        #     return "All"
 
         return ", ".join(filtered_texts)
 
@@ -83,7 +93,8 @@ def get_formatted_specs2(self, analysis, with_shoulder_range=False):
     fs = ""
     threshold = analysis.getExponentialFormatPrecision()
     precision = analysis.getPrecision()
-    
+    formated_max = ""
+    formated_min = ""
     if specs_min:
         formated_min = _format_decimal_or_sci(specs_min, precision, threshold, 1)
     
@@ -285,14 +296,11 @@ def getFormattedResultForServices(
         retracted=retracted,
         rejected=rejected,
     )
-    logger.info("len of analyses '%s'", len(analyses))
     analysis_by_category_and_service = OrderedDict()
     
     categories = self.group_items_by("Category", analyses)
-    logger.info("len of categories '%s'", len(categories))
     for category in categories:
         services = self.group_items_by('AnalysisService',categories[category])
-        logger.info("len of analysis in category '%s': '%s'",category, len(categories[category]))
         analysis_by_category_and_service[category] = OrderedDict()
         for service in services:
                 formatted = getFormattedResultForService(self.model,

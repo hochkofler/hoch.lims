@@ -4,15 +4,22 @@
                         title_number python: options.get('title_number', 3);" 
                         tal:condition="analysis">
     <div class="font-size-120 font-weight-bold"
-        tal:content="python: str(title_number) + ' ' + title"></div>
-    <table class="table table-sm table-condensed nopadding">
+        tal:content="python: str(title_number) + '.- ' + title"></div>
+    <table class="table table-sm table-condensed nopadding"
+            tal:define="dependent_analyses python: analysis.getDependencies();
+                        instruments python: set([i.getInstrument() for i in [analysis]+qcs_analyses+dependent_analyses if i.getInstrument() ]);
+                        subinstruments python: set(sub
+                                                    for i in [analysis] + qcs_analyses + dependent_analyses
+                                                    for sub in i.getSubInstruments()
+                                                );
+                        instruments_and_subinstruments python: list(dict.fromkeys(list(instruments) + list(subinstruments)))">
         <tr>
             <th>CLASIFICACIÓN</th>
             <th>NOMBRE</th>
             <th>CERTIFICADO CALIBRACIÓN</th>
         </tr>
         <tal:instruments
-            tal:repeat="instrument python: set([i.getInstrument() for i in [analysis]+qcs_analyses if i.getInstrument() ])">
+            tal:repeat="instrument instruments_and_subinstruments">
             <tr tal:define="instrument_type instrument/getInstrumentType;
                                                 instrument_manufacturer instrument/getManufacturer;
                                                 insturment_certification instrument/getLatestValidCertification">
