@@ -1,0 +1,10 @@
+{
+  "include": ["/home/lims/hochlims/src"],
+  "extraPaths": [
+    "/home/lims/hochlims/src",
+    "/home/lims/hochlims/develop-eggs",
+    "/home/lims/hochlims/parts/omelette"
+  ],
+  "typeCheckingMode": "off",
+  "reportMissingImports": false
+}

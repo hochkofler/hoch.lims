@@ -388,9 +388,7 @@ class Batch(WorksheetImporter):
                 Remarks = row.get("Remarks"),
             )
             logger.info("Batch '%s' created" % obj)
-            obj.unmarkCreationFlag()
-            renameAfterCreation(obj)
-            notify(ObjectInitializedEvent(obj))
+            obj.reindexObject()
             
 class Instruments_Methods(WorksheetImporter):
     def Import(self):
