@@ -39,4 +39,11 @@
     ignoreOriginal="True"
     replacement=".setupdata.import_Analysis_Specifications" />
 
+    <monkey:patch
+    description="Sample matrices import"
+    class="senaite.core.exportimport.setupdata.Sample_Matrices"
+    original="Import"
+    ignoreOriginal="True"
+    replacement=".setupdata.import_samplematrices" />
+
 </configure>

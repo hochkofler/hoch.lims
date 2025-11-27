@@ -13,6 +13,7 @@ from senaite.core.exportimport.setupdata import Float
 from senaite.core.idserver import renameAfterCreation
 from Products.CMFPlone.utils import safe_unicode
 from hoch.lims import logger
+from hoch.lims.api import get_marketing_authorization_by_reg_num
 
 def Import_sample_templates(self):
         self.load_sampletemplate_services()
@@ -51,7 +52,7 @@ def Import_sample_templates(self):
             if services:
                 obj.setPartitions(partitions)
                 obj.setServices(services)
-                
+
 def get_interim_fields(self):
     # preload Calculation Interim Fields sheet
     sheetname = 'Calculation Interim Fields'
@@ -75,7 +76,7 @@ def get_interim_fields(self):
             'allow_empty': ('allow_empty' in row and row['allow_empty']) and True or False,
             'wide': ('wide' in row and row['wide']) and True or False,
             'unit': row['unit'] and row['unit'] or ''})
-        
+
 def load_interim_fields(self):
         # preload AnalysisService InterimFields sheet
         sheetname = 'AnalysisService InterimFields'
@@ -100,7 +101,7 @@ def load_interim_fields(self):
                 'wide': ('wide' in row and row['wide']) and True or False,
                 'unit': row['unit'] and row['unit'] or '',
                 'report': row.get('report', '')})
-     
+
 def import_analysis_services(self):
     # Only Change line Method=defaultmethod,
     # And add line Instrument = defaultinstrument,
@@ -190,7 +191,7 @@ def import_analysis_services(self):
             usedefaultcalculation = False if deferredcalculation else True
             _calculation = deferredcalculation if deferredcalculation else \
                 (defaultmethod.getCalculation() if defaultmethod else None)
-                
+
             lld = self.to_float(
                     row.get('LowerDetectionLimit', '0.0'), 0)
             uld = self.to_float(
@@ -202,10 +203,10 @@ def import_analysis_services(self):
 
             if ulq <= uld:
                 ulq = uld
-            
+
             if llq >= lld:
                 llq = llq
-                
+
             obj.edit(
                 title=row['title'],
                 ShortTitle=row.get('ShortTitle', row['title']),
@@ -251,7 +252,7 @@ def import_analysis_services(self):
             notify(ObjectInitializedEvent(obj))
         self.load_result_options()
         self.load_service_uncertainties()
-        
+
 def import_Analysis_Specifications(self):
         """change all bucket[parent][title][resultsrange]"""
         bucket = {}
@@ -288,7 +289,7 @@ def import_Analysis_Specifications(self):
                 }
             logger.info("Result range dict %s", resultsrange_dict)
             bucket[parent][field]["resultsrange"].append(resultsrange_dict)
-                
+
         # write objects.
         for parent in bucket.keys():
             for field in bucket[parent]:
@@ -311,3 +312,24 @@ def import_Analysis_Specifications(self):
                 obj.unmarkCreationFlag()
                 renameAfterCreation(obj)
                 notify(ObjectInitializedEvent(obj))
+
+def import_samplematrices(self):
+    setup = api.get_senaite_setup()
+    folder = setup.samplematrices
+    for row in self.get_rows(3):
+        title = row.get("title")
+        if not title:
+            continue
+
+        obj = api.create(folder, "SampleMatrix", title=title, description=row.get("description"))
+        ma_title = row.get("marketing_authorization")
+
+        if ma_title:
+            ma = get_marketing_authorization_by_reg_num(ma_title)
+            if not ma:
+                logger.error("Marketing authorization not found: {}".format(ma_title))
+            else:
+                obj.marketingauthorization = ma.UID()
+
+        obj.reindexObject()
+        notify(ObjectInitializedEvent(obj))
