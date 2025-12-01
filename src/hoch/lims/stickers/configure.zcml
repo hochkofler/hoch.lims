@@ -1,0 +1,11 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:plone="http://namespaces.plone.org/plone"
+    i18n_domain="hoch.lims">
+
+  <plone:static
+      directory="templates/stickers"
+      type="stickers"
+      name="hoch.lims.stickers" />
+
+</configure>

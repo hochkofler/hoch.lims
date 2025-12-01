@@ -1,0 +1,84 @@
+<html xmlns="www.w3.org"
+      xmlns:i18n="xml.zope.org"
+      i18n:domain="hoch.lims">
+
+<tal:sticker define="item python:view.current_item;
+                     sample_id item/getId;
+                     sampler item/getSampler|nothing;
+                     sample_point item/getSamplePointTitle|nothing;
+                     sample_type_title item/getSampleTypeTitle|nothing;
+                     Sample_type_description item/SampleType/Description|sample_type_title;
+                     date_sampled python: item.getDateSampled().strftime('%d-%m-%Y %H:%M');
+                     client_sample_id item/getClientSampleID|nothing;
+                     client_order_num item/getClientOrderNumber|nothing;
+                     composite item/getComposite|nothing;
+                     deviation item/getSamplingDeviationTitle|nothing;
+                     preservation python:item.getPreservation();
+                     preservation python:preservation.Title() if preservation else '';
+                     container item/getContainerTitle|nothing;
+                     analyses python:item.getAnalyses(full_objects=True);
+                     hazardous item/getHazardous|nothing;
+                     batch_title item/Batch/ClientBatchID | nothing;
+                     subgroup_title item/SubGroup/Title|nothing;
+                     client_title item/getClientTitle|nothing;
+                     client_reference item/getClientReference|nothing;
+                     template_title item/getTemplateTitle|nothing;
+                     analyses python: item.getAnalyses(full_objects=True);
+                     analyses_categories python: set([a.getCategory() for a in analyses]);
+                     lab_departments python: [c.getDepartment().Title() for c in analyses_categories]">
+
+  <table cellpadding="0" cellspacing="0" class="info-container">
+    <tr style="text-align: left;">
+        <td colspan="2" style="border: none;">
+            <span>Etiq. muestra control</span>
+        </td>
+        <td colspan="2" style="border: none;">
+            <span>IFA-PIN-ETQ-0001</span>
+            <span>Ver: 2</span>
+        </td>
+
+    </tr>
+    <tr>
+      <th i18n:translate="">ID Muestra</th>
+      <td><strong tal:content="string:${sample_id}"/></td>
+      <th i18n:translate="">Lote</th>
+      <td><strong tal:content="string:${batch_title}"/></td>
+    </tr>
+    <tr>
+      <th i18n:translate="">Tipo de muestra</th>
+      <td colspan='3' tal:content="Sample_type_description"/>
+    </tr>
+    <tr>
+      <th i18n:translate="">Cliente</th>
+      <td colspan='3' tal:content="client_title"/>
+    </tr>
+    <tr>
+      <th i18n:translate="">Punto de Muestreo</th>
+      <td colspan='3' tal:content="sample_point"/>
+    </tr>
+    <tr>
+      <th i18n:translate="">Fecha Muestreo</th>
+      <td tal:content="date_sampled"/>
+      <th i18n:translate="">Ref:</th>
+      <td> <span tal:content="subgroup_title"/>
+          <span tal:content="client_reference"/>
+      </td>
+    </tr>
+    <tr>
+      <th i18n:translate="">Dpto. Lab:</th>
+      <td colspan='3' tal:content="python: ' '.join(lab_departments)"/>
+    </tr>
+    <tr>
+      <td colspan="4" class="barcode-container">
+        <!-- Barcode -->
+        <div class="barcode"
+             tal:attributes="data-id sample_id;"
+             data-barHeight="12"
+             data-code="code128"
+             data-addQuietZone="true"
+             data-showHRI="false">
+        </div>
+      </td>
+    </tr>
+  </table>
+</tal:sticker>
