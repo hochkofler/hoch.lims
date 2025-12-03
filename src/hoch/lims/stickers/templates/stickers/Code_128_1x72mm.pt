@@ -24,8 +24,10 @@
                      client_reference item/getClientReference|nothing;
                      template_title item/getTemplateTitle|nothing;
                      analyses python: item.getAnalyses(full_objects=True);
-                     analyses_categories python: set([a.getCategory() for a in analyses]);
-                     lab_departments python: [c.getDepartment().Title() for c in analyses_categories]">
+                     analyses_categories python: [c.Title() for c in {a.getCategory() for a in analyses}];
+                     lab_departments python: [i.Title() for i in item.getDepartments()];">
+                     <!--analyses_categories python: set([a.getCategory() for a in analyses]);-->
+                     <!--lab_departments2 python: [c.getDepartment().Title() for c in analyses_categories];-->
 
   <table cellpadding="0" cellspacing="0" class="info-container">
     <tr style="text-align: left;">
@@ -66,7 +68,7 @@
     </tr>
     <tr>
       <th i18n:translate="">Dpto. Lab:</th>
-      <td colspan='3' tal:content="python: ' '.join(lab_departments)"/>
+      <td colspan='3' tal:content="python: ', '.join(lab_departments or analyses_categories or [])"/>
     </tr>
     <tr>
       <td colspan="4" class="barcode-container">

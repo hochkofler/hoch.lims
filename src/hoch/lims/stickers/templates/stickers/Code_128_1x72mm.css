@@ -1,7 +1,7 @@
 .sticker {
     margin: 0 auto;
     padding: 1mm;
-    padding-left: 7mm;
+    padding-left: 1mm;
     width: 70mm; /* Total width  = 1 + 1 + 70 = 72mm */
     height: 38mm; /* Total height = 1 + 1 + 38 = 40mm */
     font-family: Helvetica, Arial;
@@ -43,12 +43,12 @@ table.info-container td {
 
 @media print {
     @page {
-        size: 78mm 40mm !important;
+        size: 72mm 40mm !important;
         margin: 0mm !important;
     }
     html,
     body {
-        width: 78mm !important;
+        width: 72mm !important;
         height: 40mm !important;
         margin: 0mm !important;
     }
