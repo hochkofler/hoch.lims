@@ -20,7 +20,7 @@
                         <div class="text-center">DPTO. CONTROL DE CALIDAD</div>
                         <div class="text-center" tal:content="analysis/Method/Title"></div>
                         <tal:t tal:define="est_dates python: analysis.getInterimFields();
-                                            start_date python: view.to_date(next((f['value'] for f in est_dates if f['keyword']=='date_ini'), ''));
+                                            start_date python: view.to_date(next((f['value'] for f in est_dates if f['keyword']=='date_analysis'), ''));
                                             end_date python: start_date + 14;
                                             q_analysis python: next((c['value'] for c in analysis.getConditions() if c['title'] == 'Unidades analizadas'), '');
                                             data python: [

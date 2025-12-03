@@ -2,7 +2,7 @@
                             model view/model;
                             batch python: options.get('batch', None);
                             mktauth python: options.get('mktauth', None);
-                            valid_keys python: [('diameter1','Placa 1'), ('diameter2', 'Placa 2')]"
+                            valid_keys python: [('diameter_plate1','Placa 1'), ('diameter_plate2', 'Placa 2')]"
                 tal:condition="analyses">
     <div class="section-titration-micro">
         <h1 class="page-title">PRUEBA DE VALORACIÓN MICROBIOLOGICA</h1>
