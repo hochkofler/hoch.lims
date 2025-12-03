@@ -128,13 +128,7 @@
                         </tal:block>
                     </table>
                 </tal:results>
-                <tal:section-conclusion>
-                    <div class="font-size-120 font-weight-bold">6.- DICTAMEN</div>
-                    <div class="font-size-120 font-weight-bold text-center"
-                        tal:content="python: 'APROBADO' if out_of_range == False else 'RECHAZADO'">
-                    </div>
-                </tal:section-conclusion>
-                
+                <tal:t replace="structure python:view.render_conclusions(context, analyses=[analysis], title_number='6')" />
                 <tal:t replace="structure python:view.render_signatures(context, sample=sample, analyses=[analysis]+qc_analyses, title_number='7')" />
             </div>
 

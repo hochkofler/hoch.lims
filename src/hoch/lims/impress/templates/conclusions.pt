@@ -1,0 +1,30 @@
+<tal:block tal:define="analyses python: options.get('analyses', []);
+                        title python: options.get('title', 'DICTAMEN');
+                        title_number python: options.get('title_number', 5);
+                        model view/model;" 
+                        tal:condition="analyses">
+    <div class="font-size-120 font-weight-bold"
+        tal:content="python: str(title_number) + '.- ' + title"></div>
+    <table class="table table-sm table-condensed nopadding">
+        <tr>
+            <th>ANÁLISIS</th>
+            <th>SPECIFICACIÓN</th>
+            <th>RESULTADO</th>
+            <th>DICTAMEN</th>
+        </tr>
+        <tal:BLOCK
+            tal:repeat="analysis analyses">
+            <tr tal:define="is_out_of_spec python: model.is_out_of_range(analysis);
+                            analysis_specs python: model.get_formatted_specs2(analysis, 
+                                                    leq_operator='NO >', 
+                                                    geq_operator= 'NO <');
+                            result python:model.get_formatted_result(analysis);
+                            unit python:model.get_formatted_unit(analysis);">
+                <td tal:content="analysis/Description"/>
+                <td tal:content="python: analysis_specs + ' ' + unit"/>
+                <td tal:content="python: result + ' ' + unit"/>
+                <td tal:content="python: 'NO CONFORME' if is_out_of_spec else 'CONFORME'"/>
+            </tr>
+        </tal:BLOCK>
+    </table>
+</tal:block>

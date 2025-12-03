@@ -45,7 +45,7 @@
                         <div class="inline"><strong>Diluyente utilizado:</strong> Agua apirógena</div>
                     </div>
 
-                    <div class="font-size-120 font-weight-bold">5.- CUANTIFICACIÓN DE ENDOTOXINA EN LA MUESTRA</div>
+                    <div class="font-size-120 font-weight-bold">4.- CUANTIFICACIÓN DE ENDOTOXINA EN LA MUESTRA</div>
                     <table class="table table-sm table-condensed">
                         <tr>
                             <th>Factor de dilusión</th>
@@ -106,24 +106,7 @@
                             </tal:block>
                     </table>
                     <span>Concentración de Endotoxina: Sensibilidad del reactivo del LAL x reciproco de la dilución en el punto final</span><br>
-                    <div class="font-size-120 font-weight-bold">6.- CONCLUSIÓN</div>
-                    <p class="font-size-100" tal:define="
-                    below_or_above python: 'menor' if out_of_range == False else 'mayor';
-                    aprove python: 'Aprobado' if out_of_range == False else 'Rechazado';">
-
-                        La muestra de <span class="font-size-100" tal:content="sample_matrix/Title" /> 
-                        <span class="font-size-120" tal:content="mktauth/TradeName" />, lote 
-                        <span class="font-size-120" tal:content="batch/ClientBatchID"/>, 
-                        obtuvo un resultado de <strong><span class="font-size-120" tal:content="result" /> 
-                        <span class="font-size-120" tal:content="unit" /></strong> en la prueba de endotoxinas bacterianas. 
-                        Dicho valor es <span class="font-size-120" tal:content="below_or_above" /> que el límite especificado 
-                        (<strong><span class="font-size-120" tal:content="specs" /> 
-                        <span class="font-size-120" tal:content="unit" /></strong>), 
-                        por lo cual se considera 
-                        <strong style="text-transform: uppercase;">
-                            <span tal:content="aprove" class="font-size-120"/>
-                        </strong>.
-                    </p>
+                    <tal:t replace="structure python:view.render_conclusions(context, analyses=[analysis], title_number='5')" />
                     <tal:t replace="structure python:view.render_signatures(context, sample=sample, analyses=[analysis]+qc_analyses)" />
                 </div>
             </tal:LAL-ANALYSIS>

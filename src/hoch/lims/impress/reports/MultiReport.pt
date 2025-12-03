@@ -1,10 +1,15 @@
 <tal:report tal:define="collection python:view.collection;
+                    laboratory python:view.laboratory;
+                    current_user python: view.current_user.get('username', '');
+                    supervisor laboratory/Supervisor/getUsername;
+                    cert_id python: view.get_coa_number();
                     model python:view.model;
                     model_summary python:collection[0];
                     batch python:model_summary.getBatch();
                     batch_number python:batch.getId();
                     batch_expire python: batch.ExpirationDate.strftime('%m-%Y');
                     batch_manufacture_date python: batch.ManufactureDate.strftime('%d-%m-%Y');
+                    publish_datetime python:view.timestamp.strftime('%d-%m-%Y %H:%M:%S');
                     product model_summary/Batch/Product;
                     mktauth product/MarketingAuthorization;
                     arr_results python:view.getFormattedResultForServices(hidden=False,
@@ -34,9 +39,10 @@
                 document-number "PIN-FOR-DCC-MTA-001",
                 document-version "01",
                 document-date "03-09-2025";
+                username "username";
         }
 
-        .report .section-coa {
+        .report .COA {
             page: coa;
         }
 
@@ -64,16 +70,31 @@
             display: block;
         }
 
-        @page {}
+        @page {
+            @bottom-left {
+                content: "id: " "<tal:t tal:replace='cert_id' />" " | " "<tal:t tal:replace='current_user' /> " "<tal:t tal:replace='publish_datetime' /> ";
+                font-size: 6pt;
+                margin-bottom: 10mm;
+            }
 
-        @page coa {}
-
-        @page review {
+            @bottom-right {
+                content: "Pág. " counter(page) " de " counter(pages);
+                font-size: 8pt;
+                margin-bottom: 10mm;
+            }
 
             @top-left {
                 content: url("senaite_theme/icon/logo-ifa-rojo.svg");
                 margin-top: 10mm;
             }
+        }
+
+        @page coa {
+            @bottom-right {content: " ";} 
+            @top-left {content: " ";}
+        }
+
+        @page review {
 
             @top-center {
                 content: "REPORTE SENAITE \A" String(title);
@@ -87,22 +108,11 @@
                 white-space: pre;
                 content: "COD. INT.: " string(document-number) "\A VER.:" String(document-version) "\A EMISIÓN:" String(document-date);
                 margin-top: 10mm;
-            }
-
-            @bottom-right {
-                content: "Pág. " counter(page) " de " counter(pages);
-                font-size: 8pt;
-                margin-bottom: 10mm;
             }
         }
 
         @page lal {
 
-            @top-left {
-                content: url("senaite_theme/icon/logo-ifa-rojo.svg");
-                margin-top: 10mm;
-            }
-
             @top-center {
                 content: "REPORTE SENAITE \A" String(title);
                 white-space: pre;
@@ -115,22 +125,11 @@
                 white-space: pre;
                 content: "COD. INT.: " string(document-number) "\A VER.:" String(document-version) "\A EMISIÓN:" String(document-date);
                 margin-top: 10mm;
-            }
-
-            @bottom-right {
-                content: "Pág. " counter(page) " de " counter(pages);
-                font-size: 8pt;
-                margin-bottom: 10mm;
             }
         }
 
         @page sterility {
 
-            @top-left {
-                content: url("senaite_theme/icon/logo-ifa-rojo.svg");
-                margin-top: 10mm;
-            }
-
             @top-center {
                 content: "REPORTE SENAITE \A" String(title);
                 white-space: pre;
@@ -143,12 +142,6 @@
                 white-space: pre;
                 content: "COD. INT.: " string(document-number) "\A VER.:" String(document-version) "\A EMISIÓN:" String(document-date);
                 margin-top: 10mm;
-            }
-
-            @bottom-right {
-                content: "Pág. " counter(page) " de " counter(pages);
-                font-size: 8pt;
-                margin-bottom: 10mm;
             }
         }
 
@@ -158,11 +151,6 @@
 
         @page titration-micro {
 
-            @top-left {
-                content: url("senaite_theme/icon/logo-ifa-rojo.svg");
-                margin-top: 10mm;
-            }
-
             @top-center {
                 content: "REPORTE SENAITE \A" String(title);
                 white-space: pre;
@@ -175,12 +163,6 @@
                 white-space: pre;
                 content: "COD. INT.: " string(document-number) "\A VER.:" String(document-version) "\A EMISIÓN:" String(document-date);
                 margin-top: 10mm;
-            }
-
-            @bottom-right {
-                content: "Pág. " counter(page) " de " counter(pages);
-                font-size: 8pt;
-                margin-bottom: 10mm;
             }
         }
 
@@ -273,7 +255,7 @@
                     </td>
                     <td colspan="1" class="text-center">
                         <span class="colon-after"><strong>N° CERTIFICADO C. DE C.</strong></span><br>
-                        <span tal:content="python: str(view.generateId())[:20]"></span>
+                        <span tal:content="cert_id"></span>
                     </td>
                 </tr>
                 <tr>
@@ -399,7 +381,7 @@
         <div class="section-review page-break-after">
             <h1 class="page-title">Resumen de resultados</h1>
             <tal:categories tal:repeat="category arr_results">
-                <table class="table table-sm table-condensed nopadding">
+                <table class="table table-sm table-condensed nopadding" tal:condition="python: arr_results[category]">
                     <colgroup>
                         <col style="width: 25%;">
                         <col style="width: 15%;">
@@ -480,7 +462,6 @@
                                 </td>
                                 <td tal:content="python: 'Rechazado' if is_out_of_range else 'Aprobado'"></td>
                             </tr>
-                            <br>
                         </div>
                     </tal:services>
                 </table>

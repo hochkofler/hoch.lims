@@ -6,6 +6,7 @@ from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile as PT
 from bika.lims import api
 from senaite.core.api.dtime import to_DT
 from hoch.lims.utils import get_formatted_interim
+from bika.lims.idserver import generateUniqueId
 
 class MultiReportView(BaseMultiReportView):
     """Controller view for multi-reports
@@ -32,9 +33,18 @@ class MultiReportView(BaseMultiReportView):
     STERILITY_REPORT_TEMPLATE = PT("templates/sterility_report.pt")
     LAL_REPORT_TEMPLATE = PT("templates/lal_report.pt")
     MICROBIAL_TITRATION_REPORT_TEMPLATE = PT("templates/microbial_titration_report.pt")
+    CONCLUSIONS_TEMPLATE = PT("templates/conclusions.pt")
 
     def __init__(self, context, collection, request):
         super(MultiReportView, self).__init__(collection, request)
+        
+    def get_coa_number(self):
+        kwargs = {"portal_type": "ARReport", "dry_run": True}
+        coa_num = generateUniqueId(self.context, **kwargs)
+        increment = 0 if int(coa_num.split("-")[-1]) == 1 else 1
+        num = "{:05d}".format(int(coa_num.split("-")[-1]) + increment)
+        dry_run = coa_num.replace(coa_num.split("-")[-1], num)
+        return dry_run
 
     @property
     def primary_sample(self):
@@ -89,6 +99,11 @@ class MultiReportView(BaseMultiReportView):
     def render_microbial_titration_report(self, context, **kw):
         """Render microbial titration report"""
         return self.MICROBIAL_TITRATION_REPORT_TEMPLATE(context, **kw)
+    
+    def render_conclusions(self, context, **kw):
+        """Render the conclusions template with the given context and options
+        """
+        return self.CONCLUSIONS_TEMPLATE(context, **kw)
 
     def formatted_interim(self, interim, dmk="."):
         return get_formatted_interim(interim, dmk)

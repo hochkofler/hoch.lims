@@ -102,12 +102,7 @@
                             <span> <1: Ausencia de microorganismos en medios de cultivos sólidos (recuento total de microorganimos) </span><br>
 
                         </tal:section-results>
-                        <tal:section-conclusion>
-                            <div class="font-size-120 font-weight-bold">5.- DICTAMEN</div>
-                            <div class="font-size-120 font-weight-bold text-center"
-                                tal:content="python: 'APROBADO' if out_of_range == False else 'RECHAZADO'">
-                            </div>
-                        </tal:section-conclusion>
+                        <tal:t replace="structure python:view.render_conclusions(context, analyses=[analysis])" />
                         <tal:t replace="structure python:view.render_signatures(context, sample=sample, analyses=[analysis]+qc_analyses)" />
                     </div>
                 </tal:EST-ANALYSIS>

@@ -1,5 +1,6 @@
 <tal:signatures
   tal:define="title python: options.get('title', 'RESPONSABLES');
+              laboratory python:view.laboratory;
               title_number python: options.get('title_number', 6);
               sample python: options.get('sample', None);
               analyses python: options.get('analyses', []);
@@ -9,16 +10,19 @@
               analysts_user_names python:view.uniquify_items(a.getAnalyst() for a in analyses);
               verficators python: [managers[0].getContactByUsername(u) for u in verificators_user_names if managers[0].getContactByUsername(u)];
               analysts python: [managers[0].getContactByUsername(u) for u in analysts_user_names if managers[0].getContactByUsername(u)];
+              current_user_name python: view.current_user.get('username', '');
+              supervisor_user python: laboratory.get('Supervisor');
+              publisher_user python: managers[0].getContactByUsername(current_user_name);
               user_signatures python: [{'users': analysts,'role':'Analizado por'}, 
                                         {'users': verficators, 'role':'Verificado por'}, 
-                                        {'users':managers, 'role':'Responsable de Area'}];">
+                                        {'users':[supervisor_user], 'role':'Resp. del laboratorio'}];">
   <div class="font-size-120 font-weight-bold"
         tal:content="python: str(title_number) + '.- ' + title"></div>
-  <table class="table table-sm table-condensed">
+  <table class="table table-sm table-condensed" style="width: 100%; table-layout: fixed !important;">
     <tr>
       <tal:role tal:repeat="role user_signatures">
         <tal:user repeat="user python:role.get('users')">
-          <td style="border:none">
+          <td style="border:none; max-width: 30px; vertical-align: top;">
             <div tal:condition="python: user and user == role.get('users')[0]" tal:content="python:role.get('role')"
               class="font-weight-bold colon-after">
             </div>
@@ -27,7 +31,7 @@
                 style="height:75px" />
             </div>
             <div class="font-weight-bold">
-              <span tal:content="user/Salutation"></span>
+              <span tal:content="user/Salutation|nothing"></span>
               <span tal:condition="user/Salutation">&nbsp;</span>
               <span tal:content="user/getFullname"></span>
             </div>
