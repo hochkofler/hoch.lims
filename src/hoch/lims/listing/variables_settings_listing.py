@@ -53,7 +53,7 @@ class VariablesSettingsListingsViewAdapter(object):
 
         # Convierte lista de records a diccionario: {keyword: "value unit"}
         variables_settings_dict = {
-            s.get("keyword"): "{} {}".format(s.get("value", ""), s.get("unit", "")).strip()
+            s.get("keyword"): "{}".format(s.get("value", ""), api.safe_unicode(s.get("unit", ""))).strip()
             for s in variables_settings if s.get("keyword")
         }
 
