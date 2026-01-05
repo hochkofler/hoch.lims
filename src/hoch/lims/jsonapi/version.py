@@ -15,5 +15,5 @@ def version(context, request):
         "version": "1.0.0",
         "date": "2024-12-20",
         "license": "GPLv2",
-        "copyright": "2024, MATHIAS HOCHKOFLER",
+        "copyright": "2026, MATHIAS HOCHKOFLER",
     }
