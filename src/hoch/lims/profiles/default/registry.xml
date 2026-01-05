@@ -5,5 +5,11 @@
   <records
       interface="hoch.lims.browser.controlpanel.IHochControlPanel"
       prefix="hoch.lims" />
+  
+    <!-- <record name="senaite.core.ws_print_templates">
+        <value purge="false">
+            <element>hoch:ws_template.pt</element>
+        </value>
+    </record> -->
 
 </registry>
