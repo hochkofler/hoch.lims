@@ -23,4 +23,18 @@
       layer="hoch.lims.interfaces.IHochLims"
       />
 
+    <plone:static
+        name="hoch"
+        directory="worksheets/templates/print"
+        type="worksheets"
+    />
+
+    <browser:page
+        name="print"
+        for="bika.lims.interfaces.IWorksheet"
+        class=".printview.PrintView"
+        permission="senaite.core.permissions.ViewResults"
+        layer="hoch.lims.interfaces.IHochLims"
+    />
+
 </configure>

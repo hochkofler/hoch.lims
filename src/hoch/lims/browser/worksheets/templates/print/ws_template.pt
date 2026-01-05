@@ -1,0 +1,391 @@
+  <tal:print
+    i18n:domain="senaite.core"
+    tal:define="worksheet        python:view.getWorksheet();
+                laboratory        worksheet/laboratory;
+                portal            worksheet/portal;
+                ars               worksheet/ars;
+                ars_type_analysis python: [ar for ar in ars if ar['sample']['sample_type']];
+                ars_references    python: [ar for ar in ars if not ar['sample']['sample_type']];
+                anstitles         worksheet/analyses_titles;
+                outofrange_symbol string:⚠;
+                ws_state python: view.get_ws_status();
+                is_provisional python: ws_state != 'verified';">
+
+    <!-- ALERTS -->
+    <tal:alerts>
+      <div class="row section-alerts no-gutters" tal:condition="is_provisional">
+        <div class="w-100">
+          <div class="alert alert-info text-center">
+            <div> <h2> <span tal:content="outofrange_symbol"/>Informe provisional </h2> </div>
+            <p class="alert-heading"><span>Este documento, es provisional, por lo tanto, tiene exclusivamente una finalidad informativa. 
+            El Contenido no se ha concebido como sustituto de ningún documento oficial.</span></p>
+          </div>
+        </div>
+      </div>
+    </tal:alerts>
+    <div id="header">
+      <div class='barcode-container'>
+        <a tal:attributes="href worksheet/url">
+        <div class='barcode'
+            data-code='code128'
+            data-showHRI='false'
+            data-barHeight='15'
+            data-addQuietZone='true'
+            tal:attributes="data-id worksheet/id">
+        </div>
+        </a>
+      </div>
+      <div class='lab-logo'>
+        <a tal:attributes="href laboratory/url">
+          <img class="logo"
+              height="40"
+              tal:attributes="src string:senaite_theme/icon/logo-ifa-rojo.svg"/>
+        </a>
+      </div>
+      <h1 i18n:translate="" class="text-center font-weight-bold">Hoja de trabajo / informe analítico</h1>
+    </div>
+    <div class="subheader">
+      <div>
+        <span i18n:translate="" class="font-weight-bold">Emitido por:</span>
+        <span>Departamento de Control de Calidad</span> </div>
+      <div>
+        <span i18n:translate="" class="font-weight-bold">Creado por:</span>&nbsp;
+        <span tal:content="worksheet/date_created"/>&nbsp;
+        <span i18n:translate="" class="font-weight-bold">by</span>&nbsp;
+        <a tal:attributes="href python:('mailto:%s' % worksheet['createdby']['email'])"
+          tal:content="worksheet/createdby/fullname"></a>
+      </div>
+      <div>
+        <span i18n:translate="" class="font-weight-bold">Impreso:</span>&nbsp;
+        <span tal:content="worksheet/date_printed"/>&nbsp;
+        <span i18n:translate=""  class="font-weight-bold">by</span>&nbsp;
+        <a tal:attributes="href python:('mailto:%s' % worksheet['printedby']['email'])"
+          tal:content="worksheet/printedby/fullname"/>
+      </div>
+      <div>
+        <span i18n:translate="" class="font-weight-bold">Analizado por</span>:&nbsp;
+        <a tal:attributes="href python:('mailto:%s' % worksheet['analyst']['email'])"
+          tal:content="worksheet/analyst/fullname"/>
+      </div>
+    </div>
+    <tal-ars tal:repeat="ar ars">
+      <div class="content"  tal:define="sample ar/sample;
+                            sample_type sample/sample_type;
+                            Defaul_equipo string:N/A;
+                            na_default string:N/A;
+                            Defaul_unidad string:N/A;" >
+        <tal-sample_header>
+          <table class="w-100" tal:define="sample_matrix  sample_type/obj/getSampleMatrix | nothing;">
+            <colgroup>
+                <col style="width: 10%;">
+                <col style="width: 23%">
+                <col style="width: 10%">
+                <col style="width: 23%">
+                <col style="width: 10%">
+                <col style="width: 23%">
+             </colgroup>
+              <tbody>
+                <tr>
+                  <td class="font-weight-bold" colspan="4" style="border-right: none;">
+                    <span>
+                      <a i18n:translate tal:attributes="href ar/sample/url;">
+                        <h1 tal:content="python: ar['id'] + ' ' + sample_type['obj'].Description() if sample_type else ar['id']" class="font-weight-bold"/>
+                      </a>
+                    </span>
+                  </td>
+                  <td colspan="2" style="border-left: none; text-align:right;">
+                    <span class='barcode'
+                      data-code='code128'
+                      data-showHRI='false'
+                      data-barHeight='15'
+                      data-addQuietZone='true'
+                      tal:attributes="data-id ar/id"/>
+                  </td>
+                </tr>
+                <tal-sample_data tal:condition="sample_type">
+                  <tr>
+                    <td> Punto de muestreo: </td>
+                    <td colspan="5">
+                      <a tal:attributes="href ar/sample/sample_type/url"
+                          tal:content="ar/sample/sample_type/title"
+                          tal:condition="ar/sample/sample_type"></a>                    
+                    </td>
+                  </tr>
+                  <tr>
+                    <td> Fecha muestreo: </td>
+                    <td><span tal:content="ar/sample/date_sampled"/></td>
+                    <td> Fecha solicitud: </td>
+                    <td><span tal:content="python: ar['sample']['obj'].created().strftime('%d-%m-%y %H:%M')"/></td>
+                    <td> Fecha recepción: </td>
+                    <td><span tal:content="python: ar['sample']['obj'].getDateReceived().strftime('%d-%m-%y %H:%M')"/></td>
+                  </tr>
+                  <tr>
+                    <td> Cliente: </td>
+                    <td>
+                      <a tal:attributes="href ar/client/url"
+                          tal:content="ar/client/name"></a>
+                    </td>
+                    <td> Lote: </td>
+                    <td>
+                      <span tal:define="batch sample/obj/getBatch" tal:content="batch/ClientBatchID"/>
+                      <span class="float-right" tal:content="sample/obj/getClientReference"/></td>
+                    <td> PNO: </td>
+                    <td><span tal:content="string:PNO-xxx"/></td>
+                  </tr>
+                </tal-sample_data>
+                <tr tal:define="remarks sample/obj/getRemarks|string:N/A">
+                  <td> Observaciones: </td>
+                  <td colspan="5" ><span tal:content="remarks|string:N/A"/></td>
+                </tr>
+            </tbody>
+          </table>
+        </tal-sample_header>
+          <div class="w-100">
+            <table class="w-100">
+              <colgroup>
+                <col style="width: 25%;">
+                <col style="width: 8%">
+                <col style="width: 8%">
+                <col style="width: 25%">
+                <col style="width: 10%">
+                <col style="width: 8%">
+                <col style="width: 8%">
+                <col style="width: 8%">
+              </colgroup>
+              <thead>
+                <tr class="text-center">
+                  <th>Nombre</th>
+                  <th>Fecha realización</th>
+                  <th>Método</th>
+                  <th>Equipo(s)</th> 
+                  <th>Consumible(s)</th>
+                  <th>Especificación</th>
+                  <th>Resultado</th>
+                  <th>Conformidad</th>
+                </tr>
+              </thead>
+              <tal:analyses tal:repeat="an ar/analyses">
+                  <tbody tal:define=
+                                " calc an/obj/getCalculation;
+                                  InterimFields an/obj/InterimFields;
+                                  DependentServices python: True if calc and calc.getDependentServices() else False;
+                                  Rows_InterimFields python: 1 if InterimFields else 0;
+                                  Rows_DependentServices python: 1 if calc and DependentServices else 0;
+                                  Rows_calc python: 2 + Rows_InterimFields + Rows_DependentServices if calc else 0;
+                                  an_remarks an/remarks;
+                                  Rows_remarks python: 1 if an_remarks else 0;
+                                  Rows_an python:Rows_calc + Rows_remarks + 1;">
+
+                    <tr tal:attributes="class python: an['review_state'] if not an.get('outofrange') else 'out_of_range'"
+                        tal:define= "method an/obj/getMethod;
+                                    instrument an/obj/getInstrument;
+                                    subinstruments an/obj/getSubInstruments;
+                                    ResultOptions an/obj/ResultOptions;
+                                    formatted_specs python: view.get_formatted_specs(an['obj']);
+                                    formatted_result an/formatted_result;
+                                    unit an/formatted_unit;
+                                    formatted_specs_to_show python: formatted_specs +' '+ unit if formatted_specs else 'N/A';
+                                    formatted_result_to_show python: formatted_result +' '+ unit if formatted_specs else '-';
+                                    consumables python: view.get_consumables(an['obj']);
+                                    result_type an/obj/getResultType">
+
+                        <td  tal:attributes="rowspan python: '1'"
+                        tal:define="title an/title;
+                                    description an/obj/Description">
+                          <span class="font-weight-bold" tal:content="title | description"/><br>
+                        </td>
+                        <td tal:content="python:an['capture_date'].strftime('%d-%m-%y %H:%M') if an['capture_date'] else ''"></td>
+                        <td tal:content="python: method.getMethodID() if method else '-'"/>
+                        <td>
+                          <tal-instrument tal:condition="python: instrument" class="font-weight-bold" >
+                            <div tal:define="instrument_type instrument/getInstrumentType">
+                              <span tal:content="instrument_type/title"/>:
+                              <span tal:content="instrument/AssetNumber"/>
+                            </div>
+                          </tal-instrument>
+                          <tal-subinstruments tal:repeat="subinstrument subinstruments">
+                            <div class="w-100" tal:define="instrument_type subinstrument/getInstrumentType">
+                              <span tal:content="instrument_type/title"/>:
+                              <span tal:content="subinstrument/AssetNumber"/>
+                            </div>
+                          </tal-subinstruments>
+                          <span tal:condition="python: not(instrument or subinstruments)"
+                                tal:content="Defaul_equipo"/>
+                        </td>
+                        <td>
+                          <tal:consumables tal:repeat="consumable consumables">
+                            <div tal:define="consumable_lotnumber consumable/consumable_obj/LotNumber" tal:condition="consumable_lotnumber">
+                              <span class="font-weight-bold" tal:content="consumable/ref_definition_obj/Title|nothing"/>:
+                            </div>
+                            <div tal:define="consumable_lotnumber consumable/consumable_obj/LotNumber" tal:condition="consumable_lotnumber">
+                              <span>Lote:</span><span tal:content="consumable_lotnumber"/>
+                            </div>
+                          </tal:consumables>
+                        </td>
+                        <td class="specs">
+                          <span tal:replace="structure formatted_specs_to_show"/>
+                        </td> 
+                        <td tal:attributes="class python:'result result-'+ result_type">
+                          <span tal:replace="structure formatted_result_to_show"/>
+                        </td>
+                        <td>
+                        <span tal:condition="an/outofrange"
+                            class="font-weight-light">
+                            <span class="outofrange text-danger" style="font-family:Lucida Console, Courier, monospace;" tal:content="outofrange_symbol"/>
+                        </span>
+                        <span tal:attributes="class python: 'font-weight-bold' if an['outofrange'] else 'font-weight-light'"
+                                tal:content="python: 'No Conforme' if an['outofrange'] else 'Conforme' if an['capture_date'] else 'No realizado'"/>
+                        </td>
+                    </tr>
+                    <div tal:condition="calc">
+                        <tr>
+                            <td tal:attributes="rowspan python:Rows_an-1" style="border-left: none; border-bottom: none;"></td>
+                            <td class="text-right font-weight-bold" tal:attributes="rowspan Rows_calc"> Variables:</td>
+                        </tr>
+                        <tr tal:condition="Rows_InterimFields">
+                            <td colspan="6" >
+                                <span tal:repeat="interim InterimFields" style="padding-right: 15px;">
+                                    <span tal:content="python: '[' + interim.get('title') + ']'"/> = <span tal:replace="structure python: view.get_formatted_interim(interim)"/> <span tal:content="interim/unit | nothing"/>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr tal:condition="calc/DependentServices">
+                            <td class="text-right">Análisis dependendientes:</td>
+                            <td colspan="5"  >
+                                <span tal:repeat="dep python:calc.getDependentServices()" style="padding-right: 15px;">
+                                    <span tal:define="keyword dep/getKeyword;
+                                                      result python:next(item for item in ar['analyses'] if item['keyword'] == keyword)">
+                                      <span tal:content="python: '['+ keyword + ']'"/> = <span tal:content="python:result['formatted_result']"/>
+                                      <span class="text-break" tal:content="python: result['formatted_unit']"/>
+                                    </span>
+                                </span>
+                            </td>
+                        </tr>
+                    </div>
+                    <div tal:condition="an/remarks">
+                        <tr>
+                            <td tal:condition="python: not calc" tal:attributes="rowspan python:Rows_an-1" style="border-left: none; border-bottom: none;"></td>
+                            <td class="text-right font-weight-bold"> Observaciones:</td>
+                            <td colspan="6"   tal:content="an/remarks">XX</td>
+                        </tr>
+                    </div>
+
+                  </tbody>
+              </tal:analyses>
+            </table>
+          </div>
+        
+      </div>
+    </tal-ars>
+    <div class="row section-discreeter no-gutters">
+        <div class="w-100 text-muted font-weight-light small">
+          <div class="discreeter-outofrange">
+            <span class="outofrange text-danger"
+                  style="font-family:Lucida Console, Courier, monospace;"
+                  tal:content="outofrange_symbol"/>
+            <span i18n:translate="">Resultado fuera de rango.</span>
+          </div>
+          <div class="discreeter-copyright"
+              i18n:translate="">
+            Este documento no debe ser reproducido excepto en su totalidad, sin la aprobación por escrito de
+            <tal:block replace="laboratory/title" i18n:name="name_lab"/>.
+          </div>
+        </div>
+    </div>
+
+    <div class="w-100 final-remarks">
+      <table class="w-100">
+        <thead>
+          <tr>
+            <th>Observaciones hoja de trabajo / Informe de análisis:</th>
+          </tr>
+        </thead>
+          <colgroup>
+            <col style="width: 100%;">
+          </colgroup>
+        <tbody>
+          <tr tal:define="remarks_ws worksheet/remarks">
+            <td tal:content="python: str(remarks_ws) if remarks_ws else 'N/A'"></td>
+          </tr>
+        <tbody>
+      </table>
+    </div>
+
+    <div class="w-100 signatures" tal:condition="python:  ws_state =='verified' or  ws_state =='to_be_verified'"
+      tal:define="managers python: list(set(reduce(lambda a1, a2: a1+a2, map(lambda m: m['obj'].get('getManagers',''), ars))));
+                  verifiers python: list(set(reduce(lambda a1, a2: a1+a2, map(lambda m: m['obj'].get('getVerfiers',''), ars))));">
+      <table class="w-100">
+        <tbody>
+          <tr>
+            <td></td>
+            <td>
+              <br>
+              <br>
+              <br>
+              <div style="border-top: 2px solid black; padding:2px 10px;">
+                  <div class="font-weight-bold" tal:content="worksheet/analyst/fullname"></div>
+                  <div>Analista de control de calidad</div>
+                  <div><span>-</span></div>
+                  
+              </div>
+            </td>
+            <td></td>
+            <tal:verifiers tal:repeat="verifier verifiers">
+              <tal:verifier_not_manager tal:condition="python: not verifier in managers and verifier.isActive()">
+              <td>
+                <br>
+                <br>
+                <br>
+                <div style="border-top: 2px solid black; padding:2px 10px;">
+                    <div class="font-weight-bold">
+                      <span tal:content="verifier/getFullname"/>
+                    </div>
+                    <div>
+                      <span tal:content="verifier/JobTitle"/>
+                    </div>
+                    <div tal:condition="verifier/getFullname">
+                      <span>Matrícula profesional verificador:</span> <span tal:content="verifier/getFullname"/>
+                    </div>
+                </div>
+              </td>
+              <td></td>
+              </tal:verifier_not_manager>
+            </tal:verifiers>
+            <td>
+              <br>
+              <br>
+              <br>
+              <tal:manager tal:repeat="manager managers">
+                <div style="border-top: 2px solid black; padding:2px 10px;"
+                  tal:condition="manager">
+                    <div class="font-weight-bold" tal:condition="manager">
+                      <span tal:condition="manager/Salutation">&nbsp;</span>
+                      <span tal:content="manager/getFullname"/>
+                    </div>
+                    <div>
+                      <span tal:content="manager/JobTitle"/>
+                    </div>
+                    <div tal:condition="manager/getFullname">
+                      <span>Matrícula profesional:</span> <span tal:content="manager/getFullname"/>
+                    </div>
+                </div>
+              </tal:manager>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ALERTS -->
+    <tal:alerts>
+      <div class="row section-alerts no-gutters" tal:condition="python:  ws_state !='verified' and  ws_state !='to_be_verified'">
+        <div class="w-100">
+          <div class="alert alert-info text-center">
+            <div> <h2> <span tal:content="outofrange_symbol"/>Informe provisional </h2> </div>
+            <p class="alert-heading"><span>Este documento, es provisional, por lo tanto, tiene exclusivamente una finalidad informativa. 
+            El Contenido no se ha concebido como sustituto de ningún documento oficial.</span></p>
+          </div>
+        </div>
+      </div>
+    </tal:alerts>
+  </tal:print>

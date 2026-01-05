@@ -8,7 +8,7 @@
       <div tal:on-error="nothing" tal:replace="structure view/render_footer_portlets" />
       <div class="float-left">
         MATHIAS HOCHKOFLER
-        <abbr title="Copyright">&copy;</abbr> 2024
+        <abbr title="Copyright">&copy;</abbr> 2026
       </div>
       <div class="float-right">
         <ul class="nav nav-pills">
