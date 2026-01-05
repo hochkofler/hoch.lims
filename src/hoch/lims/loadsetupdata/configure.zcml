@@ -139,4 +139,10 @@
       factory=".Instruments_Variables"
       provides="bika.lims.interfaces.ISetupDataImporter"
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
+
+    <adapter
+      name="AnalysisService_Consumables"
+      factory=".AnalysisService_Consumables"
+      provides="bika.lims.interfaces.ISetupDataImporter"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"/>
 </configure>

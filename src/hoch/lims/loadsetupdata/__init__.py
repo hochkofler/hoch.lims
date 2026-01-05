@@ -977,3 +977,45 @@ class Instruments_Variables(BaseImporter):
         """Import Instrument Variables"""
         bsc = getToolByName(self.context, SETUP_CATALOG)
         self.process_variables_data(bsc, portal_type="Instrument", id_title_row_name="title", field_name="VariablesSettings")
+        
+class AnalysisService_Consumables(WorksheetImporter):
+    """Import consumables for analysis services"""
+    def Import(self):
+        bsc = getToolByName(self.context, SETUP_CATALOG)
+        consumables_per_service = {}
+        keywords_per_service = {}
+        for row in self.get_rows(3):
+            service_title = row.get('service_title')
+            reference_definition_title = row.get('reference_definition_title')
+            if not service_title or not reference_definition_title:
+                continue
+            service = self.get_object(bsc, 'AnalysisService',
+                                      service_title)
+            if not service:
+                continue
+            
+            allow_empty = row.get('allow_empty') and True or False
+            ref_def = self.get_object(bsc, 'ReferenceDefinition',
+                                      reference_definition_title)
+            if not ref_def:
+                continue
+            service_uid = api.get_uid(service)
+            ref_def_uid = api.get_uid(ref_def)
+            
+            # add consumable to dict
+            if service_uid not in consumables_per_service:
+                consumables_per_service[service_uid] = []
+                keywords_per_service[service_uid] = set()
+
+            if ref_def_uid not in keywords_per_service[service_uid]:
+                consumables_per_service[service_uid].append({
+                    'keyword': ref_def_uid,
+                    'value': '',
+                    'allow_empty': allow_empty
+                })
+                keywords_per_service[service_uid].add(ref_def_uid)
+                
+        for service_uid, consumables in consumables_per_service.items():
+            service = api.get_object_by_uid(service_uid)
+            logger.info("setting consumables '%s' to service: '%s'", consumables, service)
+            service.setConsumablesFields(consumables)
