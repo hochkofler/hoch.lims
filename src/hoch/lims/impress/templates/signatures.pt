@@ -4,7 +4,7 @@
               title_number python: options.get('title_number', 6);
               sample python: options.get('sample', None);
               analyses python: options.get('analyses', []);
-              managers python: sample.getManagers();
+              managers python: sample.getManagers() or [];
               verificators python: [a.getVerificators() for a in analyses if a.getVerificators()];
               verificators_user_names python:view.uniquify_items(verificators);
               analysts_user_names python:view.uniquify_items(a.getAnalyst() for a in analyses);

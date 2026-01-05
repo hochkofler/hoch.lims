@@ -9,7 +9,7 @@
                 <div class="page-break-after"
                     tal:define="sample python: analysis.getRequest();
                                 qc_analyses python: sample.getQCAnalyses();
-                                specs python:model.get_formatted_specs2(analysis);
+                                specs python:view.get_formatted_specs(analysis);
                                 result python:model.get_formatted_result(analysis);
                                 out_of_range  python: model.is_out_of_range(analysis);
                                 unit python:model.get_formatted_unit(analysis);

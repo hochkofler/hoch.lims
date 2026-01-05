@@ -15,7 +15,7 @@
         <tal:BLOCK
             tal:repeat="analysis analyses">
             <tr tal:define="is_out_of_spec python: model.is_out_of_range(analysis);
-                            analysis_specs python: model.get_formatted_specs2(analysis, 
+                            analysis_specs python: view.get_formatted_specs(analysis, 
                                                     leq_operator='NO >', 
                                                     geq_operator= 'NO <');
                             result python:model.get_formatted_result(analysis);

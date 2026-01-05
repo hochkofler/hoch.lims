@@ -1,7 +1,7 @@
 <tal:report tal:define="collection python:view.collection;
                     laboratory python:view.laboratory;
                     current_user python: view.current_user.get('username', '');
-                    supervisor laboratory/Supervisor/getUsername;
+                    supervisor laboratory/Supervisor/getUsername|nothing;
                     cert_id python: view.get_coa_number();
                     model python:view.model;
                     model_summary python:collection[0];
@@ -316,7 +316,7 @@
                     <tal:services tal:repeat="service python: arr_results[category]">
                         <tr tal:define="analyses python: arr_results[category][service]['analyses'];
                                     analysis python:analyses[0];
-                                    specs python: model.get_formatted_specs2(analysis, 
+                                    specs python: view.get_formatted_specs(analysis, 
                                                     leq_operator='NO >', 
                                                     geq_operator= 'NO <');
                                     unit python:model.get_formatted_unit(analysis);
@@ -403,8 +403,8 @@
                         <div tal:define="analyses python: arr_results[category][service]['analyses'];
                                 formatted_result python: arr_results[category][service]['results_formatted'];
                                 interpretations python: formatted_result['interpretations'];
-                                analysis_specs_range python: model.get_formatted_specs2(analyses[0]);
-                                analysis_specs_warn_range python: model.get_formatted_specs2(analyses[0], with_shoulder_range=True);
+                                analysis_specs_range python: view.get_formatted_specs(analyses[0]);
+                                analysis_specs_warn_range python: view.get_formatted_specs(analyses[0], with_shoulder_range=True);
                                 first_analysis python: analyses[0];
                                 unit_for_service python: model.get_formatted_unit(first_analysis);
                                 next_analyses python: analyses[1:];
