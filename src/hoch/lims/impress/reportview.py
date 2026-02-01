@@ -28,7 +28,8 @@ class MultiReportView(BaseMultiReportView):
     """Controller view for multi-reports
     """
     JS_TEMPLATE = PT("templates/js.pt")
-    CSS_TEMPLATE = PT("templates/css.pt")
+    CSS_TEMPLATE = PT("templates/css2.pt")
+    #CSS2_TEMPLATE = PT("templates/css2.pt")
     CONTROLS_TEMPLATE = PT("templates/controls.pt")
     HEADER_TEMPLATE = PT("templates/header.pt")
     INFO_TEMPLATE = PT("templates/info.pt")
@@ -39,7 +40,7 @@ class MultiReportView(BaseMultiReportView):
     INTERPRETATIONS_TEMPLATE = PT("templates/interpretations.pt")
     REMARKS_TEMPLATE = PT("templates/remarks.pt")
     ATTACHMENTS_TEMPLATE = PT("templates/attachments.pt")
-    SIGNATURE_TEMPLATE = PT("templates/signatures.pt")
+    SIGNATURE_TEMPLATE2 = PT("templates/signatures2.pt")
     DISCREETER_TEMPLATE = PT("templates/discreeter.pt")
     FOOTER_TEMPLATE = PT("templates/footer.pt")
     BATCH_DATA_TEMPLATE = PT("templates/batch_data.pt")
