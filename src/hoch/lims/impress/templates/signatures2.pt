@@ -4,12 +4,13 @@
               title_number python: options.get('title_number', 6);
               sample python: options.get('sample', None);
               analyses python: options.get('analyses', []);
-              managers python: sample.getManagers() or [];
+              managers python: sample.getManagers() if sample else [];
               verificators python: [a.getVerificators() for a in analyses if a.getVerificators()];
               verificators_user_names python:view.uniquify_items(verificators);
               analysts_user_names python:view.uniquify_items(a.getAnalyst() for a in analyses);
               verficators python: [managers[0].getContactByUsername(u) for u in verificators_user_names if managers[0].getContactByUsername(u)];
               analysts python: [managers[0].getContactByUsername(u) for u in analysts_user_names if managers[0].getContactByUsername(u)];
+              analysts python: batch.getAnalyst();
               current_user_name python: view.current_user.get('username', '');
               supervisor_user python: laboratory.get('Supervisor');
               publisher_user python: managers[0].getContactByUsername(current_user_name);
@@ -18,6 +19,8 @@
                                         {'users':[supervisor_user], 'role':'Resp. del laboratorio'}];">
   <div class="font-size-120 font-weight-bold"
         tal:content="python: str(title_number) + '.- ' + title"></div>
+  <span>Analysts</span>
+  <span tal:content="analysts"></span>
   <table class="table table-sm table-condensed" style="width: 100%; table-layout: fixed !important;">
     <tr>
       <tal:role tal:repeat="role user_signatures">
