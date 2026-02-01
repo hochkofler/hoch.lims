@@ -45,6 +45,8 @@ def Import_sample_templates(self):
                 sc, 'SampleType', row.get('SampleType_title'))
             samplepoint = self.get_object(
                 sc, 'SamplePoint', row.get('SamplePoint_title'))
+            auto_partition = row.get("auto_partition", False)
+            saple_collected_by_lab = row.get("saple_collected_by_lab", False)
 
             obj = api.create(folder, "SampleTemplate", title=title, description=description)
             obj.setSampleType(sampletype)
@@ -52,6 +54,9 @@ def Import_sample_templates(self):
             if services:
                 obj.setPartitions(partitions)
                 obj.setServices(services)
+                obj.setAutoPartition(bool(auto_partition))
+                obj.setSamplingRequired(bool(saple_collected_by_lab))
+            obj.reindexObject()
 
 def get_interim_fields(self):
     # preload Calculation Interim Fields sheet
@@ -317,7 +322,7 @@ def import_samplematrices(self):
     setup = api.get_senaite_setup()
     folder = setup.samplematrices
     for row in self.get_rows(3):
-        title = row.get("title")
+        title = api.safe_unicode(row.get("title"))
         if not title:
             continue
 
