@@ -1,0 +1,410 @@
+<tal:report tal:define="collection python:view.collection;
+                     laboratory python:view.laboratory;
+                     analyses python: view.get_analyses_by(collection);
+                     current_user python: view.current_user.get('username', '');
+                     report_options python:options.get('report_options', {});
+                     show_conditions python:bool(report_options.get('show_conditions', True));
+                     cert_id python: view.get_coa_number();
+                     model python:view.model;
+                     model_summary python:collection[0];
+                     batch python:model_summary.getBatch();
+                     product model_summary/Batch/Product;
+                     mktauth product/MarketingAuthorization;
+                     reporter python:view.current_user;
+                     analysts_user_names python:view.uniquify_items(reduce(lambda a1, a2: a1+a2, map(lambda m: m.getAnalysts(), collection)));
+                     supervisor_user python: laboratory.get('Supervisor');
+                     analysts python: [supervisor_user.getContactByUsername(u) for u in analysts_user_names if supervisor_user.getContactByUsername(u)];
+                     supervisor python: [supervisor_user] if supervisor_user else [];
+
+                     user_signatures python: [{'users': analysts,'role':'Analista de Control de Calidad'}, 
+                                              {'users': supervisor, 'role':'Jefe de Control de Calidad'}];
+                     
+                     date_format string:%d-%m-%Y;
+                     expire_format string:%m-%Y;
+                     batch_expire python: batch.ExpirationDate.strftime(expire_format) if batch.ExpirationDate else '';
+                     batch_manufacture python: batch.ManufactureDate.strftime(date_format) if batch.ManufactureDate else '';
+                     
+                     analyses_by_category python:view.group_items_by('Category', analyses);
+                     sorted_categories python: view.sort_items(analyses_by_category);
+                     in_aceptable_range_coa python: all(not(model.is_out_of_range(analysis)) for analysis in analyses);
+                     verified_date python: max([sample.getDateVerified() for sample in collection if sample.getDateVerified()]);
+                     first_capture_date python: min([analysis.getResultCaptureDate() for analysis in analyses if analysis.getResultCaptureDate()]);">
+
+  <!-- Resources -->
+  <tal:t replace="structure python:view.render_js(context, **options)" />
+  <!-- <tal:t replace="structure python:view.render_css(context, **options)" /> -->
+
+  <style type="text/css">
+
+    /* --- Global Reset & Typography --- */
+    html {
+    font-size: 10px; /* 1rem */
+    }
+    .report {
+      font-family: Calibri, Arial, Helvetica, sans-serif;
+      font-size: 1rem;
+      line-height: 1.3;
+      color: #000;
+    }
+
+    .report * {
+      box-sizing: border-box;
+    }
+
+    .report h1, .report h2, .report h3 {
+      margin: 0 0 10px 0;
+      padding: 0;
+      font-weight: bold;
+    }
+
+    .report table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+    }
+
+    /* --- Page Layout --- */
+    @page {
+      margin: 25mm 15mm 20mm 15mm;
+      @top-center { content: element(header); }
+      @bottom-center { content: element(footer); }
+    }
+
+    .page-break {
+      page-break-before: always;
+    }
+    
+    .keep-together {
+      page-break-inside: avoid;
+    }
+
+    /* --- Generic Utilities --- */
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+    .text-left { text-align: left; }
+    .font-bold { font-weight: bold; }
+    .text-danger { color: red; }
+    .w-100 { width: 100%; }
+
+    .main-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    /* --- Section 1: General Data --- */
+    .data-table th, .data-table td {
+      border: 1px solid #000;
+      padding: 1px 4px;
+      vertical-align: top;
+    }
+    
+    .data-table th:after {
+      content: ":";
+    }
+    .data-table th {
+      font-weight: bold;
+      border-right: 0px;
+    }
+
+    .data-table td {
+      border-left: 0px;
+    }
+
+    .data-table-col-1 {
+      width: 18% !important;
+    }
+    .data-table-col-2 {
+      width: 22% !important;
+    }
+    .data-table-col-3 {
+      width: 22% !important;
+    }
+    .data-table-col-4 {
+      width: 28% !important;
+    }
+
+    /* --- Section 2: Results --- */
+    .results-table {
+      margin-top: 20px;
+      border: 1px solid;
+    }
+
+    .results-table th {
+      padding: 2px 4px 1px 4px;
+      font-size: 1.1rem;
+      text-align: left;
+    }
+
+    .results-table td {
+      border: 1px 0 solid #000;
+      padding: 1px 4px;
+      vertical-align: top;
+      border-bottom: 0.5px solid;
+      font-size: 0.8rem;
+    }
+
+    .result-cell {
+      text-align: right !important;
+    }
+
+    .specs-cell {
+      text-align: right !important;
+    }
+
+    .results-table .category-row th {
+      text-align: left;
+      padding: 2px 2px 2px 10px;
+      font-size: 1rem;
+      border-bottom: 2px solid #000;
+      vertical-align: bottom;
+    }
+
+    .results-table .out-of-range {
+      color: red;
+      font-weight: bold;
+    }
+
+    /* --- Section 3: Comments & Verdict --- */
+    .comments-section {
+      padding: 0px 10px;
+      margin-bottom: 10px;
+    }
+
+    .verdict-section {
+      text-align: center;
+      border-top: 2px solid #000;
+      padding: 10px;
+      margin-bottom: 5px;
+    }
+    
+    .verdict-label {
+      font-size: 10pt;
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .verdict-value {
+      font-size: 14pt;
+      font-weight: bold;
+    }
+
+    /* --- Section 4: Signatures --- */
+    .signatures-table {
+      border: none;
+    }
+
+    .signatures-table td {
+      border: none;
+      padding: 10px;
+      vertical-align: bottom;
+      text-align: center;
+    }
+
+    .signature-box {
+      display: block;
+      min-height: 30px;
+      border-bottom: 1px solid #000;
+      margin-bottom: 5px;
+    }
+    
+    .signature-img {
+      max-height: 60px;
+    }
+    
+  </style>
+  <div class="main-title"> 
+    <span>Certificado de Control de Calidad - Producto Terminado</span>
+    <span tal:condition="python: False" tal:content="cert_id"></span>
+    </div>
+  <div>
+    <!-- SECTION 1: DATOS GENERALES -->
+    <div class="section-general">
+      <!-- 1.a Datos del Producto -->
+      <table class="data-table">
+        <colgroup>
+          <col class="data-table-col-1">
+          <col class="data-table-col-2">
+          <col class="data-table-col-3">
+          <col class="data-table-col-4">
+        </colgroup>
+        <tbody>
+          <tr>
+            <th>Producto</th>
+            <td tal:content="mktauth/TradeName">Nombre Producto</td>
+            <th>Registro Sanitario</th>
+            <td tal:content="mktauth/RegistrationNumber">Reg-123</td>
+          </tr>
+          <tr>
+            <th>DCI</th>
+            <td tal:content="mktauth/GenericName">Nombre Genérico</td>
+            <th>Forma Farmacéutica</th>
+            <td tal:content="mktauth/DosageForm">Tableta</td>
+          </tr>
+          <tr>
+            <th>Concentración</th>
+            <td tal:content="mktauth/Concentrations">500 mg</td>
+            <th>Vía de Administración</th>
+            <td tal:content="mktauth/AdministrationRoute">Oral</td>
+          </tr>
+          <tr>
+            <th>Presentación</th>
+            <td colspan="3" tal:content="product/Presentation">Caja x 100</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 1.b Datos del Lote -->
+      <table class="data-table">
+        <colgroup>
+          <col class="data-table-col-1">
+          <col class="data-table-col-2">
+          <col class="data-table-col-3">
+          <col class="data-table-col-4">
+        </colgroup>
+        <tbody>
+          <tr>
+            <th>N° Lote</th>
+            <td tal:content="batch/ClientBatchID">L-12345</td>
+            <th>Cantidad</th>
+            <td>
+              <span tal:content="python: batch.ReleasedBatchSize or batch.BatchSize">1000</span>
+              <span tal:content="mktauth/DosageUnit">Unidades</span>
+            </td>
+          </tr>
+          <tr>
+            <th>Fecha Fabricación</th>
+            <td tal:content="batch_manufacture">01-01-2025</td>
+            <th>Fecha Vencimiento</th>
+            <td tal:content="batch_expire">01-2027</td>
+          </tr>
+          <tr>
+            <th>Fecha de Análisis</th>
+            <td tal:content="python: first_capture_date.strftime(date_format)">01-01-2027</td>
+            <th>Código de Certificado</th>
+            <td tal:content="cert_id">01-2027</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 2: RESULTADOS -->
+    <div class="section-results">
+      <!-- <h2>2. Resultados</h2> -->
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th style="width: 35%">Análisis</th>
+            <th style="width: 10%">Método</th>
+            <th style="width: 15%" class="specs-cell">Especificación</th>
+            <th style="width: 6%" class="unit-cell"></th>
+            <th style="width: 15%" class="result-cell">Resultado</th>
+            <th style="width: 6%" class="unit-cell"></th>
+            <th style="width: 13%">Conformidad</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tal:block tal:repeat="category sorted_categories">
+            <!-- Category Header Row -->
+            <tr class="category-row">
+              <th colspan="7" tal:content="category/Title">Categoría</th>
+            </tr>
+            <!-- Analysis Rows -->
+             <tal:block tal:repeat="analysis python: analyses_by_category[category]">
+               <tr tal:condition="not: analysis/Hidden"
+                  tal:define="formatted_unit python:model.get_formatted_unit(analysis);
+                              formatted_result python:model.get_formatted_result(analysis);
+                              formatted_specs python:view.get_formatted_specs(analysis, leq_operator='&le;', 
+                                                    geq_operator= '&ge;');">
+                 <!-- Análisis -->
+                 <td>
+                    <span tal:content="analysis/Title">Ensayo ABC</span>
+                    <!-- Footnotes/Conditions Logic could go here if needed, keeping it simple for structure -->
+                 </td>
+                 <!-- Método -->
+                 <td>
+                    <span tal:define="methodId analysis/Method/MethodID|nothing"
+                          tal:content="structure python:view.hyphenize(methodId)">Metodo-01</span>
+                 </td>
+                 <!-- Especificación -->
+                 <td class="specs-cell">
+                    <span tal:content="formatted_specs">Specs</span>
+                 </td>
+                 <!-- Unidad -->
+                 <td class="unit-cell">
+                    <span tal:condition="formatted_specs" tal:content="structure formatted_unit"></span>
+                 </td>
+                 <!-- Resultado -->
+                 <td class="result-cell">
+                    <span tal:content="structure formatted_result"></span>
+                 </td>
+                 <!-- Unidad -->
+                 <td class="unit-cell">
+                    <span tal:content="structure python:model.get_formatted_unit(analysis)"></span>
+                 </td>
+                 <!-- Conformidad -->
+                 <td>
+                    <span tal:define="out_of_range python:model.is_out_of_range(analysis)"
+                          tal:condition="out_of_range" class="out-of-range">NO CONFORME</span>
+                    <span tal:define="out_of_range python:model.is_out_of_range(analysis)"
+                          tal:condition="not:out_of_range">CONFORME</span>
+                 </td>
+               </tr>
+             </tal:block>
+          </tal:block>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 3: OBSERVACIONES Y DICTAMEN -->
+    <div class="section-comments keep-together">
+      <!-- <h2>3. Observaciones y Dictamen</h2> -->
+      <div class="comments-section">
+        <div>Este documento no debe ser reproducido excepto en su totalidad, sin la aprobación por escrito de Laboratorios IFA.</div>
+        <div>
+          <strong>Observaciones:</strong>
+          <span>N/A</span>
+        </div>
+      </div>
+      
+      <div class="verdict-section">
+        <span class="verdict-label">DICTAMEN</span>
+        <span class="verdict-value"
+              tal:attributes="class python: 'verdict-value ' + ('text-danger' if not(in_aceptable_range_coa) else '')"
+              tal:content="python:'APROBADO' if in_aceptable_range_coa else 'RECHAZADO'">
+          APROBADO
+        </span>
+        <div>
+          <strong>Fecha liberación:</strong>
+          <span tal:content="python:verified_date.strftime(date_format)"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 4: FIRMAS -->
+    <div class="section-signatures keep-together">
+      <!-- <h2>4. Firmas Autorizadas</h2> -->
+      <table class="signatures-table">
+        <tbody>
+          <tr>
+             <tal:block tal:repeat="role_group user_signatures">
+                <tal:block tal:repeat="user role_group/users">
+                  <td>
+                    <div class="signature-box" tal:condition="user">
+                      <img tal:condition="user/getSignature|nothing" 
+                           tal:attributes="src string:${user/absolute_url}/Signature"
+                           class="signature-img" />
+                    </div>
+                    <div class="font-bold" tal:content="user/getFullname">Nombre Usuario</div>
+                    <div tal:content="role_group/role">Cargo</div>
+                  </td>
+                </tal:block>
+             </tal:block>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</tal:report>
