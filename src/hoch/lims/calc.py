@@ -410,3 +410,119 @@ def calc_densidad(analysis_brain_uid, *args):
             logger.error("Density Calculation error: %s", str(e))
             show_message(str(e))
             raise DensityCalculationError(str(e))
+        
+def calc_valoracion(**kwargs):
+    """Función de cálculo estándar que devuelve 0"""
+    # filter kwargs that contain 'st_concentration'
+    #st_concentration = [k for k in kwargs.keys() if 'CONC_ST_' in k]
+    unknown_concentration = [k for k in kwargs.keys() if 'CONC_UNK_' in k]
+    
+    return calc_average(
+        *[kwargs[k] for k in unknown_concentration]
+    )
+
+def calc_average(*args):
+    """Function that calculates the average of the input values"""
+    values = [api.to_float(arg, 0) for arg in args if arg is not None]
+    if not values:
+        return 0
+    return sum(values) / len(values)
+
+def calc_uniformidad_contenido(T=100,k=2.4, SUBGROUPS=2, POTENCIA_DECLARADA=1, **kwargs):
+    """Función para calcular la uniformidad de contenido"""
+
+    unknown_concentration = [kwargs[key] for key in sorted(kwargs) if 'CONC_UNK_' in key]
+    logger.info("Unknown concentrations: '%s'", unknown_concentration)
+    # average in pairs, only 10 samples
+    unknown_concentrations_gruped = []
+    for i in range(0, len(unknown_concentration), SUBGROUPS):
+        logger.info("Index i: '%s'", i)
+        val1 = api.to_float(unknown_concentration[i], 0)
+        val2 = api.to_float(unknown_concentration[i+1], 0)
+        logger.info("Values to group: '%s' and '%s'", val1, val2)
+        if val1 > 0 and val2 > 0:
+            unknown_concentrations_gruped.append((val1 + val2) / SUBGROUPS / POTENCIA_DECLARADA * 100)
+    logger.info("Unknown concentrations gruped: '%s'", unknown_concentrations_gruped)
+    if len(unknown_concentrations_gruped) < len(unknown_concentration)/SUBGROUPS:
+        return
+    
+    mean = sum(unknown_concentrations_gruped) / len(unknown_concentrations_gruped)
+    logger.info("Mean of unknown concentrations gruped: '%s'", mean)
+    # calculate standard deviation of data10 of 10 samples
+    variance = sum((x - mean) ** 2 for x in unknown_concentrations_gruped) / (len(unknown_concentrations_gruped) - 1)
+    logger.info("Variance of unknown concentrations gruped: '%s'", variance)
+    std = variance ** 0.5
+    M = 0
+    if T<=101:
+        if mean < 98.5:
+            M = 98.5
+        elif mean <= 101.5:
+            M = mean
+        else:
+            M = 101.5
+    else:
+        if mean < 98.5:
+            M = 98.5
+        elif mean <= T:
+            M = mean
+        else:
+            M = T
+    logger.info("M:'%s' | k: '%s' | mean: '%s' | std: '%s'", M, k, mean, std)
+    logger.info("result value: '%s'", abs(M-mean)+float(k)*std)
+    result = abs(M-mean)+k*std
+    return result
+
+def calc_net_average(gross, tare, context=None):
+    """Función para calcular el promedio neto"""
+    
+    if not gross or not tare:
+        return
+    
+    gross_value = api.to_float(gross, 0)
+    tare_value = api.to_float(tare, 0)
+    net_value = gross_value - tare_value
+    
+    if not context:
+        return net_value
+    
+    analysis = api.get_object(context)
+    if not analysis:
+        return net_value
+    
+    # setting interim field 'net_value'
+    interim_fields = api.safe_getattr(analysis, "getInterimFields", [])
+    dependencies = analysis.getDependencies()
+    
+    gross_analysis = next((dep for dep in dependencies if str(dep.getResult()) == str(gross)), None)
+    tare_analysis = next((dep for dep in dependencies if str(dep.getResult()) == str(tare)), None)
+    
+    gross_interims_dict = {}
+    tare_interims_dict = {}
+    
+    for item in api.safe_getattr(gross_analysis, "getInterimFields", []):
+        gross_interims_dict[item["keyword"]] = item["value"]
+        
+    for item in api.safe_getattr(tare_analysis, "getInterimFields", []):
+        tare_interims_dict[item["keyword"]] = item["value"]
+    
+    for interim in interim_fields:
+        if not is_interim_editable(interim):
+            continue
+        keyword = interim["keyword"]
+        gross_interim_value = api.to_float(gross_interims_dict.get(keyword, 0))
+        tare_interim_value = api.to_float(tare_interims_dict.get(keyword, 0))
+        interim["value"] = str(gross_interim_value - tare_interim_value)
+        
+    analysis.setInterimFields(interim_fields)
+    return net_value
+
+def calc_units_in_range(context=None, DEPENDENCY=None, MAX_OUT_OF_RANGE=0):
+    """Función para calcular unidades en rango"""
+    
+    if not context:
+        return
+    
+    return 1
+    analysis = api.get_object(context)
+    if not analysis:
+        return
