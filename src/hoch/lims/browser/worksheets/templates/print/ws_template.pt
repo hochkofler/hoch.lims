@@ -185,7 +185,7 @@
                                     formatted_result an/formatted_result;
                                     unit an/formatted_unit;
                                     formatted_specs_to_show python: formatted_specs +' '+ unit if formatted_specs else 'N/A';
-                                    formatted_result_to_show python: formatted_result +' '+ unit if formatted_specs else '-';
+                                    formatted_result_to_show python: formatted_result +' '+ unit if formatted_result else '-';
                                     consumables python: view.get_consumables(an['obj']);
                                     result_type an/obj/getResultType">
 
