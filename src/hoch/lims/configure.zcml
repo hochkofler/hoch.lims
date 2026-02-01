@@ -79,6 +79,7 @@
   <include package=".loadsetupdata" />
   <include package=".extender" />
   <include package=".stickers" />
+  <include package=".exportimport" />
 
   <!-- Default Profile -->
   <genericsetup:registerProfile

@@ -1,0 +1,17 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:plone="http://namespaces.plone.org/plone"
+    i18n_domain="hoch.lims">
+
+  <adapter
+    for="*"
+    name="nexera_ascii_importer"
+    factory=".instruments.shimadzu.nexera.asciiResultsImporterInterface"
+    provides="senaite.core.exportimport.instruments.IInstrumentImportInterface"/>
+
+  <adapter
+    for="*"
+    name="nexera_quantitative_importer"
+    factory=".instruments.shimadzu.nexera.quantitativeResultsImportInterface"
+    provides="senaite.core.exportimport.instruments.IInstrumentImportInterface"/>
+</configure>
