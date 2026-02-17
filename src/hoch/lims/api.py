@@ -36,6 +36,22 @@ def get_pharmaceutical_product_by_code(code):
         return brains[0].getObject()
     return None
 
+def get_process_by_title(title):
+    """Get a Process by its title.
+    """
+    brains = hochlims_search({"portal_type": "Process", "Title": title})
+    if brains:
+        return brains[0].getObject()
+    return None
+
+def get_process_group_by_title(title):
+    """Get a Process Group by its title.
+    """
+    brains = hochlims_search({"portal_type": "ProcessGroup", "Title": title})
+    if brains:
+        return brains[0].getObject()
+    return None
+
 def validate_against_vocabulary(context, schema, field_name, raw_value):
         """
         Checks that raw_value is in the vocabulary defined in the schema
