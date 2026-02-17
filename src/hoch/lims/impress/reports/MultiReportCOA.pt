@@ -21,204 +21,40 @@
                      
                      date_format string:%d-%m-%Y;
                      expire_format string:%m-%Y;
+                     date_time_format string:%d-%m-%Y %H:%M:%S;
                      batch_expire python: batch.ExpirationDate.strftime(expire_format) if batch.ExpirationDate else '';
                      batch_manufacture python: batch.ManufactureDate.strftime(date_format) if batch.ManufactureDate else '';
-                     
+                     publish_datetime python:view.timestamp.strftime(date_time_format);
                      analyses_by_category python:view.group_items_by('Category', analyses);
                      sorted_categories python: view.sort_items(analyses_by_category);
                      in_aceptable_range_coa python: all(not(model.is_out_of_range(analysis)) for analysis in analyses);
                      verified_date python: max([sample.getDateVerified() for sample in collection if sample.getDateVerified()]);
-                     first_capture_date python: min([analysis.getResultCaptureDate() for analysis in analyses if analysis.getResultCaptureDate()]);">
+                     first_capture_date python: min([analysis.getResultCaptureDate() for analysis in analyses if analysis.getResultCaptureDate()]);
+                     remarks python: [];">
 
-  <!-- Resources -->
+  <!-- REPORT CONTROLS -->
+  <tal:t replace="structure python:view.render_controls(context, **options)" />
+
+  <!-- REPORT JS -->
   <tal:t replace="structure python:view.render_js(context, **options)" />
-  <!-- <tal:t replace="structure python:view.render_css(context, **options)" /> -->
 
-  <style type="text/css">
+  <!-- REPORT CSS -->
+  <tal:t replace="structure python:view.render_css(context, **options)" />
 
-    /* --- Global Reset & Typography --- */
-    html {
-    font-size: 10px; /* 1rem */
+  <style type="text/css" media="print" tal:condition="python: True">
+    .coa {
+      page: coa;
     }
-    .report {
-      font-family: Calibri, Arial, Helvetica, sans-serif;
-      font-size: 1rem;
-      line-height: 1.3;
-      color: #000;
+    @page coa{
+      margin-top: 25mm !important;
+      margin-bottom: 20mm !important;
     }
-
-    .report * {
-      box-sizing: border-box;
-    }
-
-    .report h1, .report h2, .report h3 {
-      margin: 0 0 10px 0;
-      padding: 0;
-      font-weight: bold;
-    }
-
-    .report table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 10px;
-    }
-
-    /* --- Page Layout --- */
-    @page {
-      margin: 25mm 15mm 20mm 15mm;
-      @top-center { content: element(header); }
-      @bottom-center { content: element(footer); }
-    }
-
-    .page-break {
-      page-break-before: always;
-    }
-    
-    .keep-together {
-      page-break-inside: avoid;
-    }
-
-    /* --- Generic Utilities --- */
-    .text-center { text-align: center; }
-    .text-right { text-align: right; }
-    .text-left { text-align: left; }
-    .font-bold { font-weight: bold; }
-    .text-danger { color: red; }
-    .w-100 { width: 100%; }
-
-    .main-title {
-      font-size: 1.5rem;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-    
-    /* --- Section 1: General Data --- */
-    .data-table th, .data-table td {
-      border: 1px solid #000;
-      padding: 1px 4px;
-      vertical-align: top;
-    }
-    
-    .data-table th:after {
-      content: ":";
-    }
-    .data-table th {
-      font-weight: bold;
-      border-right: 0px;
-    }
-
-    .data-table td {
-      border-left: 0px;
-    }
-
-    .data-table-col-1 {
-      width: 18% !important;
-    }
-    .data-table-col-2 {
-      width: 22% !important;
-    }
-    .data-table-col-3 {
-      width: 22% !important;
-    }
-    .data-table-col-4 {
-      width: 28% !important;
-    }
-
-    /* --- Section 2: Results --- */
-    .results-table {
-      margin-top: 20px;
-      border: 1px solid;
-    }
-
-    .results-table th {
-      padding: 2px 4px 1px 4px;
-      font-size: 1.1rem;
-      text-align: left;
-    }
-
-    .results-table td {
-      border: 1px 0 solid #000;
-      padding: 1px 4px;
-      vertical-align: top;
-      border-bottom: 0.5px solid;
-      font-size: 0.8rem;
-    }
-
-    .result-cell {
-      text-align: right !important;
-    }
-
-    .specs-cell {
-      text-align: right !important;
-    }
-
-    .results-table .category-row th {
-      text-align: left;
-      padding: 2px 2px 2px 10px;
-      font-size: 1rem;
-      border-bottom: 2px solid #000;
-      vertical-align: bottom;
-    }
-
-    .results-table .out-of-range {
-      color: red;
-      font-weight: bold;
-    }
-
-    /* --- Section 3: Comments & Verdict --- */
-    .comments-section {
-      padding: 0px 10px;
-      margin-bottom: 10px;
-    }
-
-    .verdict-section {
-      text-align: center;
-      border-top: 2px solid #000;
-      padding: 10px;
-      margin-bottom: 5px;
-    }
-    
-    .verdict-label {
-      font-size: 10pt;
-      font-weight: bold;
-      display: block;
-      margin-bottom: 5px;
-    }
-
-    .verdict-value {
-      font-size: 14pt;
-      font-weight: bold;
-    }
-
-    /* --- Section 4: Signatures --- */
-    .signatures-table {
-      border: none;
-    }
-
-    .signatures-table td {
-      border: none;
-      padding: 10px;
-      vertical-align: bottom;
-      text-align: center;
-    }
-
-    .signature-box {
-      display: block;
-      min-height: 30px;
-      border-bottom: 1px solid #000;
-      margin-bottom: 5px;
-    }
-    
-    .signature-img {
-      max-height: 60px;
-    }
-    
   </style>
-  <div class="main-title"> 
-    <span>Certificado de Control de Calidad - Producto Terminado</span>
-    <span tal:condition="python: False" tal:content="cert_id"></span>
+  <div class="coa page-break-after">
+    <div class="main-title"> 
+      <span>Certificado de Control de Calidad - Producto Terminado</span>
+      <span tal:condition="python: False" tal:content="cert_id"></span>
     </div>
-  <div>
     <!-- SECTION 1: DATOS GENERALES -->
     <div class="section-general">
       <!-- 1.a Datos del Producto -->
@@ -233,14 +69,18 @@
           <tr>
             <th>Producto</th>
             <td tal:content="mktauth/TradeName">Nombre Producto</td>
-            <th>Registro Sanitario</th>
-            <td tal:content="mktauth/RegistrationNumber">Reg-123</td>
+            <th>Código de Certificado</th>
+            <td tal:content="cert_id">01-2027</td>
           </tr>
           <tr>
             <th>DCI</th>
-            <td tal:content="mktauth/GenericName">Nombre Genérico</td>
+            <td tal:content="mktauth/GenericName" colspan="3">Nombre Genérico</td>
+          </tr>
+          <tr>
             <th>Forma Farmacéutica</th>
             <td tal:content="mktauth/DosageForm">Tableta</td>
+            <th>Registro Sanitario</th>
+            <td tal:content="mktauth/RegistrationNumber">Reg-123</td>
           </tr>
           <tr>
             <th>Concentración</th>
@@ -282,8 +122,6 @@
           <tr>
             <th>Fecha de Análisis</th>
             <td tal:content="python: first_capture_date.strftime(date_format)">01-01-2027</td>
-            <th>Código de Certificado</th>
-            <td tal:content="cert_id">01-2027</td>
           </tr>
         </tbody>
       </table>
@@ -292,16 +130,16 @@
     <!-- SECTION 2: RESULTADOS -->
     <div class="section-results">
       <!-- <h2>2. Resultados</h2> -->
-      <table class="results-table">
+      <table class="results-table" style="border: 1px solid black;">
         <thead>
           <tr>
             <th style="width: 35%">Análisis</th>
             <th style="width: 10%">Método</th>
-            <th style="width: 15%" class="specs-cell">Especificación</th>
-            <th style="width: 6%" class="unit-cell"></th>
-            <th style="width: 15%" class="result-cell">Resultado</th>
-            <th style="width: 6%" class="unit-cell"></th>
-            <th style="width: 13%">Conformidad</th>
+            <th style="width: 20.5%" class="specs-cell">Especificación</th>
+            <th style="width: 4%" class="unit-cell"></th>
+            <th style="width: 20.5%" class="result-cell">Resultado</th>
+            <th style="width: 4%" class="unit-cell"></th>
+            <th style="width: 6%">Conformidad</th>
           </tr>
         </thead>
         <tbody>
@@ -316,7 +154,11 @@
                   tal:define="formatted_unit python:model.get_formatted_unit(analysis);
                               formatted_result python:model.get_formatted_result(analysis);
                               formatted_specs python:view.get_formatted_specs(analysis, leq_operator='&le;', 
-                                                    geq_operator= '&ge;');">
+                                                    geq_operator= '&ge;');
+                              remark_text python: analysis.get('Remarks', '');
+                              remark_index_already_exists python: next((remark[0] for remark in remarks if remark[1] == remark_text), None);
+                              remark_index python: remark_index_already_exists if remark_index_already_exists else (len(remarks) + 1 if remark_text else None);
+                              _dummy python: remarks.append((remark_index, remark_text)) if remark_text and not remark_index_already_exists else None;">
                  <!-- Análisis -->
                  <td>
                     <span tal:content="analysis/Title">Ensayo ABC</span>
@@ -338,6 +180,7 @@
                  <!-- Resultado -->
                  <td class="result-cell">
                     <span tal:content="structure formatted_result"></span>
+                    <sup tal:condition="remark_index" tal:content="python:'[' + str(remark_index) + ']'"></sup>
                  </td>
                  <!-- Unidad -->
                  <td class="unit-cell">
@@ -362,6 +205,12 @@
       <!-- <h2>3. Observaciones y Dictamen</h2> -->
       <div class="comments-section">
         <div>Este documento no debe ser reproducido excepto en su totalidad, sin la aprobación por escrito de Laboratorios IFA.</div>
+        <tal:block tal:repeat="remark remarks">
+          <div>
+            <span tal:content="structure python: '[' + str(remark[0]) + ']'"></span>
+            <span tal:content="structure python: ' ' + remark[1]"></span>
+          </div>
+        </tal:block>
         <div>
           <strong>Observaciones:</strong>
           <span>N/A</span>
@@ -391,14 +240,18 @@
              <tal:block tal:repeat="role_group user_signatures">
                 <tal:block tal:repeat="user role_group/users">
                   <td>
-                    <div class="signature-box" tal:condition="user">
-                      <img tal:condition="user/getSignature|nothing" 
-                           tal:attributes="src string:${user/absolute_url}/Signature"
-                           class="signature-img" />
+                    <div class="signature-cell">
+                      <div class="signature-box" tal:condition="user">
+                        <img tal:condition="user/getSignature|nothing" 
+                            tal:attributes="src string:${user/absolute_url}/Signature"
+                            class="signature-img" />
+                      </div>
+
+                      <div class="font-bold" tal:content="user/getFullname">Nombre Usuario</div>
+                      <div tal:content="role_group/role">Cargo</div>
                     </div>
-                    <div class="font-bold" tal:content="user/getFullname">Nombre Usuario</div>
-                    <div tal:content="role_group/role">Cargo</div>
                   </td>
+
                 </tal:block>
              </tal:block>
           </tr>

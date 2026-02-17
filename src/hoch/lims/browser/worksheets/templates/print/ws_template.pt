@@ -42,7 +42,7 @@
               tal:attributes="src string:senaite_theme/icon/logo-ifa-rojo.svg"/>
         </a>
       </div>
-      <h1 i18n:translate="" class="text-center font-weight-bold">Hoja de trabajo / informe analítico</h1>
+      <h1 i18n:translate="" class="text-center font-weight-bold">Hoja de trabajo / informe analitico</h1>
     </div>
     <div class="subheader">
       <div>
@@ -285,10 +285,9 @@
                   tal:content="outofrange_symbol"/>
             <span i18n:translate="">Resultado fuera de rango.</span>
           </div>
-          <div class="discreeter-copyright"
-              i18n:translate="">
+          <div class="discreeter-copyright">
             Este documento no debe ser reproducido excepto en su totalidad, sin la aprobación por escrito de
-            <tal:block replace="laboratory/title" i18n:name="name_lab"/>.
+            <tal:block replace="laboratory/title"/>.
           </div>
         </div>
     </div>

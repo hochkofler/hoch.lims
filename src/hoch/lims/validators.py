@@ -14,7 +14,7 @@ from zope.component import queryAdapter
 
 class VariablesSettingsFieldsValidator:
     """Validating VariablesSettingsField keywords.
-        XXX Applied as a subfield validator but validates entire field.
+        Applied as a subfield validator but validates entire field.
         keyword must match isUnixLikeName
         keyword must be unique in this VariablesSettingsField field
     """
@@ -41,10 +41,9 @@ class VariablesSettingsFieldsValidator:
             instance.REQUEST[key] = msg
             return instance.REQUEST[key]
             # Fallback: intenta el método local del campo
-        #vocab_func_name = field._properties.get("subfield_vocabularies", {}).get("keyword")
-        #vocab = getattr(field, vocab_func_name)(instance) if vocab_func_name else DisplayList(())
 
-        #logger.info("vocabulary for data is: '%s'", vocab)
+
+
         # We run through the validator once per form submit, and check all
         # values
         # this value in request prevents running once per subfield value.
@@ -52,7 +51,7 @@ class VariablesSettingsFieldsValidator:
         if request.get(key, False):
             return True
 
-        #keywords_options = kwargs['field']._properties.get("subfield_vocabularies", {}).get("keyword", None)
+
         keywords_options = vocab
         if not keywords_options:
             instance.REQUEST[key] = to_utf8(

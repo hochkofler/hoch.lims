@@ -425,7 +425,7 @@ class MarketingAuthorization(Container):
         accessor = self.accessor("expiration_date")
         value = accessor(self)
         # Return a plain date object to avoid timezone issues
-        # TODO Convert to current timezone and keep it as datetime instead!
+        # Convert to current timezone and keep it as datetime instead!
         if dtime.is_dt(value) and as_date:
             value = value.date()
         return value

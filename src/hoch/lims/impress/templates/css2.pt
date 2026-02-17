@@ -1,166 +1,217 @@
 <tal:t define="report_options python:options.get('report_options', {});
-attachments_per_row python:int(report_options.get('attachments_per_row', 2));
-attachments_per_row python:attachments_per_row < 1 and 1 or attachments_per_row;
+ attachments_per_row python:int(report_options.get('attachments_per_row', 2));
+attachments_per_row python:attachments_per_row <1 and 1 or attachments_per_row;
 page_width options/page_width|nothing;
 page_height options/page_height|nothing;
 content_width options/content_width|nothing;
-content_height options/content_height|nothing;" 
-i18n:domain="hoch.lims">
+content_height options/content_height|nothing;
 
-<style type="text/css">
-  /* --- Global Reset & Typography --- */
-  .report {
-    font-family: Calibri, Arial, Helvetica, sans-serif;
-    font-size: 7pt;
-    line-height: 1.3;
-    color: #000;
-  }
+" i18n:domain=" hoch.lims">
+ <style type="text/css">
+    /* --- Global Reset & Typography --- */
+    html {
+    font-size: 10px; /* 1rem */
+    }
+    .report {
+      font-family: Calibri, Arial, Helvetica, sans-serif;
+      font-size: 1rem;
+      line-height: 1;
+      color: #000;
+    }
 
-  .report * {
-    box-sizing: border-box;
-  }
+    .report * {
+      box-sizing: border-box;
+    }
 
-  .report h1, .report h2, .report h3 {
-    margin: 0 0 10px 0;
-    padding: 0;
-    font-weight: bold;
-  }
+    .report h1, .report h2, .report h3 {
+      margin: 0 0 10px 0;
+      padding: 0;
+      font-weight: bold;
+    }
 
-  .report table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 10px;
-  }
+    .report table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 5px;
+    }
 
-  /* --- Page Layout --- */
-  @page {
-    margin: 20mm;
-    @top-center { content: element(header); }
-    @bottom-center { content: element(footer); }
-  }
+    .page-break {
+      page-break-before: always;
+    }
+    
+    .keep-together {
+      page-break-inside: avoid;
+    }
 
-  .page-break {
-    page-break-before: always;
-  }
-  
-  .keep-together {
-    page-break-inside: avoid;
-  }
+    /* --- Generic Utilities --- */
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+    .text-left { text-align: left; }
+    .font-bold { font-weight: bold; }
+    .text-danger { color: red; }
+    .w-100 { width: 100%; }
 
-  /* --- Generic Utilities --- */
-  .text-center { text-align: center; }
-  .text-right { text-align: right; }
-  .text-left { text-align: left; }
-  .font-bold { font-weight: bold; }
-  .text-danger { color: red; }
-  .w-100 { width: 100%; }
-  
-  /* --- Section 1: General Data --- */
-  .data-table th, .data-table td {
-    border: 1px solid #000;
-    padding: 1px 4px;
-    vertical-align: top;
-  }
-  
-  .data-table th {
-    background-color: #f0f0f0;
-    font-weight: bold;
-    width: 20%;
-  }
+    .main-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    /* --- Section 1: General Data --- */
+    .data-table th, .data-table td {
+      border: 1px solid #000;
+      padding: 1px 4px;
+      vertical-align: top;
+    }
+    
+    .data-table th:after {
+      content: ":";
+    }
+    .data-table th {
+      font-weight: bold;
+      border-right: 0px;
+    }
 
-  /* --- Section 2: Results --- */
-  .results-table {
-    margin-top: 20px;
-  }
+    .data-table td {
+      border-left: 0px;
+    }
 
-  .results-table th {
-    border: 1px solid #000;
-    background-color: #333;
-    color: #fff;
-    padding: 5px;
-    text-align: center;
-  }
+    .data-table-col-1 {
+      width: 18% !important;
+    }
+    .data-table-col-2 {
+      width: 22% !important;
+    }
+    .data-table-col-3 {
+      width: 22% !important;
+    }
+    .data-table-col-4 {
+      width: 28% !important;
+    }
 
-  .results-table td {
-    border: 1px solid #000;
-    padding: 1px 4px;
-    vertical-align: top;
-  }
+    /* --- Section 2: Results --- */
+    .results-table {
+      margin-top: 10px;
+      border: 1px solid;
+    }
 
-  .results-table .category-row th {
-    background-color: #e0e0e0;
-    color: #000;
-    text-align: left;
-    padding-left: 10px;
-  }
+    .results-table th {
+      padding: 2px 4px 1px 4px;
+      font-size: 1rem;
+      text-align: left;
+    }
 
-  .results-table .out-of-range {
-    color: red;
-    font-weight: bold;
-  }
+    .results-table td {
+      border: 1px 0 solid #000;
+      padding: 1px 4px;
+      vertical-align: top;
+      border-bottom: 0.5px solid;
+      font-size: 0.9rem;
+    }
 
-  /* --- Section 3: Comments & Verdict --- */
-  .comments-section {
-    border: 1px solid #000;
-    padding: 5px 10px;
-    margin-bottom: 15px;
-    <!-- min-height: 50px; -->
-  }
+    .result-cell {
+      text-align: right !important;
+    }
 
-  .verdict-section {
-    text-align: center;
-    border: 2px solid #000;
-    padding: 10px;
-    margin-bottom: 5px;
-    <!-- background-color: #f9f9f9; -->
-  }
-  
-  .verdict-label {
-    font-size: 10pt;
-    font-weight: bold;
-    display: block;
-    margin-bottom: 5px;
-  }
+    .specs-cell {
+      text-align: right !important;
+    }
 
-  .verdict-value {
-    font-size: 14pt;
-    font-weight: bold;
-  }
+    .results-table .category-row th {
+      text-align: left;
+      padding: 2px 2px 2px 10px;
+      font-size: 1rem;
+      border-bottom: 2px solid #000;
+      vertical-align: bottom;
+    }
 
-  /* --- Section 4: Signatures --- */
-  .signatures-table {
-    margin-top: 30px;
-    border: none;
-  }
+    .results-table .out-of-range {
+      color: red;
+      font-weight: bold;
+    }
 
-  .signatures-table td {
-    border: none;
-    padding: 10px;
-    vertical-align: bottom;
-    text-align: center;
-    width: 33%; /* Default to 3 cols if likely */
-  }
+    /* --- Section 3: Comments & Verdict --- */
+    .comments-section {
+      padding: 0px 10px;
+      margin-bottom: 5px;
+      font-size: 0.8rem;
+    }
 
-  .signature-box {
-    display: block;
-    min-height: 40px;
-    border-bottom: 1px solid #000;
-    margin-bottom: 5px;
-  }
-  
-  .signature-img {
-    max-height: 60px;
-  }
+    .verdict-section {
+      text-align: center;
+      border-top: 2px solid #000;
+      padding: 10px;
+    }
+    
+    .verdict-label {
+      font-size: 1rem;
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+    }
 
-  /* --- Dynamic Images (from original CSS) --- */
+    .verdict-value {
+      font-size: 1.4rem;
+      font-weight: bold;
+    }
+
+    /* --- Section 4: Signatures --- */
+    .signatures-table {
+      width: 100%;
+      border: none;
+      table-layout: fixed; /* MUY importante */
+    }
+
+    .signatures-table td {
+      border: none;
+      padding: 5px;
+      text-align: center;
+      vertical-align: bottom;
+    }
+
+    /* Contenedor que limita el ancho real */
+    .signature-cell {
+      width: 50mm;          /* ancho real de la firma */
+      margin: 0 auto;       /* centrado dentro del td */
+    }
+
+    /* Línea de firma */
+    .signature-box {
+      min-height: 14mm;
+      border-bottom: 1px solid #000;
+      margin-bottom: 5px;
+    }
+
+    /* Imagen */
+    .signature-img {
+      max-height: 20mm;
+      max-width: 100%;
+    }
+
   <tal:block condition="python:content_width and content_height">
     <tal:block condition="python:all([content_width, content_height])"
-       define="cw python:float(content_width); ch python:float(content_height);">
+              define="cw python:float(content_width);
+                      ch python:float(content_height);">
+
+
+      /* Ensure that the images stay within the borders */
       .report .section-attachments img {
         max-width: <tal:t replace="python:'{:.2f}mm'.format(cw / attachments_per_row)" />;
         max-height: <tal:t replace="python:'{:.2f}mm'.format(ch * 0.75)" />;
       }
+
+      .report .section-resultsinterpretation img {
+        max-width: <tal:t replace="python:'{:.2f}mm'.format(cw)" />;
+        max-height: <tal:t replace="python:'{:.2f}mm'.format(ch * 0.75)" />;
+      }
+
+      .report .metadata .inline {
+        display: inline-block;
+        /* ya no rompe línea */
+        margin-right: 1.5em;
+        white-space: nowrap;
+      }
+
     </tal:block>
   </tal:block>
-</style>
-</tal:t>
+</style></tal:t>

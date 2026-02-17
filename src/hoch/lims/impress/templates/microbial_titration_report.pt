@@ -54,6 +54,7 @@
                             <tal:interim_titles tal:repeat="interim_title valid_keys">
                                 <th tal:content="python: interim_title[1]" />
                             </tal:interim_titles>
+                        </tr>
                         <tal:depen tal:repeat="dependency dependencies">
                             <tr tal:define="dependency_interim_fields python: dependency.getInterimFields();
                                             dependency_interim_fields_dict python: {f.get('keyword'): f for f in dependency_interim_fields};">
