@@ -6,4 +6,11 @@
   <!-- Package includes -->
   <include package=".exportimport" />
 
+  <monkey:patch
+    description="Monkey patch for AnalysisRequest content"
+    class="bika.lims.content.analysisrequest.AnalysisRequest"
+    original="getDestinationsVocabulary"
+    ignoreOriginal="True"
+    replacement=".analysisrequest.getDestinationsVocabulary" />
+
 </configure>

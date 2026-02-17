@@ -38,6 +38,7 @@ INDEXES = BASE_INDEXES + [
     ("product_secundary_presentation", "", "FieldIndex"),
     ("product_dosage_unit_per_secundary_presentation", "", "FieldIndex"),
     ("product_dosage_unit_per_primary_presentation", "", "FieldIndex"),
+    ("sample_destination", "", "FieldIndex"),
 ]
 
 COLUMNS = BASE_COLUMNS + [

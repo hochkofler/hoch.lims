@@ -30,3 +30,4 @@ AdministrationRoutesVocabularyFactory = registry_vocabulary_factory("hoch.lims.a
 PrimaryPresentationVocabularyFactory = registry_vocabulary_factory("hoch.lims.primary_presentations")
 SecundaryPresentationVocabularyFactory = registry_vocabulary_factory("hoch.lims.secundary_presentations")
 DosageUnitsVocabularyFactory = registry_vocabulary_factory("hoch.lims.dosage_units")
+DestinationsVocabularyFactory = registry_vocabulary_factory("hoch.lims.destinations")

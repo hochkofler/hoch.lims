@@ -68,6 +68,12 @@
     component="hoch.lims.vocabularies.SecundaryPresentationVocabularyFactory"
 />
 
+<utility
+    provides="zope.schema.interfaces.IVocabularyFactory"
+    name="hoch.lims.vocabularies.destinations"
+    component="hoch.lims.vocabularies.DestinationsVocabularyFactory"
+/>
+
   <!-- Package includes -->
   <include package=".browser" />
   <include package=".catalog" />

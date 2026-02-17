@@ -30,6 +30,7 @@ from hoch.lims.config import (
     PRIMARY_PRESENTATIONS,
     SECUNDARY_PRESENTATIONS,
     DOSAGE_UNITS,
+    DESTINATIONS,
 )
 
 # Common interface for all vocabulary rows
@@ -91,6 +92,10 @@ def default_primary_presentations(context):
 def default_secundary_presentations(context):
     return [{u"key": i[0], u"value": i[1]} for i in SECUNDARY_PRESENTATIONS]
 
+@provider(IContextAwareDefaultFactory)
+def default_destinations(context):
+    return [{u"key": i[0], u"value": i[1]} for i in DESTINATIONS]
+
 class IHochControlPanel(Interface):
     """Controlpanel Settings for HochLIMS"""
     
@@ -150,6 +155,14 @@ class IHochControlPanel(Interface):
             "primary_presentations",
             "secundary_presentations",
             "dosage_units",
+        ],
+    )
+
+    model.fieldset(
+        "destinations",
+        label=_(u"Destinations"),
+        fields=[
+            "destinations",
         ],
     )
 
@@ -291,6 +304,20 @@ class IHochControlPanel(Interface):
         required=True,
         defaultFactory=default_dosage_units,
     )
+
+    # Destinations
+    directives.widget(
+        "destinations",
+        DataGridWidgetFactory,
+        allow_reorder=True,
+        auto_append=True)
+    destinations = schema.List(
+        title=_(u"Destinations"),
+        description=_(u"Destinations"),
+        value_type=DataGridRow(schema=IVocabularyRow),
+        required=True,
+        defaultFactory=default_destinations,
+    )
     
     @invariant
     def validate_keys(data):
@@ -306,6 +333,7 @@ class IHochControlPanel(Interface):
             ("administration_routes",  "mktauth_administration_route"),
             ("primary_presentations",   "product_primary_presentation"),
             ("secundary_presentations", "product_secundary_presentation"),
+            ("destinations",           "sample_destination"),
         ]
         
         for field_name, index_name in fields:

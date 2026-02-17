@@ -100,3 +100,12 @@ SECUNDARY_PRESENTATIONS = (
     (u"case", _(u"Case")),
     (u"pallet", _(u"Pallet")),
 )
+
+DESTINATIONS = (
+    (u"release", _(u"Release")),
+    (u"stability", _(u"Stability")),
+    (u"ipc", _(u"In-Process Control")),
+    (u"investigation", _(u"Investigation")),
+    (u"development", _(u"Development")),
+    (u"validation", _(u"Method Validation")),
+)
