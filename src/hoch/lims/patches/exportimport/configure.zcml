@@ -46,4 +46,46 @@
     ignoreOriginal="True"
     replacement=".setupdata.import_samplematrices" />
 
+    <monkey:patch
+    description="AnalysisProfile import"
+    class="senaite.core.exportimport.setupdata.Analysis_Profiles"
+    original="Import"
+    ignoreOriginal="True"
+    replacement=".setupdata.import_analysis_profiles" />
+
+    <monkey:patch
+    description="AnalysisProfile load sampletypes"
+    class="senaite.core.exportimport.setupdata.Analysis_Profiles"
+    original="load_analysis_profile_sampletypes"
+    ignoreOriginal="True"
+    replacement=".setupdata.load_analysis_profile_sampletypes" />
+
+    <monkey:patch
+    description="AnalysisProfile load services"
+    class="senaite.core.exportimport.setupdata.Analysis_Profiles"
+    original="load_analysis_profile_services"
+    ignoreOriginal="True"
+    replacement=".setupdata.load_analysis_profile_services" />
+
+    <monkey:patch
+    description="Setup load setup get field value"
+    class="senaite.core.exportimport.setupdata.Setup"
+    original="get_field_value"
+    ignoreOriginal="True"
+    replacement=".setupdata.setup_get_field_value"/>
+
+    <monkey:patch
+    description="Setup to choice value"
+    class="senaite.core.exportimport.setupdata.Setup"
+    original="to_choice_value"
+    ignoreOriginal="True"
+    replacement=".setupdata.setup_to_choice_value"/>
+
+    <monkey:patch
+    description="Setup load setup analysis"
+    class="senaite.core.exportimport.setupdata.Setup"
+    original="Import"
+    ignoreOriginal="True"
+    replacement=".setupdata.setup_Import"/>
+
 </configure>

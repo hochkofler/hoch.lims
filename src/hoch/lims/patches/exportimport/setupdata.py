@@ -14,6 +14,17 @@ from senaite.core.idserver import renameAfterCreation
 from Products.CMFPlone.utils import safe_unicode
 from hoch.lims import logger
 from hoch.lims.api import get_marketing_authorization_by_reg_num
+from zope.schema.interfaces import (
+    IInt,
+    IFloat,
+    IBool,
+    IChoice,
+    ITextLine,
+    IText
+)
+from zope.schema.vocabulary import getVocabularyRegistry
+from plone.dexterity.utils import iterSchemata
+from zope.schema import getFieldsInOrder
 
 def Import_sample_templates(self):
         self.load_sampletemplate_services()
@@ -338,3 +349,150 @@ def import_samplematrices(self):
 
         obj.reindexObject()
         notify(ObjectInitializedEvent(obj))
+
+def import_analysis_profiles(self):
+    self.load_analysis_profile_services()
+    self.load_analysis_profile_sampletypes()
+    folder = self.context.setup.analysisprofiles
+    for row in self.get_rows(3):
+        title = row.get("title", "")
+        description = row.get("description", "")
+        profile_key = row.get("ProfileKey", "")
+        commercial_id = row.get("CommercialID", "")
+        analysis_profile_price = row.get("AnalysisProfilePrice")
+        analysis_profile_vat = row.get("AnalysisProfileVAT")
+        use_analysis_profile_price = row.get("UseAnalysisProfilePrice")
+        if title:
+            obj = api.create(folder, "AnalysisProfile")
+            api.edit(obj,
+                     title=api.safe_unicode(title),
+                     description=api.safe_unicode(description),
+                     profile_key=api.safe_unicode(profile_key),
+                     commercial_id=api.safe_unicode(commercial_id),
+                     analysis_profile_price=api.to_float(
+                         analysis_profile_price, 0.0),
+                     analysis_profile_vat=api.to_float(
+                         analysis_profile_vat, 0.0),
+                     use_analysis_profile_price=bool(
+                         use_analysis_profile_price))
+            # set the services
+            if row['title'] in self.profile_services:
+                obj.setServices(self.profile_services[row["title"]])
+            # set sampletypes
+            if row['title'] in self.profile_sampletypes:
+                obj.setSampleTypes(self.profile_sampletypes[row["title"]])
+
+def load_analysis_profile_sampletypes(self):
+    sheetname = 'Analysis Profile Sample Types'
+    worksheet = self.workbook[sheetname]
+    self.profile_sampletypes = {}
+    if not worksheet:
+        return
+    bsc = getToolByName(self.context, SETUP_CATALOG)
+    for row in self.get_rows(3, worksheet=worksheet):
+        if not row.get('Profile', '') or not row.get('sample_type', ''):
+            continue
+        if row['Profile'] not in self.profile_sampletypes.keys():
+            self.profile_sampletypes[row['Profile']] = []
+        # Here we match againts Keyword or Title.
+
+        sampletype = self.get_object(
+                bsc, 'SampleType', row.get('sample_type'))
+        if not sampletype:
+            logger.error("Sample type not found: {}".format(row['sample_type']))
+            continue
+
+        self.profile_sampletypes[row['Profile']].append(sampletype)
+
+def load_analysis_profile_services(self):
+    sheetname = 'Analysis Profile Services'
+    worksheet = self.workbook[sheetname]
+    self.profile_services = {}
+    if not worksheet:
+        return
+    bsc = getToolByName(self.context, SETUP_CATALOG)
+    for row in self.get_rows(3, worksheet=worksheet):
+        if not row.get('Profile', '') or not row.get('Service', ''):
+            continue
+        if row['Profile'] not in self.profile_services.keys():
+            self.profile_services[row['Profile']] = []
+        # Here we match againts Keyword or Title.
+
+        service = self.get_object(
+            bsc, 'AnalysisService', row.get('Service'))
+        if not service:
+            service = bsc(portal_type='AnalysisService',
+                          getKeyword=row['Service'])[0].getObject()
+        if not service:
+            logger.error("Service not found: {}".format(row['Service']))
+            continue
+        hidden = row.get('hidden', False) and True or False
+        self.profile_services[row['Profile']].append(
+            {'hidden': hidden, 'uid': service.UID()}
+        )
+
+def setup_get_field_value(self, field, value):
+        if value is None:
+            return None
+
+        if IInt.providedBy(field):
+            return int(value)
+
+        if IFloat.providedBy(field):
+            return float(value)
+
+        if IBool.providedBy(field):
+            return self.to_bool(value)
+
+        if IChoice.providedBy(field):
+            return self.to_choice_value(field, value)
+
+        if ITextLine.providedBy(field) or IText.providedBy(field):
+            return str(value)
+
+        return value
+
+def setup_to_choice_value(self, field, value):
+        registry = getVocabularyRegistry()
+        vocab = registry.get(self.context, field.vocabularyName)
+
+        for term in vocab:
+            if term.token.lower() == value.lower():
+                return term.value
+            if str(term.title).lower() == value.lower():
+                return term.value
+
+        raise ValueError("Vocabulary value not found:'%s'" % value)
+
+def setup_Import(self):
+        values = {}
+        for row in self.get_rows(3):
+            values[row['Field']] = row['Value']
+
+        setup = api.get_senaite_setup()
+        logger.info("iterschmate is: '%s'", iterSchemata(setup))
+        logger.info("api get schema is: '%s'", api.get_schema(setup))
+
+        fields = {}
+        for schema in iterSchemata(setup):
+            fields.update(getFieldsInOrder(schema))
+
+        logger.info("fields in dexterity schemata to configure are: '%s'", fields.keys())
+        fields_not_found = set(values.keys()) - set(fields.keys())
+        fields_found = set(values.keys()) & set(fields.keys())
+        logger.info("fields found in schemata are: '%s'", fields_found)
+        logger.info("fields not found in schemata are: '%s'", fields_not_found)
+        
+        for field_name, field in fields.items():
+            if field_name not in values:
+                continue
+
+            try:
+                value = self.get_field_value(field, values[field_name])
+                setattr(setup, field_name, value)
+                logger.info("Set %s = %s", field_name, value)
+            except Exception as exc:
+                logger.error(
+                    "Error setting %s (%s): %s",
+                    field_name, field.__class__.__name__, exc
+                )
