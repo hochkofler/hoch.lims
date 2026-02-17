@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2025-11-11 18:19+0000\n"
+"POT-Creation-Date: 2026-02-02 17:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,7 +26,7 @@ msgstr ""
 msgid "ANMAT"
 msgstr ""
 
-#: hoch/lims/listing/generic_api.py:14
+#: hoch/lims/listing/generic_api.py:17
 #: hoch/lims/listing/sample_listing.py:14
 msgid "API URL"
 msgstr ""
@@ -46,11 +46,11 @@ msgstr "Activo"
 msgid "Add"
 msgstr "Nuevo"
 
-#: hoch/lims/browser/controlpanel.py:247
+#: hoch/lims/browser/controlpanel.py:260
 msgid "Administration Routes"
 msgstr "Vías de administración"
 
-#: hoch/lims/browser/controlpanel.py:140
+#: hoch/lims/browser/controlpanel.py:145
 msgid "Administration routes"
 msgstr "Vías de administración"
 
@@ -99,7 +99,7 @@ msgstr ""
 msgid "Antiviral"
 msgstr ""
 
-#: hoch/lims/browser/controlpanel.py:206
+#: hoch/lims/browser/controlpanel.py:219
 msgid "Approved therapeutic uses"
 msgstr "Usos terapéuticos aprobados"
 
@@ -147,7 +147,7 @@ msgstr ""
 msgid "COFEPRIS"
 msgstr ""
 
-#: hoch/lims/browser/controlpanel.py:339
+#: hoch/lims/browser/controlpanel.py:367
 msgid "Can not delete item '%s' because it is in use"
 msgstr "No se puede eliminar el elemento '%s' porque está en uso"
 
@@ -184,11 +184,11 @@ msgstr "Concentración"
 msgid "Concentration not found in sample matrix variables, actual sample matrices for samplematrix '%s' are: '%s'"
 msgstr "No se encontró la concentración en las variables de la matriz de muestra; las matrices de muestra reales para la matriz de muestra '%s' son: '%s'"
 
-#: hoch/lims/browser/controlpanel.py:220
+#: hoch/lims/browser/controlpanel.py:233
 msgid "Conditions under which products may be sold"
 msgstr "Condiciones en las que se pueden vender los productos"
 
-#: hoch/lims/browser/controlpanel.py:345
+#: hoch/lims/browser/controlpanel.py:373
 msgid "Configuration for pharmaceutical regulatory settings"
 msgstr "Configuración para configuraciones regulatorias farmacéuticas"
 
@@ -228,20 +228,32 @@ msgstr ""
 msgid "Deactivate"
 msgstr ""
 
+#: hoch/lims/extender/sample.py:67
+msgid "Destination"
+msgstr "Destino de la muestra"
+
+#: hoch/lims/browser/controlpanel.py:163
+msgid "Destinations"
+msgstr "Destinos de la muestra"
+
+#: hoch/lims/config.py:109
+msgid "Development"
+msgstr "Desarrollo"
+
 #: hoch/lims/config.py:17
 #: hoch/lims/content/AnalysisSettingsField.py:44
 msgid "Dilution"
-msgstr ""
+msgstr "Dilución"
 
-#: hoch/lims/browser/controlpanel.py:177
+#: hoch/lims/browser/controlpanel.py:190
 msgid "Dosage Forms"
 msgstr "Formas farmacéutica"
 
-#: hoch/lims/browser/controlpanel.py:107
+#: hoch/lims/browser/controlpanel.py:112
 msgid "Dosage forms"
 msgstr "Formas farmacéuticas"
 
-#: hoch/lims/browser/controlpanel.py:288
+#: hoch/lims/browser/controlpanel.py:301
 msgid "Dosage units"
 msgstr ""
 
@@ -269,7 +281,7 @@ msgstr ""
 msgid "Hoch Lims Settings"
 msgstr ""
 
-#: hoch/lims/browser/controlpanel.py:344
+#: hoch/lims/browser/controlpanel.py:372
 msgid "HochLIMS Settings"
 msgstr "Configuración HochLIMS"
 
@@ -285,6 +297,10 @@ msgstr ""
 #: hoch/lims/config.py:27
 msgid "ISP Chile"
 msgstr ""
+
+#: hoch/lims/config.py:107
+msgid "In-Process Control"
+msgstr "Control en Proceso"
 
 #: hoch/lims/browser/content/marketingauthorizations.py:191
 #: hoch/lims/browser/content/pharmaceuticalproducts.py:89
@@ -312,11 +328,15 @@ msgstr ""
 msgid "Intravenous"
 msgstr ""
 
-#: hoch/lims/browser/controlpanel.py:38
+#: hoch/lims/config.py:108
+msgid "Investigation"
+msgstr "Investigación"
+
+#: hoch/lims/browser/controlpanel.py:39
 msgid "Key"
 msgstr "Clave"
 
-#: hoch/lims/browser/controlpanel.py:330
+#: hoch/lims/browser/controlpanel.py:358
 msgid "Key '%s' is not unique"
 msgstr "La clave '%s' no es única"
 
@@ -340,15 +360,19 @@ msgstr "Autorización de comercialización"
 msgid "Marketing authorizations"
 msgstr "Autorización de comercialización"
 
+#: hoch/lims/config.py:110
+msgid "Method Validation"
+msgstr "Validación de método"
+
 #: hoch/lims/impress/templates/discreeter.pt:29
 msgid "Methods included in the ${accreditation_body} schedule of Accreditation for this Laboratory. Analysis remarks are not accredited"
 msgstr ""
 
-#: hoch/lims/browser/controlpanel.py:248
+#: hoch/lims/browser/controlpanel.py:261
 msgid "Methods of drug administration"
 msgstr "Métodos de administración de fármacos"
 
-#: hoch/lims/browser/controlpanel.py:289
+#: hoch/lims/browser/controlpanel.py:302
 msgid "Minimum unit for sale"
 msgstr "Unidad mínima para venta"
 
@@ -392,7 +416,7 @@ msgstr "Variables no definidas"
 msgid "Number of attachments rendered within one row per Analysis Request"
 msgstr ""
 
-#: hoch/lims/extender/sample.py:39
+#: hoch/lims/extender/sample.py:53
 msgid "Number of units sampled"
 msgstr "Numero de unidades muestreales"
 
@@ -428,7 +452,7 @@ msgstr "Producto"
 msgid "Pharmaceutical Products"
 msgstr "Productos"
 
-#: hoch/lims/browser/controlpanel.py:178
+#: hoch/lims/browser/controlpanel.py:191
 msgid "Pharmaceutical dosage forms"
 msgstr "Formas farmacéuticas"
 
@@ -440,23 +464,23 @@ msgstr ""
 msgid "Prescription required"
 msgstr ""
 
-#: hoch/lims/browser/controlpanel.py:261
+#: hoch/lims/browser/controlpanel.py:274
 msgid "Primary Presentations"
 msgstr "Presentaciones Primarias"
 
-#: hoch/lims/browser/controlpanel.py:262
+#: hoch/lims/browser/controlpanel.py:275
 msgid "Primary product presentations"
 msgstr "Presentación primaria del producto"
 
-#: hoch/lims/browser/controlpanel.py:191
+#: hoch/lims/browser/controlpanel.py:204
 msgid "Product Lines"
 msgstr "Clasificaciones del producto"
 
-#: hoch/lims/browser/controlpanel.py:115
+#: hoch/lims/browser/controlpanel.py:120
 msgid "Product lines"
 msgstr "Clasificaciones del producto"
 
-#: hoch/lims/browser/controlpanel.py:148
+#: hoch/lims/browser/controlpanel.py:153
 msgid "Product presentations"
 msgstr "Presentaciones del producto"
 
@@ -484,23 +508,27 @@ msgstr "Muestra de referencia no válida (d1)"
 msgid "Refrigerated (2-8Â°C)"
 msgstr ""
 
-#: hoch/lims/browser/controlpanel.py:163
+#: hoch/lims/browser/controlpanel.py:176
 msgid "Regulatory Authorities"
 msgstr "Entidades reguladoras"
 
-#: hoch/lims/browser/controlpanel.py:99
+#: hoch/lims/browser/controlpanel.py:104
 msgid "Regulatory Settings"
 msgstr "Configuración regulatoria"
 
-#: hoch/lims/browser/controlpanel.py:164
+#: hoch/lims/browser/controlpanel.py:177
 msgid "Regulatory bodies that grant marketing authorizations"
 msgstr "Organismos reguladores que otorgan autorizaciones de comercialización"
 
+#: hoch/lims/config.py:105
+msgid "Release"
+msgstr "Liberación"
+
 #: hoch/lims/impress/templates/controls.pt:10
 msgid "Report Options"
-msgstr ""
+msgstr "Opciones de reporte"
 
-#: hoch/lims/browser/controlpanel.py:234
+#: hoch/lims/browser/controlpanel.py:247
 msgid "Required storage conditions"
 msgstr "Condiciones de almacenamiento requeridas"
 
@@ -520,11 +548,11 @@ msgstr ""
 msgid "Room temperature (15-25Â°C)"
 msgstr ""
 
-#: hoch/lims/browser/controlpanel.py:219
+#: hoch/lims/browser/controlpanel.py:232
 msgid "Sale Conditions"
 msgstr "Condiciones de venta"
 
-#: hoch/lims/browser/controlpanel.py:131
+#: hoch/lims/browser/controlpanel.py:136
 msgid "Sale and storage conditions"
 msgstr "Condiciones de venta y almacenamiento"
 
@@ -540,15 +568,15 @@ msgstr ""
 msgid "Sample matrix not found"
 msgstr ""
 
-#: hoch/lims/extender/sample.py:35
+#: hoch/lims/extender/sample.py:49
 msgid "Sampled Units"
 msgstr "Unidades muestreales"
 
-#: hoch/lims/browser/controlpanel.py:275
+#: hoch/lims/browser/controlpanel.py:288
 msgid "Secondary Presentations"
 msgstr "Presentaciones secundarias"
 
-#: hoch/lims/browser/controlpanel.py:276
+#: hoch/lims/browser/controlpanel.py:289
 msgid "Secondary product presentations"
 msgstr "Presentación secundaria del producto"
 
@@ -562,9 +590,13 @@ msgstr ""
 
 #: hoch/lims/impress/templates/summary.pt:64
 msgid "Specification"
-msgstr ""
+msgstr "Especificación"
 
-#: hoch/lims/browser/controlpanel.py:233
+#: hoch/lims/config.py:106
+msgid "Stability"
+msgstr "Estabilidad"
+
+#: hoch/lims/browser/controlpanel.py:246
 msgid "Storage Conditions"
 msgstr "Condiciones de almacenamiento"
 
@@ -600,11 +632,11 @@ msgstr "Temperatura"
 msgid "Test results are at a ${lab_confidence}% confidence level"
 msgstr ""
 
-#: hoch/lims/browser/controlpanel.py:39
+#: hoch/lims/browser/controlpanel.py:40
 msgid "The key will be stored in the database and must be unique"
 msgstr "La clave se almacenará en la base de datos y debe ser única."
 
-#: hoch/lims/browser/controlpanel.py:47
+#: hoch/lims/browser/controlpanel.py:48
 msgid "The value will be displayed in selection fields"
 msgstr "El valor se mostrará en los campos de selección."
 
@@ -616,11 +648,11 @@ msgstr "El peso del picnómetro con la muestra no puede ser inferior al peso del
 msgid "The weight of the pycnometer with the water cannot be less than the weight of the empty pycnometer."
 msgstr "El peso del picnómetro con agua no puede ser inferior al peso del picnómetro vacío."
 
-#: hoch/lims/browser/controlpanel.py:205
+#: hoch/lims/browser/controlpanel.py:218
 msgid "Therapeutic Indications"
 msgstr "Indicaciones terapéuticas"
 
-#: hoch/lims/browser/controlpanel.py:123
+#: hoch/lims/browser/controlpanel.py:128
 msgid "Therapeutic actions"
 msgstr "Acciones terapéuticas"
 
@@ -644,7 +676,7 @@ msgstr ""
 msgid "Tube"
 msgstr ""
 
-#: hoch/lims/browser/controlpanel.py:192
+#: hoch/lims/browser/controlpanel.py:205
 msgid "Types of pharmaceutical products"
 msgstr "Tipos de productos farmacéuticos"
 
@@ -677,7 +709,7 @@ msgstr ""
 msgid "Validation failed: no keywords defined"
 msgstr ""
 
-#: hoch/lims/browser/controlpanel.py:46
+#: hoch/lims/browser/controlpanel.py:47
 #: hoch/lims/content/AnalysisSettingsField.py:27
 #: hoch/lims/content/customfields/VariablesSettingsField.py:28
 msgid "Value"
@@ -830,7 +862,7 @@ msgid "description_product_secundary_presentation"
 msgstr "Seleccione la presentación secundaria para este producto."
 
 #. Default: "Select a marketing authorization to be used for this product. "
-#: hoch/lims/extender/samplematrix.py:34
+#: hoch/lims/extender/samplematrix.py:36
 msgid "description_samplematrix_marketingauthorization"
 msgstr "Seleccione el registro sanitario para este producto."
 
@@ -1088,12 +1120,12 @@ msgid "plastic box"
 msgstr ""
 
 #. Default: "Not detected"
-#: hoch/lims/patches/impress/analysisrequest.py:223
+#: hoch/lims/impress/reportview.py:255
 msgid "result_below_llod"
 msgstr "No detectado"
 
 #. Default: "Detected but < ${LLOQ}"
-#: hoch/lims/patches/impress/analysisrequest.py:236
+#: hoch/lims/impress/reportview.py:268
 msgid "result_below_lloq"
 msgstr ""
 
@@ -1113,7 +1145,7 @@ msgid "title_product_itemname"
 msgstr "Nombre"
 
 #. Default: "Marketing Authorization"
-#: hoch/lims/extender/samplematrix.py:30
+#: hoch/lims/extender/samplematrix.py:32
 msgid "title_samplematrix_marketingauthorization"
 msgstr "Registro sanitario"
 
