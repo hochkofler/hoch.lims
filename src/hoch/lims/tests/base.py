@@ -44,6 +44,7 @@ class SimpleTestLayer(PloneSandboxLayer):
         self.loadZCML(package=senaite.impress)
         self.loadZCML(package=plone.jsonapi.core)
         self.loadZCML(package=senaite.jsonapi)
+        self.loadZCML(package=senaite.lims)
         self.loadZCML(package=hoch.lims)
 
         # Install product and call its initialize() function
@@ -54,6 +55,7 @@ class SimpleTestLayer(PloneSandboxLayer):
         zope.installProduct(app, "senaite.impress")
         zope.installProduct(app, "plone.jsonapi.core")
         zope.installProduct(app, "senaite.jsonapi")
+        zope.installProduct(app, "senaite.lims")
         zope.installProduct(app, "hoch.lims")
 
     def setUpPloneSite(self, portal):
@@ -61,6 +63,7 @@ class SimpleTestLayer(PloneSandboxLayer):
 
         # Apply profiles
         applyProfile(portal, "senaite.core:default")
+        applyProfile(portal, "senaite.lims:default")
         applyProfile(portal, "hoch.lims:default")
 
         quickInstallProduct(portal, "hoch.lims", reinstall=True)
