@@ -7,6 +7,8 @@ from Products.statusmessages.interfaces import IStatusMessage
 from zope.globalrequest import getRequest
 from hoch.lims.utils import compute_variables_dict
 import math
+from zope import event
+from Products.Archetypes.event import ObjectEditedEvent
 from hoch.lims import messageFactory as _
 
 def show_message(msg, msg_type="error"):
@@ -193,12 +195,11 @@ class MicrobialAssaysCalculator:
         self.sample = api.safe_getattr(self.analysis, "getRequest", None)
         self.qc_analyses = self.sample.getQCAnalyses() if self.sample else []
         self.interim_fields = api.safe_getattr(self.analysis, "getInterimFields", [])
-        #logger.info("Qc analysis for analysis: '%s'", self.qc_analyses)
-        #logger.info("dependencies for analysis: '%s'", self.dependencies)
+
         
     def get_diameters(self):
         """Get diameter from QC analyses"""
-        "Check if there are all necesary QC analyses keywords"
+
         dependencies_keys = [a.getKeyword() for a in self.dependencies]
         
         if not all(key in dependencies_keys for key in self.DEPENDENCIES_SERVICES_KEYS):
@@ -210,10 +211,9 @@ class MicrobialAssaysCalculator:
         self.dependencies_diameters_m = []
         self.dependencies_diameters_st = []
         for dep in valid_dependencies:
-            #logger.info("Interim fields of dep %s: %s", dep.UID(), dep.getInterimFields())
+
             for interim in dep.getInterimFields():
                 if interim.get("keyword") in self.DIAMETER_KEYS:
-                   if interim.get("keyword") in self.DIAMETER_KEYS:
                     diameter_value = api.to_float(interim.get("value", 0), 0)
                     if diameter_value > 0:
                         if dep.getKeyword() in self.DEPENDENCIES_SERVICES_KEY_M:
@@ -244,7 +244,7 @@ class MicrobialAssaysCalculator:
     
     def set_interim_fields(self):
         """Set interim fields with calculated values"""
-        "check if all interim fields in qc analysis are editable"
+
         
         is_qc_analyses_editable = [
             api.get_workflow_status_of(qc) not in self.ALLOWED_EDITABLE_STATUS
@@ -286,12 +286,12 @@ class VariationCoeficientCalculator:
     def __init__(self, analysis_brain_uid):
         self.analysis = api.get_object(analysis_brain_uid)
         self.dependencies = self.analysis.getDependencies()
-        logger.info("Dependencies for analysis '%s': '%s'", self.analysis.UID(), self.dependencies)
+
     
     def calculate(self):
         """Calculate Variation Coeficient"""
         self.data = []
-        logger.info("Calculating Variation Coeficient for analysis '%s'", self.analysis.UID())
+
         for dependency in self.dependencies:
             interim_fields = api.safe_getattr(dependency, "getInterimFields", [])
             for interim in interim_fields:
@@ -414,7 +414,7 @@ def calc_densidad(analysis_brain_uid, *args):
 def calc_valoracion(**kwargs):
     """Función de cálculo estándar que devuelve 0"""
     # filter kwargs that contain 'st_concentration'
-    #st_concentration = [k for k in kwargs.keys() if 'CONC_ST_' in k]
+
     unknown_concentration = [k for k in kwargs.keys() if 'CONC_UNK_' in k]
     
     return calc_average(
@@ -516,13 +516,565 @@ def calc_net_average(gross, tare, context=None):
     analysis.setInterimFields(interim_fields)
     return net_value
 
-def calc_units_in_range(context=None, DEPENDENCY=None, MAX_OUT_OF_RANGE=0):
-    """Función para calcular unidades en rango"""
+def calc_units_in_range(context, base_spec, potency_declared ,dependency_keyword=None, percentage_difference=0, constant_difference=0, max_out_of_range=0, **kwargs):
+    """Función para calcular unidades en rango
+    args:
+        context: análisis
+        base_spec: the base spec to compare any unit
+        percentage_difference: percentage difference from base spec
+        max_out_of_range: maximum units out of range
+        dependency_keyword: keyword to check in dependencies
+    """
     
     if not context:
         return
     
-    return 1
     analysis = api.get_object(context)
     if not analysis:
         return
+
+    spec_value = api.to_float(base_spec, None)
+    if base_spec is None or spec_value is None:
+        return
+
+    dependencies = analysis.getDependencies()
+    if not dependencies:
+        return
+
+    # check dependencies that contains the keyword
+    valid_dependencies = []
+    for dep in dependencies:
+        keyword = dep.getKeyword()
+        result = dep.getResult()
+        if dependency_keyword in keyword:
+            valid_dependencies.append(
+                {
+                    "keyword": keyword,
+                    "result": api.to_float(result, None)
+                }
+            )
+            continue
+        for interim in dep.getInterimFields():
+            if dependency_keyword in interim["keyword"]:
+                valid_dependencies.append(
+                    {
+                        "keyword": interim["keyword"],
+                        "result": api.to_float(interim["value"], None)
+                    }
+                )
+
+    if not valid_dependencies or any([dep["result"] is None for dep in valid_dependencies]):
+        logger.info("No valid dependencies or None result")
+        logger.info("Valid dependencies: '%s'", valid_dependencies)
+        return  
+    
+    out_of_ranges = []
+    percentage_difference = api.to_float(percentage_difference, 0)
+    spec_value = api.to_float(spec_value, 0)
+    min_value = spec_value * (1 - percentage_difference/100)
+    max_value = spec_value * (1 + percentage_difference/100)
+    for dep in valid_dependencies:
+        result = dep["result"]
+        if result < min_value or result > max_value:
+            out_of_ranges.append(dep)
+    
+    logger.info("Out of ranges: '%s'", out_of_ranges)
+    logger.info("spec range are: mean='%s' | percentage_difference='%s' | max_value='%s' | min_value='%s'", spec_value, percentage_difference, spec_value*(1+percentage_difference/100), spec_value*(1-percentage_difference/100))
+    if len(out_of_ranges) > max_out_of_range:
+        message = ""
+        for dep in out_of_ranges:
+            message += "{}: {}\n".format(dep["keyword"], dep["result"])
+
+        logger.info("Message: '%s'", message)
+        analysis.setRemarks(message)
+        return 0
+    analysis.setRemarks("")
+    return 1
+
+def calc_disolution(context=None,stage="S1",Q=75,overwrite_remarks=True,potency_declared=None, **kwargs):
+    """Función para calcular la disolución
+    
+    args:
+        stage: stage of the disolution
+        Q: Q value in % (15% = 15)
+        context: analysis
+        overwrite_remarks: overwrite remarks
+        
+        return 1 if all conditions are met, 0 otherwise
+    """
+    """Criterios de aceptación según usp<711>
+    S1: 6 unidades, ninguna < Q + 5%
+    S2: 12 unidades (6 de S1 + 6 de S2), promedio >= Q & ninguna < Q - 15%
+    S3: 24 unidades (6 de S1 + 6 de S2 + 12 de S3), promedio >= Q & no más de 2 unidades < Q - 15% & ninguna < Q - 25%
+    
+    Muestras combinadas
+    S1': 6 unidades, ninguna < Q + 10%
+    S2': 12 unidades (6 de S1 + 6 de S2), promedio >= Q + 5%
+    S3': 24 unidades (6 de S1 + 6 de S2 + 12 de S3), promedio >= Q
+
+    Liberación prolongada (L)
+    L1: 6 unidades, ninguna < spec
+    L2: 12 unidades (6 de L1 + 6 de L2), promedio >= spec & ninguna < spec - 10% & ninguna > spec + 10%
+    L3: 24 unidades (6 de L1 + 6 de L2 + 12 de L3), promedio >= spec & no mas de 2 unidades < spec - 10% & no mas de 2 unidades > spec + 10% & ninguna > spec + 20% & ninguna < spec - 20%
+
+    Liberación retardada (A+B)
+    A1: 6 unidades, ninguna > 10%
+    A2: 12 unidades (6 de A1 + 6 de A2), promedio <= 10% & ninguna > 25%
+    A3: 24 unidades (6 de A1 + 6 de A2 + 12 de A3),promedio <= 10% & ninguna > 25%
+
+    B1: 6 unidades, ninguna > Q + 5%
+    B2: 12 unidades (6 de B1 + 6 de B2), promedio >= Q & ninguna < Q - 15%
+    B3: 24 unidades (6 de B1 + 6 de B2 + 12 de B3), promedio >= Q & no mas de 2 unidades < Q - 15% & ninguna < Q - 25%
+    """
+    """
+    Condition array format:
+    <stage>: {
+        "n_units": 24,
+        "conditions": [
+            {
+                "type": "average",
+                "max_units_out_of_range": None,
+                "min": None,
+                "max": Q + 5,
+            },
+            {
+                "type": "individual",
+                "max_units_out_of_range": 2,
+                "min": Q - 15,
+                "max": None,
+            },
+            {
+                "type": "individual",
+                "max_units_out_of_range": 0,
+                "min": Q - 25,
+                "max": None,
+            }
+        ]
+    }
+
+    """
+    if not context:
+        return
+    
+    analysis = api.get_object(context)
+    if not analysis:
+        return
+    spec_min_t1 = 10
+    spec_max_t1 = 15
+    spec_min_t2 = 35
+    spec_max_t2 = 50
+    spec_min_t3 = 75
+    spec_max_t3 = 200
+    Q = api.to_float(Q, None)
+
+    if Q is None:
+        logger.info("Q is not number")
+        return
+    
+    logger.info("Q: '%s'", Q)
+    stage_conditions = {
+        "S1": {
+            "n_units": 6,
+            "conditions": [
+                {
+                    "type": "individual",
+                    "max_units_out_of_range": 0,
+                    "min": Q - 5,
+                    "max": None,
+                }
+            ]
+        },
+        "S2": {
+            "n_units": 12,
+            "conditions": [
+                {
+                    "type": "average",
+                    "max_units_out_of_range": None,
+                    "min": Q,
+                    "max": None,
+                },
+                {
+                    "type": "individual",
+                    "max_units_out_of_range": 0,
+                    "min": Q - 15,
+                    "max": None,
+                }
+            ]
+        },
+        "S3": {
+            "n_units": 24,
+            "conditions": [
+                {
+                    "type": "average",
+                    "max_units_out_of_range": None,
+                    "min": Q,
+                    "max": None,
+                },
+                {
+                    "type": "individual",
+                    "max_units_out_of_range": 2,
+                    "min": Q - 15,
+                    "max": None,
+                },
+                {
+                    "type": "individual",
+                    "max_units_out_of_range": 0,
+                    "min": Q - 25,
+                    "max": None,
+                }
+            ]
+        },
+        "SS1": {
+            "n_units": 6,
+            "conditions": [
+                {
+                    "type": "average",
+                    "max_units_out_of_range": None,
+                    "min": Q + 10,
+                    "max": None,
+                    "message": "Promedio de disolución mayor a Q + 10%"
+                }
+            ]
+        },
+        "SS2": {
+            "n_units": 12,
+            "conditions": [
+                {
+                    "type": "average",
+                    "max_units_out_of_range": None,
+                    "min": Q + 5,
+                    "max": None,
+                    "message": "Promedio de disolución mayor a Q + 5%"
+                }
+            ]
+        },
+        "SS3": {
+            "n_units": 24,
+            "conditions": [
+                {
+                    "type": "average",
+                    "max_units_out_of_range": None,
+                    "min": Q,
+                    "max": None,
+                    "message": "Promedio de disolución mayor a Q"
+                },
+            ]
+        },
+        "L1": {
+            "n_units": 6,
+            "conditions": [
+                {
+                    "type": "individual",
+                    "max_units_out_of_range": 0,
+                    "min": spec_min_t1,
+                    "max": spec_max_t1,
+                },
+                {
+                    "type": "individual",
+                    "max_units_out_of_range": 0,
+                    "min": spec_min_t2,
+                    "max": spec_max_t2,
+                },
+                {
+                    "type": "individual",
+                    "max_units_out_of_range": 0,
+                    "min": spec_min_t3,
+                    "max": spec_max_t3,
+                }
+            ]
+        },
+        "L2": {
+            "n_units": 12,
+            "conditions": [
+                {
+                    "type": "average",
+                    "max_units_out_of_range": None,
+                    "min": spec_min_t1,
+                    "max": spec_max_t1,
+                },
+                {
+                    "type": "average",
+                    "max_units_out_of_range": None,
+                    "min": spec_min_t2,
+                    "max": spec_max_t2,
+                },
+                {
+                    "type": "average",
+                    "max_units_out_of_range": None,
+                    "min": spec_min_t3,
+                    "max": spec_max_t3,
+                },
+                {
+                    "type": "individual",
+                    "max_units_out_of_range": 0,
+                    "min": spec_min_t1 - 10,
+                    "max": spec_max_t1 + 10,
+                },
+                {
+                    "type": "individual",
+                    "max_units_out_of_range": 0,
+                    "min": spec_min_t2 - 10,
+                    "max": spec_max_t2 + 10,
+                },
+                {
+                    "type": "individual",
+                    "max_units_out_of_range": 0,
+                    "min": spec_min_t3 - 10,
+                    "max": spec_max_t3 + 10,
+                }
+            ]
+        },
+        "L3": {
+            "n_units": 24,
+            "conditions": [
+                {
+                    "type": "average",
+                    "max_units_out_of_range": None,
+                    "min": spec_min_t1,
+                    "max": spec_max_t1,
+                },
+                {
+                    "type": "average",
+                    "max_units_out_of_range": None,
+                    "min": spec_min_t2,
+                    "max": spec_max_t2,
+                },
+                {
+                    "type": "average",
+                    "max_units_out_of_range": None,
+                    "min": spec_min_t3,
+                    "max": spec_max_t3,
+                },
+                {
+                    "type": "individual",
+                    "max_units_out_of_range": 2,
+                    "min": spec_min_t1 - 10,
+                    "max": spec_max_t1 + 10,
+                },
+                {
+                    "type": "individual",
+                    "max_units_out_of_range": 2,
+                    "min": spec_min_t2 - 10,
+                    "max": spec_max_t2 + 10,
+                },
+                {
+                    "type": "individual",
+                    "max_units_out_of_range": 2,
+                    "min": spec_min_t3 - 10,
+                    "max": spec_max_t3 + 10,
+                },
+                {
+                    "type": "individual",
+                    "max_units_out_of_range": 0,
+                    "min": spec_min_t1 - 20,
+                    "max": spec_max_t1 + 20,
+                },
+                {
+                    "type": "individual",
+                    "max_units_out_of_range": 0,
+                    "min": spec_min_t2 - 20,
+                    "max": spec_max_t2 + 20,
+                },
+                {
+                    "type": "individual",
+                    "max_units_out_of_range": 0,
+                    "min": spec_min_t3 - 20,
+                    "max": spec_max_t3 + 20,
+                }
+            ]
+        },
+        "A1": {
+            "n_units": 6,
+            "conditions": [
+                {
+                    "type": "average",
+                    "max_units_out_of_range": None,
+                    "min": None,
+                    "max": 10,
+                },
+            ]
+        },
+        "A2": {
+            "n_units": 12,
+            "conditions": [
+                {
+                    "type": "average",
+                    "max_units_out_of_range": None,
+                    "min": None,
+                    "max": 10,
+                },
+                {
+                    "type": "individual",
+                    "max_units_out_of_range": 0,
+                    "min": None,
+                    "max": 25,
+                },
+            ]
+        },
+        "A3": {
+            "n_units": 24,
+            "conditions": [
+                {
+                    "type": "average",
+                    "max_units_out_of_range": None,
+                    "min": None,
+                    "max": 10,
+                },
+                {
+                    "type": "individual",
+                    "max_units_out_of_range": 0,
+                    "min": None,
+                    "max": 25,
+                },
+            ]
+        },
+        "B1": {
+            "n_units": 6,
+            "conditions": [
+                {
+                    "type": "average",
+                    "max_units_out_of_range": None,
+                    "min": Q + 5,
+                    "max": None,
+                },
+            ]
+        },
+        "B2": {
+            "n_units": 12,
+            "conditions": [
+                {
+                    "type": "average",
+                    "max_units_out_of_range": None,
+                    "min": Q + 5,
+                    "max": None,
+                },
+                {
+                    "type": "individual",
+                    "max_units_out_of_range": 0,
+                    "min": Q - 15,
+                    "max": None,
+                },
+            ]
+        },
+        "B3": {
+            "n_units": 24,
+            "conditions": [
+                {
+                    "type": "average",
+                    "max_units_out_of_range": None,
+                    "min": Q,
+                    "max": None,
+                },
+                {
+                    "type": "individual",
+                    "max_units_out_of_range": 2,
+                    "min": Q - 15,
+                    "max": None,
+                },
+                {
+                    "type": "individual",
+                    "max_units_out_of_range": 0,
+                    "min": Q - 25,
+                    "max": None,
+                },
+            ]
+        },
+    }
+
+    if stage not in stage_conditions:
+        logger.error("Stage not valid: '%s'", stage)
+        raise ValueError("Stage not valid: '%s'" % stage)
+    
+    stage_data = stage_conditions[stage]
+    n_units = stage_data["n_units"]
+    conditions = stage_data["conditions"]
+
+    # get values from kwargs that key starts with "dep"
+    values = [v for k, v in kwargs.items() if k.startswith("CONC_UNK_")]
+    logger.info("values '%s'", values)
+    logger.info("type of values '%s'", [type(v) for v in values])
+    values = [api.to_float(v, None) for v in values if v is not None]
+    
+    if any([v is None for v in values]):
+        logger.error("All values must be numbers")
+        raise ValueError("All values must be numbers")
+    values.sort()
+    
+    if len(values) != n_units:
+        logger.error("Number of values does not match number of units: %d != %d", len(values), n_units)
+        raise ValueError("Number of values does not match number of units: %d != %d" % (len(values), n_units))
+
+    if potency_declared is not None:
+        potency_declared = api.to_float(potency_declared, None)
+        if potency_declared is None:
+            logger.error("Potency declared must be a number")
+            raise ValueError("Potency declared must be a number")
+        values = [v/potency_declared*100 for v in values]
+    
+    logger.info("values after potency_declared '%s'", values)
+    # check conditions
+    for condition in conditions:
+        if condition["type"] == "average":
+            avg = sum(values) / len(values)
+            if condition["min"] is not None and avg < condition["min"]:
+                condition["pass"] = False
+                continue
+            if condition["max"] is not None and avg > condition["max"]:
+                condition["pass"] = False
+                continue
+            condition["pass"] = True
+
+        elif condition["type"] == "individual":
+            out_of_range = 0
+            for v in values:
+                if condition["min"] is not None and v < condition["min"]:
+                    out_of_range += 1
+                    continue
+                if condition["max"] is not None and v > condition["max"]:
+                    out_of_range += 1
+                    continue
+
+            if out_of_range > condition["max_units_out_of_range"]:
+                condition["pass"] = False
+            else:
+                condition["pass"] = True
+            condition["num_out_of_range"] = out_of_range
+    
+    # check if all conditions are met
+    all_pass = all(condition["pass"] for condition in conditions)
+
+    # automatically generate message for all conditions, according to it's each condition
+    # if condition is average
+
+    for condition in conditions:
+        if condition["min"] is not None and condition["max"] is not None:
+            condition_spect_formatted = "{min} - {max}".format(min=condition["min"], max=condition["max"])
+        elif condition["min"] is not None:
+            condition_spect_formatted = "No menor a {min}".format(min=condition["min"])
+        elif condition["max"] is not None:
+            condition_spect_formatted = "No mayor a {max}".format(max=condition["max"])
+        
+        if condition["type"] == "average":
+            condition["message"] = "El promedio Q debe estar en el rango de {condition_spect_formatted}".format(condition_spect_formatted=condition_spect_formatted)
+
+        else:
+            if condition["max_units_out_of_range"] == 0:
+                condition["message"] = "Ninguna de las unidades debe ser {condition_spect_formatted}".format(condition_spect_formatted=condition_spect_formatted)
+            
+            else:
+                condition["message"] = "No más de {max_units_out_of_range} unidades deben ser {condition_spect_formatted}".format(max_units_out_of_range=condition["max_units_out_of_range"], condition_spect_formatted=condition_spect_formatted)
+    
+    # generate message for all conditions
+    message = "Requisitos: " +"; ".join([condition["message"] for condition in conditions])
+    
+    logger.info("message: '%s'", message)
+    if overwrite_remarks:
+        logger.info("Overwriting remarks")
+        logger.info("analysis %s", analysis)
+        logger.info("analysis uid %s", analysis.UID())
+        logger.info("analysis remarks %s", analysis.getRemarks())
+        analysis.setRemarks(api.safe_unicode(message))
+        analysis.reindexObject()
+        event.notify(ObjectEditedEvent(analysis))
+        logger.info("analysis remarks after %s", analysis.getRemarks())
+    return 1 if all_pass else 0
