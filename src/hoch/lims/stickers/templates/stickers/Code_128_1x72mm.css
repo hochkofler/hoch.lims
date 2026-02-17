@@ -1,9 +1,17 @@
+/*
+Sticker Dimensions: 62mm x 40mm
+Sticker margins: 1mm, 1mm
+*/
+
 .sticker {
     margin: 0 auto;
     padding: 1mm;
     padding-left: 1mm;
-    width: 70mm; /* Total width  = 1 + 1 + 70 = 72mm */
-    height: 38mm; /* Total height = 1 + 1 + 38 = 40mm */
+    padding-top: 3mm;
+    width: 58mm;
+    /* Total width  = 1 + 1 + 60 = 62mm */
+    height: 38mm;
+    /* Total height = 1 + 3 + 38 = 42mm */
     font-family: Helvetica, Arial;
     font-size: 6pt;
     text-align: center;
@@ -43,13 +51,14 @@ table.info-container td {
 
 @media print {
     @page {
-        size: 72mm 40mm !important;
+        size: 60mm 42mm !important;
         margin: 0mm !important;
     }
+
     html,
     body {
-        width: 72mm !important;
-        height: 40mm !important;
+        width: 60mm !important;
+        height: 42mm !important;
         margin: 0mm !important;
     }
 }
