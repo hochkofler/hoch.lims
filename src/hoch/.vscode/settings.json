@@ -1,9 +1,13 @@
 {
-  "python.defaultInterpreterPath": "/home/senaite/hoch.lims/parts/instance/bin/interpreter",
+  "python.defaultInterpreterPath": "/home/lims/hochlims/bin/zopepy",
   "python.analysis.extraPaths": [
     "/home/lims/hochlims/src",
     "/home/lims/hochlims/develop-eggs",
     "/home/lims/hochlims/parts/omelette"
+  ],
+  "python.linting.pylintEnabled": true,
+  "python.linting.pylintArgs": [
+    "--init-hook='import sys; sys.path.append(\"/home/lims/hochlims/parts/omelette\")'"
   ],
   "python.analysis.typeCheckingMode": "off",
   "python.formatting.provider": "yapf",
