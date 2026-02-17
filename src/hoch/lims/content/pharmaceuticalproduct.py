@@ -144,7 +144,32 @@ class IPharmaceuticalProductSchema(model.Schema):
         ),
         required=True,
     )
-    
+
+    directives.widget(
+        "process_group",
+        UIDReferenceWidgetFactory,
+        catalog=HOCHLIMS_CATALOG,
+        query={
+            "is_active": True,
+            "sort_on": "title",
+            "sort_order": "ascending",
+        },
+    )
+    process_group = UIDReferenceFieldDx(
+        title=_(
+            u"title_pharmaceuticalproduct_process_group",
+            default=u"Process Group"
+        ),
+        description=_(
+            u"description_pharmaceuticalproduct_process_group",
+            default=u"Select the process group for this product. "
+        ),
+        relationship="PharmaceuticalProductProcessGroup",
+        allowed_types=("ProcessGroup", ),
+        multi_valued=False,
+        required=False,
+    )
+
 
 @implementer(IPharmaceuticalProduct, IPharmaceuticalProductSchema)
 class PharmaceuticalProduct(Container):
@@ -205,3 +230,8 @@ class PharmaceuticalProduct(Container):
         """Set the Marketing Authorization for this Pharmaceutical Product."""
         mutator = self.mutator("marketingauthorization")
         mutator(self, value)
+
+    @security.protected(permissions.View)
+    def getProcessGroup(self):
+        accessor = self.accessor("process_group")
+        return accessor(self)

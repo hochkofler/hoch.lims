@@ -25,6 +25,22 @@ class IPharmaceuticalProducts(Interface):
     """Marker interface for Pharmaceutical Product folder
     """
 
+class IProcessGroup(Interface):
+    """Marker interface for Process Group
+    """
+
+class IProcess(Interface):
+    """Marker interface for Process
+    """
+
+class IProcesses(Interface):
+    """Marker interface for Processes folder
+    """
+
+class IProcessGroups(Interface):
+    """Marker interface for Process Groups folder
+    """
+
 class IHochLimsCatalog(ISenaiteCatalogObject):
     """Marker interface for HochLims Catalog
     """

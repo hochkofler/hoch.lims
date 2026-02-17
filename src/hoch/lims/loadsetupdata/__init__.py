@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 from hoch.lims.content.pharmaceuticalproduct import IPharmaceuticalProductSchema
-from zope.event import notify
-from Products.Archetypes.event import ObjectInitializedEvent
 from Products.CMFCore.utils import getToolByName
-from Products.CMFPlone.utils import _createObjectByType
 from senaite.core.exportimport.setupdata import WorksheetImporter
 from senaite.core.catalog import SETUP_CATALOG
 from hoch.lims import logger
 from hoch.lims.api import validate_against_vocabulary
 from hoch.lims.api import get_marketing_authorization_by_reg_num
 from hoch.lims.api import get_pharmaceutical_product_by_code
+from hoch.lims.api import get_process_by_title
+from hoch.lims.api import get_process_group_by_title
 from bika.lims import api
 import plone.api as plone_api
 from hoch.lims.content.marketingauthorization import IMarketingAuthorizationSchema
@@ -18,8 +17,6 @@ from plone.dexterity.utils import createObject
 from senaite.core.catalog import CLIENT_CATALOG
 from senaite.core.catalog import SENAITE_CATALOG
 from bika.lims.content.abstractbaseanalysis import RESULT_TYPES
-from hoch.lims.config import VARIABLES
-from senaite.core.idserver import renameAfterCreation
 from collections import OrderedDict
 
 class BaseImporter(WorksheetImporter):
@@ -308,6 +305,7 @@ class Pharmaceutical_Product(WorksheetImporter):
 
             if skip:
                 continue
+
             
             # create the product
             obj = api.create(
@@ -320,8 +318,14 @@ class Pharmaceutical_Product(WorksheetImporter):
                 secundary_presentation=validated['secundary_presentation'],
                 dosage_unit_per_secundary_presentation=self.to_int(row.get("dosage_unit_per_secundary_presentation"),0),
             )
+            # get process group
+            process_group_title = api.safe_unicode(row.get("process_group"))
+            if process_group_title:
+                bsc = getToolByName(self.context, SETUP_CATALOG)
+                process_group = self.get_object(bsc, 'ProcessGroup', process_group_title)
+                if process_group:
+                    obj.setProcessGroup(process_group)
             logger.info("Pharmaceutical Product created '%s'", code)
-            
             obj.setMarketingAuthorization(reg_num_obj)
             obj.reindexObject()                       
 
@@ -382,6 +386,7 @@ class Batch(WorksheetImporter):
                 BatchLabels = batch_labels,
                 ManufactureDate = row.get("ManufactureDate"),
                 ReleasedBatchSize = row.get("ReleasedBatchSize"),
+                SubGroups = api.to_int(row.get("SubGroups", 1),1),
                 BatchSize = api.to_int(row.get("BatchSize", 1000),1000),
                 Product = product,
                 description = product.getName(),
@@ -1019,3 +1024,77 @@ class AnalysisService_Consumables(WorksheetImporter):
             service = api.get_object_by_uid(service_uid)
             logger.info("setting consumables '%s' to service: '%s'", consumables, service)
             service.setConsumablesFields(consumables)
+class Process(WorksheetImporter):
+    """Import Processes"""
+
+    def Import(self):
+        """Import Processes"""
+        logger.info("Importing Processes")
+        container = self.context.Processes
+        
+        for row in self.get_rows(3):
+            title = row.get("title")
+            if not title:
+                continue
+            
+            # check if the process already exists
+            if get_process_by_title(title):
+                logger.error("Skipping %s: already exists" % title)
+                continue
+            
+            # create the process
+            obj = api.create(
+                container, "Process",
+                title=api.safe_unicode(title),
+                description=api.safe_unicode(row.get("description", "")),
+                result_product=api.safe_unicode(row.get("result_product", "")),
+                result_unit=api.safe_unicode(row.get("result_unit", "")),
+            )
+            logger.info("Process '%s' created", title)
+            obj.reindexObject()
+
+class Process_Group(WorksheetImporter):
+    """Import Process Groups"""
+
+    def Import(self):
+        """Import Process Groups"""
+        logger.info("Importing Process Groups")
+        container = self.context.ProcessGroups
+        separator = ","
+
+        for row in self.get_rows(3):
+            title = row.get("title")
+            if not title:
+                continue
+            
+            # check if the process group already exists
+            if get_process_group_by_title(title):
+                logger.error("Skipping %s: already exists" % title)
+                continue
+            
+            # Resolve processes
+            process_titles = row.get("processes", "")
+            process_uids = []
+            if process_titles:
+                for p_title in process_titles.split(separator):
+                    p_title = p_title.strip()
+                    if not p_title:
+                        continue
+                    p_obj = get_process_by_title(p_title)
+                    if p_obj:
+                        process_uids.append(api.get_uid(p_obj))
+                    else:
+                        logger.error("Process '%s' not found for group '%s'", p_title, title)
+
+            # create the process group
+            obj = api.create(
+                container, "ProcessGroup",
+                title=api.safe_unicode(title),
+                description=api.safe_unicode(row.get("description", "")),
+            )
+            # Use the schema field 'processes' (UIDReferenceFieldDx)
+            if process_uids:
+                obj.setProcesses(process_uids)
+
+            logger.info("Process Group '%s' created", title)
+            obj.reindexObject()

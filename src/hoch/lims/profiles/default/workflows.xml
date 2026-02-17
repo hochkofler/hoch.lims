@@ -4,6 +4,7 @@
 
   <!-- workflow definitions -->
   <object name="marketing_authorization_workflow" meta_type="Workflow"/>
+  <object name="process_workflow" meta_type="Workflow"/>
   <object name="one_state_workflow" meta_type="Workflow"/>
 
   <bindings>
@@ -20,6 +21,22 @@
 
     <type type_id="PharmaceuticalProduct">
       <bound-workflow workflow_id="marketing_authorization_workflow"/>
+    </type>
+
+    <type type_id="Process">
+      <bound-workflow workflow_id="process_workflow"/>
+    </type>
+
+    <type type_id="Processes">
+      <bound-workflow workflow_id="process_workflow"/>
+    </type>
+
+    <type type_id="ProcessGroup">
+      <bound-workflow workflow_id="process_workflow"/>
+    </type>
+
+    <type type_id="ProcessGroups">
+      <bound-workflow workflow_id="process_workflow"/>
     </type>
 
   </bindings>

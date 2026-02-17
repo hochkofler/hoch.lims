@@ -4,4 +4,8 @@
   <object name="MarketingAuthorizations" meta_type="Dexterity FTI" />
   <object name="PharmaceuticalProduct" meta_type="Dexterity FTI" />
   <object name="PharmaceuticalProducts" meta_type="Dexterity FTI" />
+  <object name="ProcessGroup" meta_type="Dexterity FTI" />
+  <object name="Process" meta_type="Dexterity FTI" />
+  <object name="Processes" meta_type="Dexterity FTI" />
+  <object name="ProcessGroups" meta_type="Dexterity FTI" />
 </object>

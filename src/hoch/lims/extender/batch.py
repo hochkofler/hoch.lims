@@ -64,6 +64,16 @@ class BatchSchemaExtender(object):
                 datepicker_nopast=1,
             ),
         ),
+        ExtIntegerFieldAT(
+            'SubGroups',
+            required=True,
+            default=1,
+            widget=IntegerWidget(
+              label=_(
+                u"label_batch_subgroups",
+                default=u"Sub groups",),  
+            ),
+        ),
         ExtDateTimeFieldAT(
             'ManufactureDate',
             mode="rw",

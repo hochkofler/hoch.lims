@@ -49,12 +49,16 @@ CATALOGS = (
 CATALOG_MAPPINGS = (
     ("MarketingAuthorization", [HOCHLIMS_CATALOG]),
     ("PharmaceuticalProduct", [HOCHLIMS_CATALOG]),
+    ("ProcessGroup", [HOCHLIMS_CATALOG]),
+    ("Process", [HOCHLIMS_CATALOG]),
 )
 
 # Folder in sidebar (folder_id, folder_name, type)
 SIDEBAR_FOLDERS = [
     ("MarketingAuthorizations", "Marketing Authorizations", "MarketingAuthorizations"),
-    ("PharmaceuticalProducts", "Pharmaceutical Products", "PharmaceuticalProducts")
+    ("PharmaceuticalProducts", "Pharmaceutical Products", "PharmaceuticalProducts"),
+    ("ProcessGroups", "Process Groups", "ProcessGroups"),
+    ("Processes", "Processes", "Processes")
 ]
 
 # Tuples of (folder_id, folder_name, type)
@@ -64,20 +68,19 @@ SETUP_FOLDERS = [
 # Tuples of (catalog, index_name, index_attribute, index_type)
 INDEXES = [
     (SETUP_CATALOG, "marketingauthorization_uid_for_sampletype", "", "KeywordIndex"),
-    #(SAMPLE_CATALOG, "is_temporary_mrn", "", "BooleanIndex"),
-    #(SAMPLE_CATALOG, "medical_record_number", "", "KeywordIndex"),
+
 ]
 
 # Tuples of (catalog, column_name)
 COLUMNS = [
-    #(SAMPLE_CATALOG, "isMedicalRecordTemporary"),
-    #(SAMPLE_CATALOG, "getMedicalRecordNumberValue"),
-    #(SAMPLE_CATALOG, "getPatientFullName"),
+
 ]
 
 NAVTYPES = [
     "MarketingAuthorizations",
     "PharmaceuticalProducts",
+    "ProcessGroups",
+    "Processes",
 ]
 
 # An array of dicts. Each dict represents an ID formatting configuration

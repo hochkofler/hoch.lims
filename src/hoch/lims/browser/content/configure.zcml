@@ -30,4 +30,21 @@
   layer="hoch.lims.interfaces.IHochLims"
   />
 
+  <!-- Process Groups View -->
+  <browser:page
+      name="view"
+      for="hoch.lims.content.processgroups.IProcessGroups"
+      class=".processgroups.ProcessGroupsView"
+      permission="zope2.View"
+      layer="hoch.lims.interfaces.IHochLims"
+      />
+
+  <browser:page
+      name="view"
+      for="hoch.lims.content.processes.IProcesses"
+      class=".processes.ProcessesView"
+      permission="zope2.View"
+      layer="hoch.lims.interfaces.IHochLims"
+      />
+
 </configure>

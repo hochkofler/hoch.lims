@@ -24,5 +24,8 @@
   <!-- Transition Permissions -->
   <permission id="hoch.lims.permissions.TransitionMarketingAuthorization"
     title="hoch.lims: Transition MarketingAuthorization"/>
+
+  <permission id="hoch.lims.permissions.TransitionProcess"
+    title="hoch.lims: Transition Process"/>
   
 </configure>
