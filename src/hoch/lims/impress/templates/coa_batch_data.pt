@@ -1,0 +1,36 @@
+<tal:coa-batch-data tal:define="batch python: options.get('batch', None);
+                              mktauth python: options.get('mktauth', None);
+                              batch_manufacture python: options.get('batch_manufacture', '');
+                              batch_expire python: options.get('batch_expire', '');
+                              first_capture_date python: options.get('first_capture_date', None);
+                              date_format python: options.get('date_format', '%d-%m-%Y');">
+  <table class="data-table">
+    <colgroup>
+      <col class="data-table-col-1">
+      <col class="data-table-col-2">
+      <col class="data-table-col-3">
+      <col class="data-table-col-4">
+    </colgroup>
+    <tbody>
+      <tr>
+        <th>N° Lote</th>
+        <td tal:content="batch/ClientBatchID">L-12345</td>
+        <th>Cantidad</th>
+        <td>
+          <span tal:content="python: batch.ReleasedBatchSize or batch.BatchSize">1000</span>
+          <span tal:content="mktauth/DosageUnit">Unidades</span>
+        </td>
+      </tr>
+      <tr>
+        <th>Fecha Fabricación</th>
+        <td tal:content="batch_manufacture">01-01-2025</td>
+        <th>Fecha Vencimiento</th>
+        <td tal:content="batch_expire">01-2027</td>
+      </tr>
+      <tr>
+        <th>Fecha de Análisis</th>
+        <td tal:content="python: first_capture_date.strftime(date_format) if first_capture_date else ''">01-01-2027</td>
+      </tr>
+    </tbody>
+  </table>
+</tal:coa-batch-data>

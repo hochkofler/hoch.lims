@@ -6,6 +6,7 @@
   <object name="marketing_authorization_workflow" meta_type="Workflow"/>
   <object name="process_workflow" meta_type="Workflow"/>
   <object name="one_state_workflow" meta_type="Workflow"/>
+  <object name="hoch_batch_workflow" meta_type="Workflow"/>
 
   <bindings>
 
@@ -37,6 +38,11 @@
 
     <type type_id="ProcessGroups">
       <bound-workflow workflow_id="process_workflow"/>
+    </type>
+
+    <!-- Bindings to "Batch" -->
+    <type type_id="Batch">
+      <bound-workflow workflow_id="hoch_batch_workflow"/>
     </type>
 
   </bindings>

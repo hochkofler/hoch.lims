@@ -11,7 +11,19 @@ from hoch.lims.api import get_process_by_title
 from hoch.lims.api import get_process_group_by_title
 from bika.lims import api
 import plone.api as plone_api
+from six import string_types
+
+
+def _maybe_unicode(value):
+    """Return a unicode string if *value* is text, otherwise return as-is.
+    Numeric/date/None types are returned unchanged to avoid later type errors.
+    """
+    if isinstance(value, string_types):
+        return api.safe_unicode(value)
+    return value
 from hoch.lims.content.marketingauthorization import IMarketingAuthorizationSchema
+from hoch.lims.content.processgroup import IProcessGroupSchema
+from hoch.lims.content.process import IProcessSchema
 from hoch.lims.catalog import HOCHLIMS_CATALOG
 from plone.dexterity.utils import createObject
 from senaite.core.catalog import CLIENT_CATALOG
@@ -166,7 +178,7 @@ class Marketing_Authorization(WorksheetImporter):
         separator = "-"
         
         for row in self.get_rows(3):
-            reg_num = row.get("registration_number")
+            reg_num = api.safe_unicode(row.get("registration_number"))
             if not reg_num:
                 continue
             
@@ -187,7 +199,7 @@ class Marketing_Authorization(WorksheetImporter):
             validated = {}
             skip = False
             for field_name in fields_with_vocab:
-                raw = api.safe_unicode(row.get(field_name))
+                raw = _maybe_unicode(row.get(field_name))
                 val = validate_against_vocabulary(
                     self.context,
                     IMarketingAuthorizationSchema,
@@ -206,7 +218,7 @@ class Marketing_Authorization(WorksheetImporter):
             if skip:
                 continue
             
-            raw_list_actions = row.get("therapeutic_actions", "")
+            raw_list_actions = _maybe_unicode(row.get("therapeutic_actions", ""))
             tokens = [api.safe_unicode(t.strip()) for t in raw_list_actions.split(separator) if t.strip()]
             validated_list_actions = []
             for token in tokens:
@@ -231,24 +243,24 @@ class Marketing_Authorization(WorksheetImporter):
             api.create(container, "MarketingAuthorization",
                         issuing_organization=validated['issuing_organization'],
                         registration_number=reg_num,
-                        trade_name=row.get("trade_name"),
-                        generic_name=row.get("generic_name"),
-                        concentrations=row.get("concentrations"),
+                        trade_name=_maybe_unicode(row.get("trade_name")),
+                        generic_name=_maybe_unicode(row.get("generic_name")),
+                        concentrations=_maybe_unicode(row.get("concentrations")),
                         dosage_form=validated['dosage_form'],
                         dosage_unit=validated['dosage_unit'],
                         product_line=validated['product_line'],
-                        registered_presentations=row.get("registered_presentations"),
+                        registered_presentations=_maybe_unicode(row.get("registered_presentations")),
                         therapeutic_actions=validated_list_actions,
-                        atq_code=row.get("atq_code"),
-                        medicine_code=row.get("medicine_code"),
+                        atq_code=_maybe_unicode(row.get("atq_code")),
+                        medicine_code=_maybe_unicode(row.get("medicine_code")),
                         sale_condition=validated['sale_condition'],
                         storage_conditions=validated['storage_conditions'],
                         administration_route=validated['administration_route'],
-                        issue_date=row.get("issue_date"),
-                        expiration_date=row.get("expiration_date"),
-                        shelf_life=row.get("shelf_life"),
-                        holder=row.get("holder"),
-                        manufacturer=row.get("manufacturer"))
+                        issue_date=_maybe_unicode(row.get("issue_date")),
+                        expiration_date=_maybe_unicode(row.get("expiration_date")),
+                        shelf_life=_maybe_unicode(row.get("shelf_life")),
+                        holder=_maybe_unicode(row.get("holder")),
+                        manufacturer=_maybe_unicode(row.get("manufacturer")))
             logger.info("Marketing Authorization '%s' created" % reg_num)
 
 class Pharmaceutical_Product(WorksheetImporter):
@@ -260,7 +272,7 @@ class Pharmaceutical_Product(WorksheetImporter):
         container = self.context.PharmaceuticalProducts
         
         for row in self.get_rows(3):
-            code = row.get("code")
+            code = _maybe_unicode(row.get("code"))
             if not code:
                 continue
             
@@ -287,7 +299,7 @@ class Pharmaceutical_Product(WorksheetImporter):
             validated = {}
             skip = False
             for field_name in fields_with_vocab:
-                raw = api.safe_unicode(row.get(field_name))
+                raw = _maybe_unicode(row.get(field_name))
                 val = validate_against_vocabulary(
                     self.context,
                     IPharmaceuticalProductSchema,
@@ -310,16 +322,16 @@ class Pharmaceutical_Product(WorksheetImporter):
             # create the product
             obj = api.create(
                 container, "PharmaceuticalProduct",
-                code=api.safe_unicode(code),
-                name=api.safe_unicode(row.get("name")),
-                presentation=api.safe_unicode(row.get("presentation")),
+                code=_maybe_unicode(code),
+                name=_maybe_unicode(row.get("name")),
+                presentation=_maybe_unicode(row.get("presentation")),
                 primary_presentation=validated['primary_presentation'],
                 dosage_unit_per_primary_presentation=self.to_int(row.get("dosage_unit_per_primary_presentation"),0),
                 secundary_presentation=validated['secundary_presentation'],
                 dosage_unit_per_secundary_presentation=self.to_int(row.get("dosage_unit_per_secundary_presentation"),0),
             )
             # get process group
-            process_group_title = api.safe_unicode(row.get("process_group"))
+            process_group_title = _maybe_unicode(row.get("process_group"))
             if process_group_title:
                 bsc = getToolByName(self.context, SETUP_CATALOG)
                 process_group = self.get_object(bsc, 'ProcessGroup', process_group_title)
@@ -341,10 +353,10 @@ class Batch(WorksheetImporter):
         bsc = getToolByName(self.context, SETUP_CATALOG)
         
         for row in self.get_rows(3):
-            batch_id = row.get("BatchID")
+            batch_id = _maybe_unicode(row.get("BatchID"))
             if not batch_id:
                 continue
-            client_title = row.get("Client_title")
+            client_title = api.safe_unicode(row.get("Client_title"))
             if not client_title:
                 continue
             client = client_cat(portal_type="Client",
@@ -358,7 +370,7 @@ class Batch(WorksheetImporter):
             if batch:
                 logger.error("Skipping %s: already exists" % batch_id)
                 continue
-            product_code = row.get("Product_code")
+            product_code = api.safe_unicode(row.get("Product_code"))
             if not product_code:
                 logger.error("Skipping %s: no product code provided" % batch_id)
                 continue
@@ -367,7 +379,7 @@ class Batch(WorksheetImporter):
                 logger.error("Skipping %s: product '%s' not found" % (batch_id, product_code))
                 continue
             
-            batch_labels_titles = row.get("BatchLabels").split(",")
+            batch_labels_titles = api.safe_unicode(row.get("BatchLabels")).split(",")
             batch_labels = []
             for batch_label_title in batch_labels_titles:
                 batch_label = self.get_object(bsc, 'BatchLabel',
@@ -382,15 +394,15 @@ class Batch(WorksheetImporter):
                 title = batch_id,
                 BatchID = batch_id,
                 ClientBatchID = batch_id,
-                BatchDate =  row.get("BatchDate"),
+                BatchDate = api.safe_unicode(row.get("BatchDate")),
                 BatchLabels = batch_labels,
-                ManufactureDate = row.get("ManufactureDate"),
-                ReleasedBatchSize = row.get("ReleasedBatchSize"),
+                ManufactureDate = api.safe_unicode(row.get("ManufactureDate")),
+                ReleasedBatchSize = api.safe_unicode(row.get("ReleasedBatchSize")),
                 SubGroups = api.to_int(row.get("SubGroups", 1),1),
                 BatchSize = api.to_int(row.get("BatchSize", 1000),1000),
                 Product = product,
                 description = product.getName(),
-                Remarks = row.get("Remarks"),
+                Remarks = api.safe_unicode(row.get("Remarks")),
             )
             logger.info("Batch '%s' created" % obj)
             obj.reindexObject()
@@ -517,25 +529,26 @@ class AnalysisService_Conditions(WorksheetImporter):
             if not service:
                 continue
             
-            condition_title = row.get('title')
+            condition_title = api.safe_unicode(row.get('title'))
             if not condition_title:
                 continue
             
-            condition_type = row.get('type')
+            condition_type = api.safe_unicode(row.get('type'))
             if not condition_type or condition_type not in ['text','number','checkbox','select','file']:
                 continue
             
             service_uid = api.get_uid(service)
             if service_uid not in services_conditions:
                 services_conditions[service_uid] = {}
-                services_conditions[service_uid][condition_title] = {
-                    "title": condition_title,
-                    "description": row.get('description'),
-                    "type": condition_type,
-                    "choices": row.get('choices'),
-                    "default": row.get('default'),
-                    "required": row.get('required') and True or False,
-                    "report": row.get('report') and True or False,
+            
+            services_conditions[service_uid][condition_title] = {
+                "title": condition_title,
+                "description": api.safe_unicode(row.get('description')),
+                "type": condition_type,
+                "choices": api.safe_unicode(row.get('choices')),
+                "default": api.safe_unicode(row.get('default')),
+                "required": row.get('required') and True or False,
+                "report": row.get('report') and True or False,
                 }
         
         for service_uid, condition_titles in services_conditions.items():
@@ -569,8 +582,8 @@ class Calculations_python_imports(WorksheetImporter):
             if not calculation:
                 continue
             
-            python_module = row.get('python_module')
-            python_function = row.get('python_function')
+            python_module = api.safe_unicode(row.get('python_module'))
+            python_function = api.safe_unicode(row.get('python_function'))
             if not python_function or not python_module:
                 continue
             
@@ -594,10 +607,10 @@ class Reference_Samples_Concentration(WorksheetImporter):
                 continue
             
             reference_sample.edit(
-                Concentration = row.get('Concentration',''),
-                ConcentrationUnit=row.get('ConcentrationUnit',''),
-                Sensitivity=row.get('Sensitivity',''),
-                SensitivityUnit=row.get('SensitivityUnit','')
+                Concentration = api.safe_unicode(row.get('Concentration','')),
+                ConcentrationUnit=api.safe_unicode(row.get('ConcentrationUnit','')),
+                Sensitivity=api.safe_unicode(row.get('Sensitivity','')),
+                SensitivityUnit=api.safe_unicode(row.get('SensitivityUnit',''))
             )
             reference_sample.reindexObject()
 
@@ -614,11 +627,11 @@ class Sample_Matrices_Variables(WorksheetImporter):
     
     def process_row(self, row, bsc):
         """Procesa una fila individual del worksheet"""
-        samplematrix_title = row.get('samplematrix_title')
-        service_title = row.get('service_title')
-        parameter = row.get('parameter')
-        value_str = row.get('value')
-        unit = row.get('unit')
+        samplematrix_title = api.safe_unicode(row.get('samplematrix_title'))
+        service_title = api.safe_unicode(row.get('service_title'))
+        parameter = api.safe_unicode(row.get('parameter'))
+        value_str = api.safe_unicode(row.get('value'))
+        unit = api.safe_unicode(row.get('unit'))
         
         # Validaciones básicas
         if not all([samplematrix_title, service_title, parameter, value_str]):
@@ -1055,12 +1068,13 @@ class Process(WorksheetImporter):
 
 class Process_Group(WorksheetImporter):
     """Import Process Groups"""
+    process_group_processes = {}
 
     def Import(self):
         """Import Process Groups"""
         logger.info("Importing Process Groups")
         container = self.context.ProcessGroups
-        separator = ","
+        process_group_processes = self.load_processes_by_process_group()
 
         for row in self.get_rows(3):
             title = row.get("title")
@@ -1073,28 +1087,52 @@ class Process_Group(WorksheetImporter):
                 continue
             
             # Resolve processes
-            process_titles = row.get("processes", "")
-            process_uids = []
-            if process_titles:
-                for p_title in process_titles.split(separator):
-                    p_title = p_title.strip()
-                    if not p_title:
-                        continue
-                    p_obj = get_process_by_title(p_title)
-                    if p_obj:
-                        process_uids.append(api.get_uid(p_obj))
-                    else:
-                        logger.error("Process '%s' not found for group '%s'", p_title, title)
+            process_uids = list(process_group_processes.get(title, []))
 
             # create the process group
             obj = api.create(
                 container, "ProcessGroup",
                 title=api.safe_unicode(title),
                 description=api.safe_unicode(row.get("description", "")),
+                processes=process_uids
             )
             # Use the schema field 'processes' (UIDReferenceFieldDx)
-            if process_uids:
-                obj.setProcesses(process_uids)
+
+            #if process_uids:
+            #    obj.setProcesses(process_uids)
 
             logger.info("Process Group '%s' created", title)
             obj.reindexObject()
+
+    def load_processes_by_process_group(self):
+        logger.info("Importing processes by process group worksheet")
+        sheetname = 'Process Group Processes'
+        worksheet = self.workbook[sheetname]
+        if not worksheet:
+            return
+        bsc = getToolByName(self.context, HOCHLIMS_CATALOG)
+        process_group_processes = {}
+        processes_container = self.context.Processes
+        for row in self.get_rows(3, worksheet=worksheet):
+            process_group = row.get('process_group_title')
+            if not process_group:
+                continue
+            
+            process_title = api.safe_unicode(row.get('process_title'))
+            process = None
+            for p in processes_container.values():
+                if p.Title() == process_title:
+                    process = p
+                    break
+            
+            if not process:
+                continue
+
+            process_uid = api.get_uid(process)
+
+            if process_group not in process_group_processes:
+                process_group_processes[process_group] = []
+            
+            process_group_processes[process_group].append(process_uid)
+        
+        return process_group_processes

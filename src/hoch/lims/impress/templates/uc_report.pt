@@ -1,0 +1,104 @@
+<tal:uc tal:define="analyses python: view.get_analyses_by(view.collection);
+                   analyses python: [a for a in analyses if a.getKeyword().startswith('UC_')];
+                   model view/model;
+                   batch python: options.get('batch', None);
+                   mktauth python: options.get('mktauth', None);"
+        tal:condition="analyses">
+  <div class="section-titration-micro">
+    <h1 class="page-title">UNIFORMIDAD DE UNIDADES DE DOSIFICACIÓN POR UNIFORMIDAD DE CONTENIDO</h1>
+    <tal:analyses tal:repeat="analysis analyses">
+      <div class="page-break-after"
+           tal:define="sample python: analysis.getRequest();
+                       qc_analyses python: sample.getQCAnalyses();
+                       interim_fields python: analysis.getInterimFields();
+                       interim_fields_report python: [item for item in interim_fields if item.get('report') in ('on', True)];
+                       interim_dict python: {item.get('keyword'): item for item in interim_fields};
+                       potencia_declarada_m python: analysis.getInterimValue('potencia_declarada_m');
+                       dependencies python: view.sort_items(analysis.getDependencies());
+                       dependency_groups python: view.group_analysis_by_interim_value(dependencies, 'vial_number');">
+
+        <div class="text-center">DPTO. CONTROL DE CALIDAD</div>
+        <div class="text-center" tal:content="analysis/Method/Title"></div>
+        <tal:t replace="structure python:view.render_sample_data(context, sample=sample)" />
+        <tal:t replace="structure python:view.render_batch_data(context, batch=batch, mktauth=mktauth, analysis=analysis)" />
+
+        <tal:results>
+          <div class="font-size-120 font-weight-bold">2.- DATOS</div>
+          <table class="table table-sm table-condensed nopadding">
+            <tr>
+              <th>N° Muestra</th>
+              <th>Vial</th>
+              <th>Cantidad (mg P.A.)</th>
+              <th>% p.a. (A)</th>
+            </tr>
+            <tal:depen tal:repeat="dependency_group python: sorted(dependency_groups.items())">
+              <tr tal:define="dep_analyses python: dependency_group[1];
+                              dependency_results_group python: sum(float(a.getResult()) for a in dep_analyses)/len(dep_analyses);
+                              index repeat/dependency_group/index">
+                <td tal:content="python: index + 1" />
+                <td class="label" tal:content="python: dependency_group[0]" />
+                <td>
+                  <span tal:content="python: dependency_results_group" />
+                </td>
+                <td>
+                  <span tal:content="python: (dependency_results_group/potencia_declarada_m)*100 if potencia_declarada_m else 'N/A'" />
+                </td>
+              </tr>
+            </tal:depen>
+          </table>
+        </tal:results>
+
+        <tal:calc tal:define="x_mean python: interim_dict.get('mean');
+                               k_factor python: interim_dict.get('k');
+                               m_factor python: interim_dict.get('m');
+                               s_std python: interim_dict.get('std');
+                               av_val python: analysis.getFormattedResult();">
+          <div class="font-size-120 font-weight-bold">3.- CÁLCULO Y RESUMEN</div>
+          <table class="results-table" tal:condition="interim_fields_report">
+            <thead>
+              <tr>
+                <th style="width: 40%">Parámetro</th>
+                <th style="width: 25%" class="specs-cell">Especificación</th>
+                <th style="width: 20%" class="result-cell">Resultado</th>
+                <th style="width: 15%" class="unit-cell">Unidad</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tal:interims tal:repeat="interim interim_fields_report">
+                <tr>
+                  <td tal:content="interim/title" />
+                  <td class="specs-cell" />
+                  <td class="result-cell text-right" tal:content="interim/value" />
+                  <td class="unit-cell"
+                      tal:define="u python: interim.get('unit', '')"
+                      tal:content="u" />
+                </tr>
+              </tal:interims>
+            </tbody>
+          </table>
+
+          <div style="padding: 3px; font-size: 0.9rem;">
+            <span class="font-weight-bold">AV = | M &minus; X&#772; | + k &middot; s</span>
+            <tal:formula tal:condition="python: x_mean and k_factor and s_std and potencia_declarada_m">
+              <span> = |
+                <span tal:content="python: m_factor.get('value')" />
+                &minus;
+                <span tal:content="python: x_mean.get('value')" />
+              | +
+                <span tal:content="python: k_factor.get('value')" />
+                &middot;
+                <span tal:content="python: s_std.get('value')" />
+                <tal:av tal:condition="av_val">
+                  = <strong tal:content="av_val" />
+                </tal:av>
+              </span>
+            </tal:formula>
+          </div>
+        </tal:calc>
+
+        <tal:t replace="structure python:view.render_conclusions(context, analyses=[analysis], title_number='4')" />
+        <tal:t replace="structure python:view.render_signatures(context, sample=sample, analyses=[analysis]+qc_analyses, title_number='5', batch=batch)" />
+      </div>
+    </tal:analyses>
+  </div>
+</tal:uc>

@@ -1,0 +1,33 @@
+<tal:coa-verdict tal:define="in_aceptable_range_coa python: options.get('in_aceptable_range_coa', True);
+                            remarks python: options.get('remarks', []);
+                            verified_date python: options.get('verified_date', None);
+                            date_format python: options.get('date_format', '%d-%m-%Y');">
+  <div class="section-comments keep-together">
+    <div class="comments-section">
+      <div>Este documento no debe ser reproducido excepto en su totalidad, sin la aprobación por escrito de Laboratorios IFA.</div>
+      <tal:block tal:repeat="remark remarks">
+        <div>
+          <span tal:content="structure python: '[' + str(remark[0]) + ']'"></span>
+          <span tal:content="structure python: ' ' + remark[1]"></span>
+        </div>
+      </tal:block>
+      <div>
+        <strong>Observaciones:</strong>
+        <span>N/A</span>
+      </div>
+    </div>
+
+    <div class="verdict-section">
+      <span class="verdict-label">DICTAMEN</span>
+      <span class="verdict-value"
+            tal:attributes="class python: 'verdict-value ' + ('text-danger' if not(in_aceptable_range_coa) else '')"
+            tal:content="python:'APROBADO' if in_aceptable_range_coa else 'RECHAZADO'">
+        APROBADO
+      </span>
+      <div>
+        <strong>Fecha liberación:</strong>
+        <span tal:content="python: verified_date.strftime(date_format) if verified_date else ''"></span>
+      </div>
+    </div>
+  </div>
+</tal:coa-verdict>

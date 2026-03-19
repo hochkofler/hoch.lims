@@ -1,0 +1,22 @@
+<tal:section-reference-samples tal:define="title python: options.get('title', 'ESTANDARES DE REFERENCIA');
+                            title_number python: options.get('title_number', 2);
+                            analyses python: options.get('analyses', []);
+                            consumables python: [c for a in analyses for c in view.get_consumables(a)];">
+    <div class="font-size-120 font-weight-bold" tal:content="python: str(title_number) + '.- ' + title"></div>
+    <table class="table table-sm table-condensed nopadding">
+        <tr>
+            <th>DESCRIPCIÓN</th>
+            <th>LOTE</th>
+        </tr>
+        <tal:block tal:repeat="consumable consumables">
+            <tr tal:condition="consumable/consumable_obj">
+                <td>
+                    <span tal:content="consumable/ref_definition_obj/Title" />
+                </td>
+                <td>
+                    <span tal:content="consumable/consumable_obj/LotNumber" />
+                </td>
+            </tr>
+        </tal:block>
+    </table>
+</tal:section-reference-samples>

@@ -5,196 +5,295 @@ page_width options/page_width|nothing;
 page_height options/page_height|nothing;
 content_width options/content_width|nothing;
 content_height options/content_height|nothing;
+" i18n:domain="hoch.lims">
+<style type="text/css">
 
-" i18n:domain=" hoch.lims">
- <style type="text/css">
-    /* --- Global Reset & Typography --- */
-    html {
-    font-size: 10px; /* 1rem */
-    }
-    .report {
-      font-family: Calibri, Arial, Helvetica, sans-serif;
-      font-size: 1rem;
-      line-height: 1;
-      color: #000;
-    }
+  /* ============================================================
+     RESET & TIPOGRAFÍA BASE
+     9px ≈ 6.75pt — base compacta para sub-informes de 1 página
+     ============================================================ */
+  html {
+    font-size: 9px; /* 1rem */
+  }
 
-    .report * {
-      box-sizing: border-box;
-    }
+  .report {
+    font-family: Calibri, Arial, Helvetica, sans-serif;
+    font-size: 1rem;
+    line-height: 1.2;
+    color: #000;
+  }
 
-    .report h1, .report h2, .report h3 {
-      margin: 0 0 10px 0;
-      padding: 0;
-      font-weight: bold;
-    }
+  .report * {
+    box-sizing: border-box;
+  }
 
-    .report table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 5px;
-    }
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 
-    .page-break {
-      page-break-before: always;
-    }
-    
-    .keep-together {
-      page-break-inside: avoid;
-    }
+  /* ============================================================
+     ENCABEZADOS
+     ============================================================ */
+  .report h1 { font-size: 130%; }
 
-    /* --- Generic Utilities --- */
-    .text-center { text-align: center; }
-    .text-right { text-align: right; }
-    .text-left { text-align: left; }
-    .font-bold { font-weight: bold; }
-    .text-danger { color: red; }
-    .w-100 { width: 100%; }
+  .report h1,
+  .report h2,
+  .report h3 {
+    margin: 0 0 3px 0;
+    padding: 0;
+    font-weight: bold;
+  }
 
-    .main-title {
-      font-size: 1.2rem;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-    
-    /* --- Section 1: General Data --- */
-    .data-table th, .data-table td {
-      border: 1px solid #000;
-      padding: 1px 4px;
-      vertical-align: top;
-    }
-    
-    .data-table th:after {
-      content: ":";
-    }
-    .data-table th {
-      font-weight: bold;
-      border-right: 0px;
-    }
+  /* ============================================================
+     SALTOS DE PÁGINA
+     ============================================================ */
+  .page-break-before {
+    page-break-before: always;
+    break-before: page;
+  }
 
-    .data-table td {
-      border-left: 0px;
-    }
+  .page-break-after {
+    page-break-after: always;
+    break-after: page;
+  }
 
-    .data-table-col-1 {
-      width: 18% !important;
-    }
-    .data-table-col-2 {
-      width: 22% !important;
-    }
-    .data-table-col-3 {
-      width: 22% !important;
-    }
-    .data-table-col-4 {
-      width: 28% !important;
-    }
+  .page-break {
+    page-break-before: always;
+  }
 
-    /* --- Section 2: Results --- */
-    .results-table {
-      margin-top: 10px;
-      border: 1px solid;
-    }
+  .keep-together {
+    page-break-inside: avoid;
+  }
 
-    .results-table th {
-      padding: 2px 4px 1px 4px;
-      font-size: 1rem;
-      text-align: left;
-    }
+  /* ============================================================
+     UTILIDADES GENÉRICAS
+     ============================================================ */
+  .text-center  { text-align: center; }
+  .text-right   { text-align: right; }
+  .text-left    { text-align: left; }
+  .w-100        { width: 100%; }
 
-    .results-table td {
-      border: 1px 0 solid #000;
-      padding: 1px 4px;
-      vertical-align: top;
-      border-bottom: 0.5px solid;
-      font-size: 0.9rem;
-    }
+  /* Texto */
+  .font-bold,
+  .font-weight-bold  { font-weight: bold; }
+  .font-weight-normal { font-weight: normal; }
+  .font-italic       { font-style: italic; }
+  .text-danger       { color: red; }
 
-    .result-cell {
-      text-align: right !important;
-    }
+  /* Tamaños relativos (rescatados de css.pt) */
+  .font-size-140 { font-size: 140%; }
+  .font-size-120 { font-size: 115%; }   /* ligeramente reducido para compactar */
+  .font-size-100 { font-size: 100%; }
+  .font-size-85  { font-size:  85%; }
 
-    .specs-cell {
-      text-align: right !important;
-    }
+  /* Dos puntos automáticos — usado en etiquetas de tablas */
+  .colon-after::after { content: ":"; }
 
-    .results-table .category-row th {
-      text-align: left;
-      padding: 2px 2px 2px 10px;
-      font-size: 1rem;
-      border-bottom: 2px solid #000;
-      vertical-align: bottom;
-    }
+  /* ============================================================
+     TABLAS — BASE
+     ============================================================ */
+  .report table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2px;
+  }
 
-    .results-table .out-of-range {
-      color: red;
-      font-weight: bold;
-    }
+  /* Variantes de borde a nivel de tabla */
+  .report table.noborder td,
+  .report table.noborder th { border: none; }
 
-    /* --- Section 3: Comments & Verdict --- */
-    .comments-section {
-      padding: 0px 10px;
-      margin-bottom: 5px;
-      font-size: 0.8rem;
-    }
+  .report table.nopadding td { padding-top: 0; padding-bottom: 0; }
+  .report table.nopadding th { padding-bottom: 0; }
 
-    .verdict-section {
-      text-align: center;
-      border-top: 2px solid #000;
-      padding: 10px;
-    }
-    
-    .verdict-label {
-      font-size: 1rem;
-      font-weight: bold;
-      display: block;
-      margin-bottom: 5px;
-    }
+  /* Variantes de borde a nivel de celda */
+  .report table td.noborder-vertical   { border-top: none !important; border-bottom: none !important; }
+  .report table td.noborder-horizontal { border-left: none !important; border-right: none !important; }
+  .report table td.noborder-bottom     { border-bottom: none !important; }
+  .report table td.noborder-top        { border-top: none !important; }
+  .report table td.noborder-left       { border-left: none !important; }
+  .report table td.noborder-right      { border-right: none !important; }
 
-    .verdict-value {
-      font-size: 1.4rem;
-      font-weight: bold;
-    }
+  /* Tabla estilo Bootstrap (.table) */
+  .report .table { padding-top: 0; padding-bottom: 0; }
 
-    /* --- Section 4: Signatures --- */
-    .signatures-table {
-      width: 100%;
-      border: none;
-      table-layout: fixed; /* MUY importante */
-    }
+  .report .table td,
+  .report .table th { border: 1px solid black; }
 
-    .signatures-table td {
-      border: none;
-      padding: 5px;
-      text-align: center;
-      vertical-align: bottom;
-    }
+  .report .table th { border-bottom: 1px solid black; }
 
-    /* Contenedor que limita el ancho real */
-    .signature-cell {
-      width: 50mm;          /* ancho real de la firma */
-      margin: 0 auto;       /* centrado dentro del td */
-    }
+  .report .table td.label {
+    padding-right: 0.3rem;
+    font-weight: bold;
+  }
 
-    /* Línea de firma */
-    .signature-box {
-      min-height: 14mm;
-      border-bottom: 1px solid #000;
-      margin-bottom: 5px;
-    }
+  .report .table.range-table td {
+    padding: 0 0.3rem 0 0;
+    border: none;
+  }
 
-    /* Imagen */
-    .signature-img {
-      max-height: 20mm;
-      max-width: 100%;
-    }
+  /* ============================================================
+     data-table — cabeceras de producto / lote
 
+     Estrategia de bordes:
+       - Marco exterior: border: 1px solid en la tabla misma.
+       - Separadores de fila: border-bottom en cada celda.
+       - Separador de columna entre pares: border-left en "td + th"
+         (entre el valor de un par y la etiqueta del siguiente).
+       - NO se manipulan border-left/right individuales de th/td
+         para evitar que WeasyPrint colapse también el borde exterior.
+     ============================================================ */
+  .data-table {
+    border: 1px solid #000;
+    margin-bottom: 2px;
+  }
+
+  .data-table th,
+  .data-table td {
+    border: none;
+    border-bottom: 1px solid #000;
+    padding: 1px 3px;
+    vertical-align: top;
+  }
+
+  /* La última fila no necesita border-bottom propio: el marco lo provee */
+  .data-table tr:last-child th,
+  .data-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .data-table th::after { content: ":"; }
+
+  .data-table th { font-weight: bold; }
+
+  /* Separador vertical entre el valor (td) y la siguiente etiqueta (th) en la misma fila */
+  .data-table td + th {
+    border-left: 1px solid #000;
+  }
+
+  .data-table-col-1 { width: 18% !important; }
+  .data-table-col-2 { width: 22% !important; }
+  .data-table-col-3 { width: 22% !important; }
+  .data-table-col-4 { width: 28% !important; }
+
+  /* ============================================================
+     results-table — tablas de análisis y resultados
+     ============================================================ */
+  .results-table {
+    margin-top: 2px;
+    margin-bottom: 2px;
+    border: 1px solid #000;
+  }
+
+  .results-table th {
+    padding: 1px 3px;
+    font-size: 0.95rem;
+    text-align: left;
+    border-bottom: 1px solid #000;
+  }
+
+  .results-table td {
+    padding: 1px 3px;
+    vertical-align: top;
+    border-bottom: 0.5px solid #999;
+    font-size: 0.9rem;
+  }
+
+  .results-table .category-row th {
+    text-align: left;
+    padding: 1px 2px 1px 6px;
+    font-size: 0.95rem;
+    border-bottom: 1px solid #000;
+    vertical-align: bottom;
+  }
+
+  .results-table .out-of-range {
+    color: red;
+    font-weight: bold;
+  }
+
+  /* .result-cell no fuerza alineación: la decide el template según ResultType */
+  .result-cell { }
+  .specs-cell  { text-align: right !important; }
+  .unit-cell   { text-align: left  !important; font-size: 0.85rem; }
+
+  /* ============================================================
+     SECCIÓN OBSERVACIONES Y DICTAMEN
+     ============================================================ */
+  .comments-section {
+    padding: 0 6px;
+    margin-bottom: 2px;
+    font-size: 0.85rem;
+  }
+
+  .verdict-section {
+    text-align: center;
+    border-top: 2px solid #000;
+    padding: 4px;
+  }
+
+  .verdict-label {
+    font-size: 1rem;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .verdict-value {
+    font-size: 1.4rem;
+    font-weight: bold;
+  }
+
+  /* ============================================================
+     FIRMAS
+     ============================================================ */
+  .signatures-table {
+    width: 100%;
+    border: none;
+    table-layout: fixed;
+  }
+
+  .signatures-table td {
+    border: none;
+    padding: 2px;
+    text-align: center;
+    vertical-align: bottom;
+  }
+
+  .signature-cell {
+    width: 45mm;
+    margin: 0 auto;
+  }
+
+  .signature-box {
+    min-height: 12mm;
+    border-bottom: 1px solid #000;
+    margin-bottom: 3px;
+  }
+
+  .signature-img {
+    max-height: 18mm;
+    max-width: 100%;
+  }
+
+  /* ============================================================
+     TÍTULO PRINCIPAL DEL INFORME
+     ============================================================ */
+  .main-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+    text-align: center;
+  }
+
+  /* ============================================================
+     TAMAÑOS DE IMAGEN DINÁMICOS (según dimensiones de página)
+     ============================================================ */
   <tal:block condition="python:content_width and content_height">
     <tal:block condition="python:all([content_width, content_height])"
               define="cw python:float(content_width);
                       ch python:float(content_height);">
 
-
-      /* Ensure that the images stay within the borders */
       .report .section-attachments img {
         max-width: <tal:t replace="python:'{:.2f}mm'.format(cw / attachments_per_row)" />;
         max-height: <tal:t replace="python:'{:.2f}mm'.format(ch * 0.75)" />;
@@ -207,11 +306,11 @@ content_height options/content_height|nothing;
 
       .report .metadata .inline {
         display: inline-block;
-        /* ya no rompe línea */
         margin-right: 1.5em;
         white-space: nowrap;
       }
 
     </tal:block>
   </tal:block>
+
 </style></tal:t>

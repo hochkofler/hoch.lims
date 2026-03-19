@@ -1,0 +1,25 @@
+<tal:coa-signatures tal:define="user_signatures python: options.get('user_signatures', []);">
+  <div class="section-signatures keep-together">
+    <table class="signatures-table">
+      <tbody>
+        <tr>
+          <tal:block tal:repeat="role_group user_signatures">
+            <tal:block tal:repeat="user role_group/users">
+              <td>
+                <div class="signature-cell">
+                  <div class="signature-box" tal:condition="user">
+                    <img tal:condition="user/getSignature|nothing"
+                         tal:attributes="src string:${user/absolute_url}/Signature"
+                         class="signature-img" />
+                  </div>
+                  <div class="font-bold" tal:content="user/getFullname">Nombre Usuario</div>
+                  <div tal:content="role_group/role">Cargo</div>
+                </div>
+              </td>
+            </tal:block>
+          </tal:block>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</tal:coa-signatures>

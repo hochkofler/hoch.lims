@@ -4,6 +4,15 @@ from senaite.core.exportimport.setupdata import WorksheetImporter
 from senaite.core.exportimport.setupdata import Analysis_Services
 from bika.lims import api
 from zope.interface import implements
+from six import string_types
+
+
+def _maybe_unicode(value):
+    if isinstance(value, string_types):
+        return api.safe_unicode(value)
+    return value
+
+
 from zope.event import notify
 from Products.Archetypes.event import ObjectInitializedEvent
 from Products.CMFPlone.utils import _createObjectByType
@@ -35,12 +44,12 @@ def Import_sample_templates(self):
         sc = api.get_tool(SETUP_CATALOG)
 
         for row in self.get_rows(3):
-            title = row.get("title")
+            title = _maybe_unicode(row.get("title"))
             if not title:
                 continue
-            description = row.get("description") or ''
+            description = _maybe_unicode(row.get("description") or '')
             services = self.services.get(title)
-            client_title = row.get("Client_title") or "lab"
+            client_title = _maybe_unicode(row.get("Client_title") or "lab")
             partitions = self.partitions.get(title, [])
             if client_title == "lab":
                 folder = setup.sampletemplates
@@ -82,192 +91,192 @@ def get_interim_fields(self):
         if calc_title not in self.interim_fields.keys():
             self.interim_fields[calc_title] = []
         self.interim_fields[calc_title].append({
-            'keyword': row['keyword'],
-            'title': row.get('title', ''),
-            'type': row.get('result_typ', ''),
+            'keyword': _maybe_unicode(row['keyword']),
+            'title': _maybe_unicode(row.get('title', '')),
+            'type': _maybe_unicode(row.get('result_typ', '')),
             'hidden': ('hidden' in row and row['hidden']) and True or False,
-            'value': row['value'],
-            'choices': str(row.get('choices', '')),
-            'result_type': row.get('result_type', ''),
+            'value': _maybe_unicode(row['value']),
+            'choices': _maybe_unicode(str(row.get('choices', ''))),
+            'result_type': _maybe_unicode(row.get('result_type', '')),
             'allow_empty': ('allow_empty' in row and row['allow_empty']) and True or False,
             'wide': ('wide' in row and row['wide']) and True or False,
-            'unit': row['unit'] and row['unit'] or ''})
+            'unit': _maybe_unicode(row['unit'] and row['unit'] or '')})
 
 def load_interim_fields(self):
-        # preload AnalysisService InterimFields sheet
-        sheetname = 'AnalysisService InterimFields'
-        worksheet = self.workbook[sheetname]
-        if not worksheet:
-            return
-        self.service_interims = {}
-        rows = self.get_rows(3, worksheet=worksheet)
-        for row in rows:
-            service_title = row['Service_title']
-            if service_title not in self.service_interims.keys():
-                self.service_interims[service_title] = []
-            self.service_interims[service_title].append({
-                'keyword': row['keyword'],
-                'title': row.get('title', ''),
-                'type': row.get('result_typ', ''),
-                'hidden': ('hidden' in row and row['hidden']) and True or False,
-                'value': row['value'],
-                'choices': str(row.get('choices', '')),
-                'result_type': row.get('result_type', ''),
-                'allow_empty': ('allow_empty' in row and row['allow_empty']) and True or False,
-                'wide': ('wide' in row and row['wide']) and True or False,
-                'unit': row['unit'] and row['unit'] or '',
-                'report': row.get('report', '')})
+    # preload AnalysisService InterimFields sheet
+    sheetname = 'AnalysisService InterimFields'
+    worksheet = self.workbook[sheetname]
+    if not worksheet:
+        return
+    self.service_interims = {}
+    rows = self.get_rows(3, worksheet=worksheet)
+    for row in rows:
+        service_title = row['Service_title']
+        if service_title not in self.service_interims.keys():
+            self.service_interims[service_title] = []
+        self.service_interims[service_title].append({
+            'keyword': _maybe_unicode(row['keyword']),
+            'title': _maybe_unicode(row.get('title', '')),
+            'type': _maybe_unicode(row.get('result_typ', '')),
+            'hidden': ('hidden' in row and row['hidden']) and True or False,
+            'value': _maybe_unicode(row['value']),
+            'choices': _maybe_unicode(str(row.get('choices', ''))),
+            'result_type': _maybe_unicode(row.get('result_type', '')),
+            'allow_empty': ('allow_empty' in row and row['allow_empty']) and True or False,
+            'wide': ('wide' in row and row['wide']) and True or False,
+            'unit': _maybe_unicode(row['unit'] and row['unit'] or ''),
+            'report': _maybe_unicode(row.get('report', ''))})
 
 def import_analysis_services(self):
     # Only Change line Method=defaultmethod,
     # And add line Instrument = defaultinstrument,
-        self.load_interim_fields()
-        folder = self.context.bika_setup.bika_analysisservices
-        bsc = getToolByName(self.context, SETUP_CATALOG)
-        for row in self.get_rows(3):
-            if not row['title']:
-                continue
+    self.load_interim_fields()
+    folder = self.context.bika_setup.bika_analysisservices
+    bsc = getToolByName(self.context, SETUP_CATALOG)
+    for row in self.get_rows(3):
+        if not row['title']:
+            continue
 
-            obj = _createObjectByType("AnalysisService", folder, tmpID())
-            MTA = {
-                'days': self.to_int(row.get('MaxTimeAllowed_days', 0), 0),
-                'hours': self.to_int(row.get('MaxTimeAllowed_hours', 0), 0),
-                'minutes': self.to_int(row.get('MaxTimeAllowed_minutes', 0), 0),
-            }
-            category = self.get_object(
-                bsc, 'AnalysisCategory', row.get('AnalysisCategory_title'))
-            department = self.get_object(
-                bsc, 'Department', row.get('Department_title'))
-            container = self.get_object(
-                bsc, 'SampleContainer', row.get('Container_title'))
-            preservation = self.get_object(
-                bsc, 'SamplePreservation', row.get('Preservation_title'))
+        obj = _createObjectByType("AnalysisService", folder, tmpID())
+        MTA = {
+            'days': self.to_int(row.get('MaxTimeAllowed_days', 0), 0),
+            'hours': self.to_int(row.get('MaxTimeAllowed_hours', 0), 0),
+            'minutes': self.to_int(row.get('MaxTimeAllowed_minutes', 0), 0),
+        }
+        category = self.get_object(
+            bsc, 'AnalysisCategory', row.get('AnalysisCategory_title'))
+        department = self.get_object(
+            bsc, 'Department', row.get('Department_title'))
+        container = self.get_object(
+            bsc, 'SampleContainer', row.get('Container_title'))
+        preservation = self.get_object(
+            bsc, 'SamplePreservation', row.get('Preservation_title'))
 
-            # Analysis Service - Method considerations:
-            # One Analysis Service can have 0 or n Methods associated (field
-            # 'Methods' from the Schema).
-            # If the Analysis Service has at least one method associated, then
-            # one of those methods can be set as the defualt method (field
-            # '_Method' from the Schema).
-            #
-            # To make it easier, if a DefaultMethod is declared in the
-            # Analysis_Services spreadsheet, but the same AS has no method
-            # associated in the Analysis_Service_Methods spreadsheet, then make
-            # the assumption that the DefaultMethod set in the former has to be
-            # associated to the AS although the relation is missing.
-            defaultmethod = self.get_object(
-                bsc, 'Method', row.get('DefaultMethod_title'))
-            methods = self.get_methods(row['title'], defaultmethod)
-            if not defaultmethod and methods:
-                defaultmethod = methods[0]
+        # Analysis Service - Method considerations:
+        # One Analysis Service can have 0 or n Methods associated (field
+        # 'Methods' from the Schema).
+        # If the Analysis Service has at least one method associated, then
+        # one of those methods can be set as the defualt method (field
+        # '_Method' from the Schema).
+        #
+        # To make it easier, if a DefaultMethod is declared in the
+        # Analysis_Services spreadsheet, but the same AS has no method
+        # associated in the Analysis_Service_Methods spreadsheet, then make
+        # the assumption that the DefaultMethod set in the former has to be
+        # associated to the AS although the relation is missing.
+        defaultmethod = self.get_object(
+            bsc, 'Method', row.get('DefaultMethod_title'))
+        methods = self.get_methods(row['title'], defaultmethod)
+        if not defaultmethod and methods:
+            defaultmethod = methods[0]
 
-            # Analysis Service - Instrument considerations:
-            # By default, an Analysis Services will be associated automatically
-            # with several Instruments due to the Analysis Service - Methods
-            # relation (an Instrument can be assigned to a Method and one Method
-            # can have zero or n Instruments associated). There is no need to
-            # set this assignment directly, the AnalysisService object will
-            # find those instruments.
-            # Besides this 'automatic' behavior, an Analysis Service can also
-            # have 0 or n Instruments manually associated ('Instruments' field).
-            # In this case, the attribute 'AllowInstrumentEntryOfResults' should
-            # be set to True.
-            #
-            # To make it easier, if a DefaultInstrument is declared in the
-            # Analysis_Services spreadsheet, but the same AS has no instrument
-            # associated in the AnalysisService_Instruments spreadsheet, then
-            # make the assumption the DefaultInstrument set in the former has
-            # to be associated to the AS although the relation is missing and
-            # the option AllowInstrumentEntryOfResults will be set to True.
-            defaultinstrument = self.get_object(
-                bsc, 'Instrument', row.get('DefaultInstrument_title'))
-            instruments = self.get_instruments(row['title'], defaultinstrument)
-            allowinstrentry = True if instruments else False
-            if not defaultinstrument and instruments:
-                defaultinstrument = instruments[0]
+        # Analysis Service - Instrument considerations:
+        # By default, an Analysis Services will be associated automatically
+        # with several Instruments due to the Analysis Service - Methods
+        # relation (an Instrument can be assigned to a Method and one Method
+        # can have zero or n Instruments associated). There is no need to
+        # set this assignment directly, the AnalysisService object will
+        # find those instruments.
+        # Besides this 'automatic' behavior, an Analysis Service can also
+        # have 0 or n Instruments manually associated ('Instruments' field).
+        # In this case, the attribute 'AllowInstrumentEntryOfResults' should
+        # be set to True.
+        #
+        # To make it easier, if a DefaultInstrument is declared in the
+        # Analysis_Services spreadsheet, but the same AS has no instrument
+        # associated in the AnalysisService_Instruments spreadsheet, then
+        # make the assumption the DefaultInstrument set in the former has
+        # to be associated to the AS although the relation is missing and
+        # the option AllowInstrumentEntryOfResults will be set to True.
+        defaultinstrument = self.get_object(
+            bsc, 'Instrument', row.get('DefaultInstrument_title'))
+        instruments = self.get_instruments(row['title'], defaultinstrument)
+        allowinstrentry = True if instruments else False
+        if not defaultinstrument and instruments:
+            defaultinstrument = instruments[0]
 
-            # The manual entry of results can only be set to false if the value
-            # for the attribute "InstrumentEntryOfResults" is False.
-            allowmanualentry = True if not allowinstrentry else row.get(
-                'ManualEntryOfResults', True)
+        # The manual entry of results can only be set to false if the value
+        # for the attribute "InstrumentEntryOfResults" is False.
+        allowmanualentry = True if not allowinstrentry else row.get(
+            'ManualEntryOfResults', True)
 
-            # Analysis Service - Calculation considerations:
-            # By default, the AnalysisService will use the Calculation associated
-            # to the Default Method (the field "UseDefaultCalculation"==True).
-            # If the Default Method for this AS doesn't have any Calculation
-            # associated and the field "UseDefaultCalculation" is True, no
-            # Calculation will be used for this AS ("_Calculation" field is
-            # reserved and should not be set directly).
-            #
-            # To make it easier, if a Calculation is set by default in the
-            # spreadsheet, then assume the UseDefaultCalculation has to be set
-            # to False.
-            deferredcalculation = self.get_object(
-                bsc, 'Calculation', row.get('Calculation_title'))
-            usedefaultcalculation = False if deferredcalculation else True
-            _calculation = deferredcalculation if deferredcalculation else \
-                (defaultmethod.getCalculation() if defaultmethod else None)
+        # Analysis Service - Calculation considerations:
+        # By default, the AnalysisService will use the Calculation associated
+        # to the Default Method (the field "UseDefaultCalculation"==True).
+        # If the Default Method for this AS doesn't have any Calculation
+        # associated and the field "UseDefaultCalculation" is True, no
+        # Calculation will be used for this AS ("_Calculation" field is
+        # reserved and should not be set directly).
+        #
+        # To make it easier, if a Calculation is set by default in the
+        # spreadsheet, then assume the UseDefaultCalculation has to be set
+        # to False.
+        deferredcalculation = self.get_object(
+            bsc, 'Calculation', row.get('Calculation_title'))
+        usedefaultcalculation = False if deferredcalculation else True
+        _calculation = deferredcalculation if deferredcalculation else \
+            (defaultmethod.getCalculation() if defaultmethod else None)
 
-            lld = self.to_float(
-                    row.get('LowerDetectionLimit', '0.0'), 0)
-            uld = self.to_float(
-                    row.get('UpperDetectionLimit', '1000000000.0'), 1000000000.0)
-            llq = self.to_float(
-                    row.get('LowerLimitOfQuantification', '0.0'), 0)
-            ulq = self.to_float(
-                    row.get('UpperLimitOfQuantification', '1000000000.0'), 1000000000.0)
+        lld = self.to_float(
+                row.get('LowerDetectionLimit', '0.0'), 0)
+        uld = self.to_float(
+                row.get('UpperDetectionLimit', '1000000000.0'), 1000000000.0)
+        llq = self.to_float(
+                row.get('LowerLimitOfQuantification', '0.0'), 0)
+        ulq = self.to_float(
+                row.get('UpperLimitOfQuantification', '1000000000.0'), 1000000000.0)
 
-            if ulq <= uld:
-                ulq = uld
+        if ulq <= uld:
+            ulq = uld
 
-            if llq >= lld:
-                llq = llq
+        if llq >= lld:
+            llq = llq
 
-            obj.edit(
-                title=row['title'],
-                ShortTitle=row.get('ShortTitle', row['title']),
-                description=row.get('description', ''),
-                Keyword=row['Keyword'],
-                PointOfCapture=row['PointOfCapture'].lower(),
-                Category=category,
-                Department=department,
-                Unit=row['Unit'] and row['Unit'] or None,
-                Precision=row['Precision'] and str(row['Precision']) or '0',
-                ExponentialFormatPrecision=str(self.to_int(
-                    row.get('ExponentialFormatPrecision', 7), 7)),
-                LowerDetectionLimit='%06f' % lld,
-                UpperDetectionLimit='%06f' % uld,
-                DetectionLimitSelector=self.to_bool(
-                    row.get('DetectionLimitSelector', 0)),
-                LowerLimitOfQuantification='%06f' % llq,
-                UpperLimitOfQuantification='%06f' % ulq,
-                MaxTimeAllowed=MTA,
-                Price="%02f" % Float(row['Price']),
-                BulkPrice="%02f" % Float(row['BulkPrice']),
-                VAT="%02f" % Float(row['VAT']),
-                Method=defaultmethod,
-                Methods=methods,
-                ManualEntryOfResults=allowmanualentry,
-                InstrumentEntryOfResults=allowinstrentry,
-                Instrument = defaultinstrument,
-                Instruments=instruments,
-                Calculation=_calculation,
-                UseDefaultCalculation=usedefaultcalculation,
-                DuplicateVariation="%02f" % Float(row['DuplicateVariation']),
-                Accredited=self.to_bool(row['Accredited']),
-                InterimFields=hasattr(self, 'service_interims') and self.service_interims.get(
-                    row['title'], []) or [],
-                Separate=self.to_bool(row.get('Separate', False)),
-                Container=container,
-                Preservation=preservation,
-                CommercialID=row.get('CommercialID', ''),
-                ProtocolID=row.get('ProtocolID', '')
-            )
-            obj.unmarkCreationFlag()
-            renameAfterCreation(obj)
-            notify(ObjectInitializedEvent(obj))
-        self.load_result_options()
-        self.load_service_uncertainties()
+        obj.edit(
+            title=_maybe_unicode(row['title']),
+            ShortTitle=row.get('ShortTitle', row['title']),
+            description=row.get('description', ''),
+            Keyword=row['Keyword'],
+            PointOfCapture=row['PointOfCapture'].lower(),
+            Category=category,
+            Department=department,
+            Unit=row['Unit'] and row['Unit'] or None,
+            Precision=row['Precision'] and str(row['Precision']) or '0',
+            ExponentialFormatPrecision=str(self.to_int(
+                row.get('ExponentialFormatPrecision', 7), 7)),
+            LowerDetectionLimit='%06f' % lld,
+            UpperDetectionLimit='%06f' % uld,
+            DetectionLimitSelector=self.to_bool(
+                row.get('DetectionLimitSelector', 0)),
+            LowerLimitOfQuantification='%06f' % llq,
+            UpperLimitOfQuantification='%06f' % ulq,
+            MaxTimeAllowed=MTA,
+            Price="%02f" % Float(row['Price']),
+            BulkPrice="%02f" % Float(row['BulkPrice']),
+            VAT="%02f" % Float(row['VAT']),
+            Method=defaultmethod,
+            Methods=methods,
+            ManualEntryOfResults=allowmanualentry,
+            InstrumentEntryOfResults=allowinstrentry,
+            Instrument = defaultinstrument,
+            Instruments=instruments,
+            Calculation=_calculation,
+            UseDefaultCalculation=usedefaultcalculation,
+            DuplicateVariation="%02f" % Float(row['DuplicateVariation']),
+            Accredited=self.to_bool(row['Accredited']),
+            InterimFields=hasattr(self, 'service_interims') and self.service_interims.get(
+                row['title'], []) or [],
+            Separate=self.to_bool(row.get('Separate', False)),
+            Container=container,
+            Preservation=preservation,
+            CommercialID=row.get('CommercialID', ''),
+            ProtocolID=row.get('ProtocolID', '')
+        )
+        obj.unmarkCreationFlag()
+        renameAfterCreation(obj)
+        notify(ObjectInitializedEvent(obj))
+    self.load_result_options()
+    self.load_service_uncertainties()
 
 def import_Analysis_Specifications(self):
         """change all bucket[parent][title][resultsrange]"""
@@ -312,6 +321,7 @@ def import_Analysis_Specifications(self):
                 if parent == "lab":
                     folder = self.context.bika_setup.bika_analysisspecs
                 else:
+                    logger.info("parent '%s' for title '%s'", parent, field)
                     proxy = client_catalog(
                         portal_type="Client", getName=safe_unicode(parent))[0]
                     folder = proxy.getObject()
@@ -333,12 +343,12 @@ def import_samplematrices(self):
     setup = api.get_senaite_setup()
     folder = setup.samplematrices
     for row in self.get_rows(3):
-        title = api.safe_unicode(row.get("title"))
+        title = _maybe_unicode(row.get("title"))
         if not title:
             continue
 
-        obj = api.create(folder, "SampleMatrix", title=title, description=row.get("description"))
-        ma_title = row.get("marketing_authorization")
+        obj = api.create(folder, "SampleMatrix", title=title, description=_maybe_unicode(row.get("description")))
+        ma_title = _maybe_unicode(row.get("marketing_authorization"))
 
         if ma_title:
             ma = get_marketing_authorization_by_reg_num(ma_title)
@@ -355,20 +365,20 @@ def import_analysis_profiles(self):
     self.load_analysis_profile_sampletypes()
     folder = self.context.setup.analysisprofiles
     for row in self.get_rows(3):
-        title = row.get("title", "")
-        description = row.get("description", "")
-        profile_key = row.get("ProfileKey", "")
-        commercial_id = row.get("CommercialID", "")
+        title = _maybe_unicode(row.get("title", ""))
+        description = _maybe_unicode(row.get("description", ""))
+        profile_key = _maybe_unicode(row.get("ProfileKey", ""))
+        commercial_id = _maybe_unicode(row.get("CommercialID", ""))
         analysis_profile_price = row.get("AnalysisProfilePrice")
         analysis_profile_vat = row.get("AnalysisProfileVAT")
         use_analysis_profile_price = row.get("UseAnalysisProfilePrice")
         if title:
             obj = api.create(folder, "AnalysisProfile")
             api.edit(obj,
-                     title=api.safe_unicode(title),
-                     description=api.safe_unicode(description),
-                     profile_key=api.safe_unicode(profile_key),
-                     commercial_id=api.safe_unicode(commercial_id),
+                     title=_maybe_unicode(title),
+                     description=_maybe_unicode(description),
+                     profile_key=_maybe_unicode(profile_key),
+                     commercial_id=_maybe_unicode(commercial_id),
                      analysis_profile_price=api.to_float(
                          analysis_profile_price, 0.0),
                      analysis_profile_vat=api.to_float(
@@ -467,7 +477,7 @@ def setup_to_choice_value(self, field, value):
 def setup_Import(self):
         values = {}
         for row in self.get_rows(3):
-            values[row['Field']] = row['Value']
+            values[row['Field']] = api.safe_unicode(row['Value'])
 
         setup = api.get_senaite_setup()
         logger.info("iterschmate is: '%s'", iterSchemata(setup))

@@ -1,0 +1,40 @@
+<tal:product-data tal:define="mktauth python: options.get('mktauth', None);
+                             product python: options.get('product', None);
+                             cert_id python: options.get('cert_id', None);">
+  <table class="data-table">
+    <colgroup>
+      <col class="data-table-col-1">
+      <col class="data-table-col-2">
+      <col class="data-table-col-3">
+      <col class="data-table-col-4">
+    </colgroup>
+    <tbody>
+      <tr>
+        <th>Producto</th>
+        <td tal:content="mktauth/TradeName">Nombre Producto</td>
+        <th tal:condition="cert_id">Código de Certificado</th>
+        <td tal:condition="cert_id" tal:content="cert_id">01-2027</td>
+      </tr>
+      <tr>
+        <th>DCI</th>
+        <td tal:content="mktauth/GenericName" colspan="3">Nombre Genérico</td>
+      </tr>
+      <tr>
+        <th>Forma Farmacéutica</th>
+        <td tal:content="mktauth/DosageForm">Tableta</td>
+        <th>Registro Sanitario</th>
+        <td tal:content="mktauth/RegistrationNumber">Reg-123</td>
+      </tr>
+      <tr>
+        <th>Concentración</th>
+        <td tal:content="mktauth/Concentrations">500 mg</td>
+        <th>Vía de Administración</th>
+        <td tal:content="mktauth/AdministrationRoute">Oral</td>
+      </tr>
+      <tr>
+        <th>Presentación</th>
+        <td colspan="3" tal:content="product/Presentation">Caja x 100</td>
+      </tr>
+    </tbody>
+  </table>
+</tal:product-data>

@@ -27,5 +27,9 @@
 
   <permission id="hoch.lims.permissions.TransitionProcess"
     title="hoch.lims: Transition Process"/>
+
+  <!-- Batch Release Permission -->
+  <permission id="hoch.lims.permissions.ReleaseBatch"
+    title="hoch.lims: Release Batch"/>
   
 </configure>

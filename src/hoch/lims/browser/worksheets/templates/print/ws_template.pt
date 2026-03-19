@@ -186,7 +186,8 @@
                                     unit an/formatted_unit;
                                     formatted_specs_to_show python: formatted_specs +' '+ unit if formatted_specs else 'N/A';
                                     formatted_result_to_show python: formatted_result +' '+ unit if formatted_result else '-';
-                                    consumables python: view.get_consumables(an['obj']);
+                                    an_obj python: an['obj'] or None;
+                                    consumables python: view.get_consumables(an_obj);
                                     result_type an/obj/getResultType">
 
                         <td  tal:attributes="rowspan python: '1'"
@@ -237,7 +238,7 @@
                                 tal:content="python: 'No Conforme' if an['outofrange'] else 'Conforme' if an['capture_date'] else 'No realizado'"/>
                         </td>
                     </tr>
-                    <div tal:condition="calc">
+                    <div tal:condition="Rows_InterimFields">
                         <tr>
                             <td tal:attributes="rowspan python:Rows_an-1" style="border-left: none; border-bottom: none;"></td>
                             <td class="text-right font-weight-bold" tal:attributes="rowspan Rows_calc"> Variables:</td>
@@ -249,6 +250,8 @@
                                 </span>
                             </td>
                         </tr>
+                    </div>
+                    <div tal:condition="calc">
                         <tr tal:condition="calc/DependentServices">
                             <td class="text-right">Análisis dependendientes:</td>
                             <td colspan="5"  >

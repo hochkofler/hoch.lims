@@ -23,6 +23,8 @@ class PrintView(BasePrintView):
                             gt_operator=None, geq_operator=None)
         
     def get_consumables(self, analysis):
+        if not analysis:
+            return []
         consumables_dict = []
         consumables_raw = analysis.getConsumablesFields()
         if not consumables_raw:
@@ -35,6 +37,8 @@ class PrintView(BasePrintView):
                 continue
             ref_definition_obj = api.get_object_by_uid(ref_definition_uid)
             if not ref_definition_obj:
+                continue
+            if not consumable_uid:
                 continue
             consumable_obj = api.get_object_by_uid(consumable_uid) or ''
             consumables_dict.append(

@@ -1,0 +1,66 @@
+<tal:coa-results tal:define="sorted_categories python: options.get('sorted_categories', []);
+                            analyses_by_category python: options.get('analyses_by_category', {});
+                            remarks python: options.get('remarks', []);
+                            model view/model;">
+  <div class="section-results">
+    <table class="results-table" style="border: 1px solid black;">
+      <thead>
+        <tr>
+          <th style="width: 35%">Análisis</th>
+          <th style="width: 10%">Método</th>
+          <th style="width: 20.5%" class="specs-cell">Especificación</th>
+          <th style="width: 4%" class="unit-cell"></th>
+          <th style="width: 20.5%" class="result-cell">Resultado</th>
+          <th style="width: 4%" class="unit-cell"></th>
+          <th style="width: 6%">Conformidad</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tal:block tal:repeat="category sorted_categories">
+          <tr class="category-row">
+            <th colspan="7" tal:content="category/Title">Categoría</th>
+          </tr>
+          <tal:block tal:repeat="analysis python: analyses_by_category[category]">
+            <tr tal:condition="not: analysis/Hidden"
+                tal:define="formatted_unit python:model.get_formatted_unit(analysis);
+                            formatted_result python:model.get_formatted_result(analysis);
+                            formatted_specs python:view.get_formatted_specs(analysis, leq_operator='&le;',
+                                                  geq_operator='&ge;');
+                            is_numeric python: analysis.get('ResultType') in ('numeric', '', None);
+                            remark_text python: analysis.get('Remarks', '');
+                            remark_index_already_exists python: next((remark[0] for remark in remarks if remark[1] == remark_text), None);
+                            remark_index python: remark_index_already_exists if remark_index_already_exists else (len(remarks) + 1 if remark_text else None);
+                            _dummy python: remarks.append((remark_index, remark_text)) if remark_text and not remark_index_already_exists else None;">
+              <td>
+                <span tal:content="analysis/Title">Ensayo ABC</span>
+              </td>
+              <td>
+                <span tal:define="methodId analysis/Method/MethodID|nothing"
+                      tal:content="structure python:view.hyphenize(methodId)">Metodo-01</span>
+              </td>
+              <td class="specs-cell">
+                <span tal:content="formatted_specs">Specs</span>
+              </td>
+              <td class="unit-cell">
+                <span tal:condition="formatted_specs" tal:content="structure formatted_unit"></span>
+              </td>
+              <td tal:attributes="class python: 'result-cell text-right' if is_numeric else 'result-cell text-left'">
+                <span tal:content="structure formatted_result"></span>
+                <sup tal:condition="remark_index" tal:content="python:'[' + str(remark_index) + ']'"></sup>
+              </td>
+              <td class="unit-cell">
+                <span tal:condition="is_numeric" tal:content="structure formatted_unit"></span>
+              </td>
+              <td>
+                <span tal:define="out_of_range python:model.is_out_of_range(analysis)"
+                      tal:condition="out_of_range" class="out-of-range">NO CONFORME</span>
+                <span tal:define="out_of_range python:model.is_out_of_range(analysis)"
+                      tal:condition="not:out_of_range">CONFORME</span>
+              </td>
+            </tr>
+          </tal:block>
+        </tal:block>
+      </tbody>
+    </table>
+  </div>
+</tal:coa-results>

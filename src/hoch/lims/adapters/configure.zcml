@@ -1,0 +1,13 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    i18n_domain="hoch.lims">
+
+  <!-- Batch Guard Adapter for workflow transitions -->
+  <adapter
+      for="bika.lims.interfaces.IBatch"
+      provides="bika.lims.interfaces.IGuardAdapter"
+      factory=".batch.BatchGuardAdapter"
+      name="hoch_batch_guard"
+      />
+
+</configure>

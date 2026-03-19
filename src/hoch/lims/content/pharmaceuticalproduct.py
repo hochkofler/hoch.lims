@@ -235,3 +235,9 @@ class PharmaceuticalProduct(Container):
     def getProcessGroup(self):
         accessor = self.accessor("process_group")
         return accessor(self)
+
+    @security.protected(permissions.ModifyPortalContent)
+    def setProcessGroup(self, value):
+        """Set the Process Group for this Pharmaceutical Product."""
+        mutator = self.mutator("process_group")
+        mutator(self, value)

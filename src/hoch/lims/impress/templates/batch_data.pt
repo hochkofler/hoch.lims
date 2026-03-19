@@ -1,6 +1,6 @@
 <table tal:define="batch python: options.get('batch', None);
                     mktauth python: options.get('mktauth', None);
-                    analysis python: options.get('analysis', None);" class="table table-sm table-condensed nopadding">
+                    analysis python: options.get('analysis', None);" class="data-table">
     <tr>
         <td class="label noborder-right">
             <span class="colon-after">PRODUCTO</span>

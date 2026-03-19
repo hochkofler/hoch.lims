@@ -6,6 +6,13 @@
   </roles>
   
   <permissions>
+    <permission name="hoch.lims: Field: Edit Extended Field" acquire="False">
+      <role name="Manager"/>
+      <role name="LabManager"/>
+      <role name="LabClerk"/>
+      <role name="Client"/>
+    </permission>
+
     <!-- Cada permiso debe tener 'name' y 'acquire' -->
     <permission name="hoch.lims: Add MarketingAuthorization" acquire="False">
       <role name="Manager"/>

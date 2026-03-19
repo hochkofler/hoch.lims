@@ -11,7 +11,7 @@ from hoch.lims.content.fields import UIDReferenceFieldAT, ExtDateTimeFieldAT, Ex
 from hoch.lims.interfaces import IHochLims
 from senaite.core.browser.widgets.referencewidget import ReferenceWidget
 from bika.lims.browser.widgets import DateTimeWidget
-from Products.Archetypes.Widget import IntegerWidget
+from Products.Archetypes.Widget import IntegerWidget, StringWidget
 from hoch.lims.catalog import HOCHLIMS_CATALOG
 from hoch.lims import messageFactory as _
 from DateTime.DateTime import DateTime
@@ -103,6 +103,61 @@ class BatchSchemaExtender(object):
                     u"label_batch_releasedbatchsize",
                     default=u"Released batch size",
                 ),)
+        ),
+        UIDReferenceFieldAT(
+            'ReleasePublication',
+            allowed_types=['ResultsReport'],
+            mode="rw",
+            required=False,
+            multiValued=False,
+            relationship='BatchReleasePublication',
+            render_own_label=True,
+            read_permission=View,
+            write_permission=ModifyPortalContent,
+            widget=ReferenceWidget(
+                label=_(
+                    u"label_batch_release_publication",
+                    default=u"Batch Release COA"),
+                description=_(
+                    u"description_batch_release_publication",
+                    default=u"Select the multi-sample publication for batch release"),
+                visible=True,
+                catalog='senaite_catalog_report',
+                base_query={
+                    'portal_type': 'ResultsReport',
+                    'sort_on': 'created',
+                    'sort_order': 'descending',
+                },
+                search_fields=('title', 'id'),
+                showOn=True,
+            )),
+        ExtDateTimeFieldAT(
+            'ReleaseDate',
+            mode="rw",
+            required=False,
+            widget=DateTimeWidget(
+                label=_(
+                    u"label_batch_release_date",
+                    default=u"Release Date"),
+                description=_(
+                    u"description_batch_release_date",
+                    default=u"Date when the batch was released"),
+                visible={'edit': 'hidden', 'view': 'visible'},
+            ),
+        ),
+        ExtStringFieldAT(
+            'ReleasedBy',
+            mode="rw",
+            required=False,
+            widget=StringWidget(
+                label=_(
+                    u"label_batch_released_by",
+                    default=u"Released By"),
+                description=_(
+                    u"description_batch_released_by",
+                    default=u"User who released the batch"),
+                visible={'edit': 'hidden', 'view': 'visible'},
+            ),
         ),
         
     ]

@@ -13,4 +13,11 @@
     ignoreOriginal="True"
     replacement=".analysisrequest.getDestinationsVocabulary" />
 
+  <monkey:patch
+    description="Monkey patch for AnalysisRequest process vocabulary"
+    class="bika.lims.content.analysisrequest.AnalysisRequest"
+    original="getProcessesVocabulary"
+    ignoreOriginal="True"
+    replacement=".analysisrequest.getProcessesVocabulary" />
+
 </configure>

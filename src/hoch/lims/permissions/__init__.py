@@ -4,6 +4,7 @@ EditMarketingAuthorization = "hoch.lims: Edit MarketingAuthorization"
 ViewMarketingAuthorization = "hoch.lims: View MarketingAuthorization"
 TransitionMarketingAuthorization = "hoch.lims: Transition MarketingAuthorization"
 TransitionProcess = "hoch.lims: Transition Process"
+FieldEditExtendedField = "hoch.lims: Field: Edit Extended Field"
 ManageMarketingAuthorizations = "hoch.lims: Manage Marketing Authorizations"
 
 #AddMarketingAuthorizations = "hoch.lims: Add MarketingAuthorizations"

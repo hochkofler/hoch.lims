@@ -1,0 +1,150 @@
+<?xml version="1.0"?>
+<dc-workflow xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+             workflow_id="hoch_batch_workflow"
+             title="Hoch Batch Workflow"
+             description="Workflow for batch release in pharmaceutical manufacturing"
+             state_variable="review_state"
+             initial_state="open"
+             manager_bypass="False"
+             i18n:domain="hoch.lims">
+
+  <!-- MANAGED PERMISSIONS -->
+  <permission>Access contents information</permission>
+  <permission>Modify portal content</permission>
+  <permission>View</permission>
+  <permission>hoch.lims: Release Batch</permission>
+  <!-- /MANAGED PERMISSIONS -->
+
+  <!-- State: open -->
+  <state state_id="open" title="Open" i18n:attributes="title">
+    <exit-transition transition_id="close" />
+    <permission-map name="Access contents information" acquired="False">
+      <permission-role>Authenticated</permission-role>
+    </permission-map>
+    <permission-map name="Modify portal content" acquired="False">
+      <permission-role>LabManager</permission-role>
+      <permission-role>Manager</permission-role>
+    </permission-map>
+    <permission-map name="View" acquired="False">
+      <permission-role>Authenticated</permission-role>
+    </permission-map>
+  </state>
+
+  <!-- State: closed -->
+  <state state_id="closed" title="Closed" i18n:attributes="title">
+    <exit-transition transition_id="release" />
+    <exit-transition transition_id="reopen" />
+    <permission-map name="Access contents information" acquired="False">
+      <permission-role>Authenticated</permission-role>
+    </permission-map>
+    <permission-map name="Modify portal content" acquired="False">
+      <permission-role>Manager</permission-role>
+    </permission-map>
+    <permission-map name="View" acquired="False">
+      <permission-role>Authenticated</permission-role>
+    </permission-map>
+  </state>
+
+  <!-- State: released -->
+  <state state_id="released" title="Released" i18n:attributes="title">
+    <permission-map name="Access contents information" acquired="False">
+      <permission-role>Authenticated</permission-role>
+    </permission-map>
+    <permission-map name="Modify portal content" acquired="False">
+      <permission-role>Manager</permission-role>
+    </permission-map>
+    <permission-map name="View" acquired="False">
+      <permission-role>Authenticated</permission-role>
+    </permission-map>
+  </state>
+
+  <!-- Transition: close -->
+  <transition transition_id="close" 
+              title="Close Batch" 
+              new_state="closed" 
+              trigger="USER" 
+              before_script="" 
+              after_script="" 
+              i18n:attributes="title">
+    <action url="" category="workflow" icon="">Close Batch</action>
+    <guard>
+      <guard-permission>Modify portal content</guard-permission>
+    </guard>
+  </transition>
+
+  <!-- Transition: release -->
+  <transition transition_id="release" 
+              title="Release Batch" 
+              new_state="released" 
+              trigger="USER" 
+              before_script="" 
+              after_script="" 
+              i18n:attributes="title">
+    <action url="" category="workflow" icon="">Release Batch</action>
+    <guard>
+      <guard-permission>hoch.lims: Release Batch</guard-permission>
+      <guard-expression>python:here.guard_release_batch()</guard-expression>
+    </guard>
+  </transition>
+
+  <!-- Transition: reopen -->
+  <transition transition_id="reopen" 
+              title="Reopen Batch" 
+              new_state="open" 
+              trigger="USER" 
+              before_script="" 
+              after_script="" 
+              i18n:attributes="title">
+    <action url="" category="workflow" icon="">Reopen Batch</action>
+    <guard>
+      <guard-permission>Modify portal content</guard-permission>
+    </guard>
+  </transition>
+
+  <!-- WF Variables -->
+  <variable variable_id="action" for_catalog="False" for_status="True" update_always="True">
+    <description>Previous transition</description>
+    <default>
+      <expression>transition/getId|nothing</expression>
+    </default>
+    <guard>
+    </guard>
+  </variable>
+
+  <variable variable_id="actor" for_catalog="False" for_status="True" update_always="True">
+    <description>The ID of the user who performed the last transition</description>
+    <default>
+      <expression>user/getId</expression>
+    </default>
+    <guard>
+    </guard>
+  </variable>
+
+  <variable variable_id="comments" for_catalog="False" for_status="True" update_always="True">
+    <description>Comment about the last transition</description>
+    <default>
+      <expression>python:state_change.kwargs.get('comment', '')</expression>
+    </default>
+    <guard>
+    </guard>
+  </variable>
+
+  <variable variable_id="review_history" for_catalog="False" for_status="False" update_always="False">
+    <description>Provides access to workflow history</description>
+    <default>
+      <expression>state_change/getHistory</expression>
+    </default>
+    <guard>
+    </guard>
+  </variable>
+
+  <variable variable_id="time" for_catalog="False" for_status="True" update_always="True">
+    <description>When the previous transition was performed</description>
+    <default>
+      <expression>state_change/getDateTime</expression>
+    </default>
+    <guard>
+    </guard>
+  </variable>
+
+</dc-workflow>

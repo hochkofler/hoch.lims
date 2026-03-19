@@ -3,7 +3,7 @@
                         title_number python: options.get('title_number', 1);">
     <div class="font-size-120 font-weight-bold"
         tal:content="python: str(title_number) + '.- ' + title"></div>
-    <table class="table table-sm table-condensed nopadding">
+    <table class="results-table">
         <tr>
             <th>ID MUESTRA</th>
             <th>TIPO DE MUESTRA</th>
@@ -23,7 +23,7 @@
             <td tal:content="python: sample.getSubGroup().Title() if sample.getSubGroup() else ''"></td>
         </tr>
     </table>
-    <table tal:define="data python: options.get('data', None);" class="table table-sm table-condensed nopadding"
+    <table tal:define="data python: options.get('data', None);" class="results-table"
         tal:condition="data" style="margin-top: -3mm;">
         <thead>
             <tr>

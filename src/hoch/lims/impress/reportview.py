@@ -51,7 +51,14 @@ class MultiReportView(BaseMultiReportView):
     LAL_REPORT_TEMPLATE = PT("templates/lal_report.pt")
     MICROBIAL_TITRATION_REPORT_TEMPLATE = PT("templates/microbial_titration_report.pt")
     CONCLUSIONS_TEMPLATE = PT("templates/conclusions.pt")
-
+    TITRATION_HPLC_TEMPLATE = PT("templates/titration_hplc.pt")
+    CONSUMABLE_DATA_TEMPLATE = PT("templates/consumables_data.pt")
+    PRODUCT_DATA_TEMPLATE = PT("templates/product_data.pt")
+    COA_BATCH_DATA_TEMPLATE = PT("templates/coa_batch_data.pt")
+    COA_RESULTS_TEMPLATE = PT("templates/coa_results.pt")
+    COA_VERDICT_TEMPLATE = PT("templates/coa_verdict.pt")
+    COA_SIGNATURES_TEMPLATE = PT("templates/coa_signatures.pt")
+    UC_REPORT_TEMPLATE = PT("templates/uc_report.pt")
     def __init__(self, context, collection, request):
         super(MultiReportView, self).__init__(collection, request)
         
@@ -94,6 +101,11 @@ class MultiReportView(BaseMultiReportView):
         """
         return self.SAMPLE_DATA_TEMPLATE(context, **kw)
     
+    def render_signatures(self, context, **kw):
+        """Render the signatures template with the given context and options
+        """
+        return self.SIGNATURE_TEMPLATE2(context, **kw)
+    
     def render_instrument_data(self, context, **kw):
         """Render the instrument data template with the given context and options
         """
@@ -121,6 +133,46 @@ class MultiReportView(BaseMultiReportView):
         """Render the conclusions template with the given context and options
         """
         return self.CONCLUSIONS_TEMPLATE(context, **kw)
+    
+    def render_titration_hplc(self, context, **kw):
+        """Render the titration HPLC template with the given context and options
+        """
+        return self.TITRATION_HPLC_TEMPLATE(context, **kw)
+    
+    def render_consumables_data(self, context, **kw):
+        """Render the consumables data template with the given context and options
+        """
+        return self.CONSUMABLE_DATA_TEMPLATE(context, **kw)
+
+    def render_product_data(self, context, **kw):
+        """Render the product data template (mktauth fields for COA header)
+        """
+        return self.PRODUCT_DATA_TEMPLATE(context, **kw)
+
+    def render_coa_batch_data(self, context, **kw):
+        """Render the COA batch data table (full lot info for certificate)
+        """
+        return self.COA_BATCH_DATA_TEMPLATE(context, **kw)
+
+    def render_coa_results(self, context, **kw):
+        """Render the COA results table with method, specs, remarks and conformity
+        """
+        return self.COA_RESULTS_TEMPLATE(context, **kw)
+
+    def render_coa_verdict(self, context, **kw):
+        """Render the COA verdict section (observations, dictamen, release date)
+        """
+        return self.COA_VERDICT_TEMPLATE(context, **kw)
+
+    def render_coa_signatures(self, context, **kw):
+        """Render the COA signatures section from a pre-built user_signatures list
+        """
+        return self.COA_SIGNATURES_TEMPLATE(context, **kw)
+
+    def render_uc_report(self, context, **kw):
+        """Render the UC (Uniformidad de Contenido) report section
+        """
+        return self.UC_REPORT_TEMPLATE(context, **kw)
 
     def formatted_interim(self, interim, dmk="."):
         return get_formatted_interim(interim, dmk)
@@ -429,7 +481,46 @@ class MultiReportView(BaseMultiReportView):
             fs = "%s %s" % (max_operator, formated_max)
 
         return formatDecimalMark(fs, self.get_decimal_mark())
+    
+    def get_consumables(self, analysis):
+        if not analysis:
+            return []
+        consumables_dict = []
+        consumables_raw = analysis.getConsumablesFields()
+        if not consumables_raw:
+            return consumables_dict
+        for consumable in consumables_raw:
+            logger.info("consumable: '%s'", consumable)
+            ref_definition_uid = consumable.get("keyword", '')
+            consumable_uid = consumable.get("value", '')
+            if not ref_definition_uid:
+                continue
+            ref_definition_obj = api.get_object_by_uid(ref_definition_uid)
+            if not ref_definition_obj:
+                continue
+            if not consumable_uid:
+                continue
+            consumable_obj = api.get_object_by_uid(consumable_uid) or ''
+            consumables_dict.append(
+                {
+                    "ref_definition_obj": ref_definition_obj,
+                    "consumable_obj": consumable_obj,
+                }
+            )
+        return consumables_dict
 
+    def group_analysis_by_interim_value(self, analyses, interim_keyword):
+        """Groups analyses by the value of a specified interim keyword.
+        Returns a dict mapping interim values to lists of analyses.
+        """
+        grouped = {}
+        for analysis in analyses:
+            interim_value = analysis.getInterimValue(interim_keyword)
+            if interim_value not in grouped:
+                grouped[interim_value] = []
+            grouped[interim_value].append(analysis)
+        return grouped
+    
 class SingleReportView(MultiReportView):
     """Controller view for single-reports
     """

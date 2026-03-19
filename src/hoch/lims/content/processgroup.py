@@ -12,6 +12,7 @@ from Products.CMFCore import permissions
 from plone.autoform import directives
 from senaite.core.z3cform.widgets.uidreference import UIDReferenceWidgetFactory
 from hoch.lims.content.fields import UIDReferenceFieldDx
+from senaite.core.catalog import SETUP_CATALOG
 
 class IProcessGroupSchema(model.Schema):
     """Process Group Schema"""
@@ -44,7 +45,7 @@ class IProcessGroupSchema(model.Schema):
 @implementer(IProcessGroup, IProcessGroupSchema)
 class ProcessGroup(Container):
     """Process Group content type"""
-    _catalogs = [HOCHLIMS_CATALOG]
+    _catalogs = [HOCHLIMS_CATALOG, SETUP_CATALOG]
     security = ClassSecurityInfo()
 
     @security.protected(permissions.View)

@@ -37,4 +37,13 @@
         layer="hoch.lims.interfaces.IHochLims"
     />
 
+    <!-- Batch workflow after-script handlers -->
+    <browser:page
+        name="hoch_batch_after_release"
+        for="bika.lims.interfaces.IBatch"
+        class=".batch.workflow.BatchAfterRelease"
+        permission="zope2.View"
+        layer="hoch.lims.interfaces.IHochLims"
+    />
+
 </configure>

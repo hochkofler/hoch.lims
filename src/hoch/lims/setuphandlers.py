@@ -49,8 +49,8 @@ CATALOGS = (
 CATALOG_MAPPINGS = (
     ("MarketingAuthorization", [HOCHLIMS_CATALOG]),
     ("PharmaceuticalProduct", [HOCHLIMS_CATALOG]),
-    ("ProcessGroup", [HOCHLIMS_CATALOG]),
-    ("Process", [HOCHLIMS_CATALOG]),
+    ("ProcessGroup", [HOCHLIMS_CATALOG, SETUP_CATALOG]),
+    ("Process", [HOCHLIMS_CATALOG, SETUP_CATALOG]),
 )
 
 # Folder in sidebar (folder_id, folder_name, type)
@@ -96,6 +96,18 @@ ID_FORMATTING = [
         "portal_type": "PharmaceuticalProduct",
         "form": "P{seq:06d}",
         "prefix": "pharmaceuticalproduct",
+        "sequence_type": "generated",
+        "split_length": 1,
+    }, {
+        "portal_type": "Process",
+        "form": "PR{seq:05d}",
+        "prefix": "process",
+        "sequence_type": "generated",
+        "split_length": 1,
+    }, {
+        "portal_type": "ProcessGroup",
+        "form": "PG{seq:05d}",
+        "prefix": "processgroup",
         "sequence_type": "generated",
         "split_length": 1,
     }

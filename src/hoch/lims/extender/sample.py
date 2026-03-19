@@ -6,27 +6,15 @@ from archetypes.schemaextender.interfaces import ISchemaExtender
 from archetypes.schemaextender.interfaces import ISchemaModifier
 from bika.lims.interfaces import IAnalysisRequest
 from Products.Archetypes.Widget import IntegerWidget
-from Products.CMFCore.permissions import View, ModifyPortalContent
+from Products.CMFCore.permissions import View
 from bika.lims.browser.widgets import SelectionWidget as BikaSelectionWidget
 from senaite.core.permissions import FieldEditSampleType
+from hoch.lims.permissions import FieldEditExtendedField
 from zope.component import adapts
 from zope.interface import implements
 from hoch.lims import messageFactory as _
 from hoch.lims.content.fields import ExtIntegerFieldAT, ExtStringFieldAT
 from hoch.lims.interfaces import IHochLims
-from zope.component import getUtility
-from zope.schema.interfaces import IVocabularyFactory
-from Products.Archetypes.public import DisplayList
-
-def getDestinations(self):
-    factory = getUtility(
-        IVocabularyFactory,
-        name='hoch.lims.vocabularies.destinations'
-    )
-    vocab = factory(self.context)
-
-    pairs = [(t.value, t.title) for t in vocab]
-    return DisplayList(pairs)
 
 class SampleSchemaExtender(object):
     """Extend Schema Fields for Samples
@@ -43,6 +31,7 @@ class SampleSchemaExtender(object):
             "SampledUnits",
             mode="rw",
             read_permission=View,
+            write_permission=View,
             required=1,
             default=1,
             widget=IntegerWidget(
@@ -100,23 +89,6 @@ class SampleSchemaExtender(object):
     def __init__(self, context):
         self.context = context
 
-    def getProcessesVocabulary(self):
-        """Return the processes for the linked product's process group"""
-        batch = self.context.getBatch()
-        if not batch:
-            return DisplayList()
-
-        product = batch.getProduct()
-        if not product:
-            return DisplayList()
-
-        process_group = product.getProcessGroup()
-        if not process_group:
-            return DisplayList()
-
-        processes = process_group.getProcesses()
-        pairs = [(p, p) for p in processes]
-        return DisplayList(pairs)
 
     def getFields(self):
         return self.fields

@@ -5,6 +5,7 @@ from senaite.core.content.base import Item
 from hoch.lims.interfaces import IProcess
 from zope.interface import implementer
 from hoch.lims.catalog import HOCHLIMS_CATALOG
+from senaite.core.catalog import SETUP_CATALOG
 
 import zope.schema as schema
 from hoch.lims import messageFactory as _
@@ -27,4 +28,4 @@ class IProcessSchema(model.Schema):
 @implementer(IProcess, IProcessSchema)
 class Process(Item):
     """Process content type"""
-    _catalogs = [HOCHLIMS_CATALOG]
+    _catalogs = [HOCHLIMS_CATALOG, SETUP_CATALOG]

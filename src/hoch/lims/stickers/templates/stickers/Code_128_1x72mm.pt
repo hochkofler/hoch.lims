@@ -36,14 +36,16 @@
 
   <table cellpadding="0" cellspacing="0" class="info-container">
     <tr style="text-align: left;">
-        <td style="border: none;">
-            <span>Etiq. muestra control</span>
+        <td style="border: none; width: auto;">
+            <span>Etiq. muestra</span>
         </td>
-        <td colspan="2" style="border: none;">
+        <td style="border: none; width: auto;">
             <span>IFA-PIN-ETQ-0001</span>
+        </td>
+        <td style="border: none; width: auto;">
             <span>Ver: 2</span>
         </td>
-        <td style="border: none;">
+        <td style="border: none; width: auto;">
             <span tal:content="destination_title"/>
         </td>
     </tr>
@@ -63,16 +65,16 @@
     </tr>
     <tr>
       <th i18n:translate="">Proceso</th>
-      <td tal:content="python: ', '.join(processes) if processes else ''"/>
+      <td tal:content="processes"/>
       <th i18n:translate="">Cant.</th>
       <td tal:content="sample_units"/>
     </tr>
     <tr>
-      <th i18n:translate="">Punto de Muestreo</th>
+      <th i18n:translate="">Punto de M.</th>
       <td colspan='3' tal:content="sample_point"/>
     </tr>
     <tr>
-      <th i18n:translate="">Fecha Muestreo</th>
+      <th i18n:translate="">F. Muestreo</th>
       <td tal:content="date_sampled"/>
       <th i18n:translate="">Ref:</th>
       <td> <span tal:content="subgroup_title"/>

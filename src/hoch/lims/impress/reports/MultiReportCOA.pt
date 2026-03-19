@@ -2,30 +2,25 @@
                      laboratory python:view.laboratory;
                      analyses python: view.get_analyses_by(collection);
                      current_user python: view.current_user.get('username', '');
-                     report_options python:options.get('report_options', {});
-                     show_conditions python:bool(report_options.get('show_conditions', True));
+                     report_options python: options.get('report_options', {});
+                     show_conditions python: bool(report_options.get('show_conditions', True));
                      cert_id python: view.get_coa_number();
-                     model python:view.model;
-                     model_summary python:collection[0];
-                     batch python:model_summary.getBatch();
+                     model python: view.model;
+                     model_summary python: collection[0];
+                     batch python: model_summary.getBatch();
                      product model_summary/Batch/Product;
                      mktauth product/MarketingAuthorization;
-                     reporter python:view.current_user;
-                     analysts_user_names python:view.uniquify_items(reduce(lambda a1, a2: a1+a2, map(lambda m: m.getAnalysts(), collection)));
+                     analysts_user_names python: view.uniquify_items(reduce(lambda a1, a2: a1+a2, map(lambda m: m.getAnalysts(), collection)));
                      supervisor_user python: laboratory.get('Supervisor');
                      analysts python: [supervisor_user.getContactByUsername(u) for u in analysts_user_names if supervisor_user.getContactByUsername(u)];
                      supervisor python: [supervisor_user] if supervisor_user else [];
-
-                     user_signatures python: [{'users': analysts,'role':'Analista de Control de Calidad'}, 
-                                              {'users': supervisor, 'role':'Jefe de Control de Calidad'}];
-                     
+                     user_signatures python: [{'users': analysts, 'role': 'Analista de Control de Calidad'},
+                                              {'users': supervisor, 'role': 'Jefe de Control de Calidad'}];
                      date_format string:%d-%m-%Y;
                      expire_format string:%m-%Y;
-                     date_time_format string:%d-%m-%Y %H:%M:%S;
                      batch_expire python: batch.ExpirationDate.strftime(expire_format) if batch.ExpirationDate else '';
                      batch_manufacture python: batch.ManufactureDate.strftime(date_format) if batch.ManufactureDate else '';
-                     publish_datetime python:view.timestamp.strftime(date_time_format);
-                     analyses_by_category python:view.group_items_by('Category', analyses);
+                     analyses_by_category python: view.group_items_by('Category', analyses);
                      sorted_categories python: view.sort_items(analyses_by_category);
                      in_aceptable_range_coa python: all(not(model.is_out_of_range(analysis)) for analysis in analyses);
                      verified_date python: max([sample.getDateVerified() for sample in collection if sample.getDateVerified()]);
@@ -41,223 +36,87 @@
   <!-- REPORT CSS -->
   <tal:t replace="structure python:view.render_css(context, **options)" />
 
-  <style type="text/css" media="print" tal:condition="python: True">
+  <style type="text/css" media="print">
+    /* Captura el título del sub-informe para el encabezado running, sin ocupar espacio */
+    h1.page-title {
+      string-set: title content();
+      font-size: 0;
+      line-height: 0;
+      height: 0;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      display: block;
+    }
+
+    /* Numeración por defecto en todas las páginas */
+    @page {
+      @bottom-right {
+        content: "Pág. " counter(page) " de " counter(pages);
+        font-size: 8pt;
+        margin-bottom: 10mm;
+      }
+    }
+
+    /* Portada COA: sin numeración */
     .coa {
       page: coa;
     }
-    @page coa{
+    @page coa {
       margin-top: 25mm !important;
       margin-bottom: 20mm !important;
+      @bottom-right { content: " "; }
+    }
+
+    /* Sub-informes (HPLC, UC): encabezado con título del h1.page-title + numeración */
+    .section-titration-micro {
+      page: sub-report;
+    }
+    @page sub-report {
+      @top-center {
+        content: String(title);
+        font-size: 9pt;
+        margin-top: 10mm;
+        white-space: pre;
+      }
+      @bottom-right {
+        content: "Pág. " counter(page) " de " counter(pages);
+        font-size: 8pt;
+        margin-bottom: 10mm;
+      }
     }
   </style>
+
+  <!-- COA PAGE -->
   <div class="coa page-break-after">
-    <div class="main-title"> 
+    <div class="main-title">
       <span>Certificado de Control de Calidad - Producto Terminado</span>
-      <span tal:condition="python: False" tal:content="cert_id"></span>
     </div>
+
     <!-- SECTION 1: DATOS GENERALES -->
     <div class="section-general">
-      <!-- 1.a Datos del Producto -->
-      <table class="data-table">
-        <colgroup>
-          <col class="data-table-col-1">
-          <col class="data-table-col-2">
-          <col class="data-table-col-3">
-          <col class="data-table-col-4">
-        </colgroup>
-        <tbody>
-          <tr>
-            <th>Producto</th>
-            <td tal:content="mktauth/TradeName">Nombre Producto</td>
-            <th>Código de Certificado</th>
-            <td tal:content="cert_id">01-2027</td>
-          </tr>
-          <tr>
-            <th>DCI</th>
-            <td tal:content="mktauth/GenericName" colspan="3">Nombre Genérico</td>
-          </tr>
-          <tr>
-            <th>Forma Farmacéutica</th>
-            <td tal:content="mktauth/DosageForm">Tableta</td>
-            <th>Registro Sanitario</th>
-            <td tal:content="mktauth/RegistrationNumber">Reg-123</td>
-          </tr>
-          <tr>
-            <th>Concentración</th>
-            <td tal:content="mktauth/Concentrations">500 mg</td>
-            <th>Vía de Administración</th>
-            <td tal:content="mktauth/AdministrationRoute">Oral</td>
-          </tr>
-          <tr>
-            <th>Presentación</th>
-            <td colspan="3" tal:content="product/Presentation">Caja x 100</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- 1.b Datos del Lote -->
-      <table class="data-table">
-        <colgroup>
-          <col class="data-table-col-1">
-          <col class="data-table-col-2">
-          <col class="data-table-col-3">
-          <col class="data-table-col-4">
-        </colgroup>
-        <tbody>
-          <tr>
-            <th>N° Lote</th>
-            <td tal:content="batch/ClientBatchID">L-12345</td>
-            <th>Cantidad</th>
-            <td>
-              <span tal:content="python: batch.ReleasedBatchSize or batch.BatchSize">1000</span>
-              <span tal:content="mktauth/DosageUnit">Unidades</span>
-            </td>
-          </tr>
-          <tr>
-            <th>Fecha Fabricación</th>
-            <td tal:content="batch_manufacture">01-01-2025</td>
-            <th>Fecha Vencimiento</th>
-            <td tal:content="batch_expire">01-2027</td>
-          </tr>
-          <tr>
-            <th>Fecha de Análisis</th>
-            <td tal:content="python: first_capture_date.strftime(date_format)">01-01-2027</td>
-          </tr>
-        </tbody>
-      </table>
+      <tal:t replace="structure python:view.render_product_data(context, mktauth=mktauth, product=product, cert_id=cert_id)" />
+      <tal:t replace="structure python:view.render_coa_batch_data(context, batch=batch, mktauth=mktauth,
+                        batch_manufacture=batch_manufacture, batch_expire=batch_expire,
+                        first_capture_date=first_capture_date, date_format=date_format)" />
     </div>
 
     <!-- SECTION 2: RESULTADOS -->
-    <div class="section-results">
-      <!-- <h2>2. Resultados</h2> -->
-      <table class="results-table" style="border: 1px solid black;">
-        <thead>
-          <tr>
-            <th style="width: 35%">Análisis</th>
-            <th style="width: 10%">Método</th>
-            <th style="width: 20.5%" class="specs-cell">Especificación</th>
-            <th style="width: 4%" class="unit-cell"></th>
-            <th style="width: 20.5%" class="result-cell">Resultado</th>
-            <th style="width: 4%" class="unit-cell"></th>
-            <th style="width: 6%">Conformidad</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tal:block tal:repeat="category sorted_categories">
-            <!-- Category Header Row -->
-            <tr class="category-row">
-              <th colspan="7" tal:content="category/Title">Categoría</th>
-            </tr>
-            <!-- Analysis Rows -->
-             <tal:block tal:repeat="analysis python: analyses_by_category[category]">
-               <tr tal:condition="not: analysis/Hidden"
-                  tal:define="formatted_unit python:model.get_formatted_unit(analysis);
-                              formatted_result python:model.get_formatted_result(analysis);
-                              formatted_specs python:view.get_formatted_specs(analysis, leq_operator='&le;', 
-                                                    geq_operator= '&ge;');
-                              remark_text python: analysis.get('Remarks', '');
-                              remark_index_already_exists python: next((remark[0] for remark in remarks if remark[1] == remark_text), None);
-                              remark_index python: remark_index_already_exists if remark_index_already_exists else (len(remarks) + 1 if remark_text else None);
-                              _dummy python: remarks.append((remark_index, remark_text)) if remark_text and not remark_index_already_exists else None;">
-                 <!-- Análisis -->
-                 <td>
-                    <span tal:content="analysis/Title">Ensayo ABC</span>
-                    <!-- Footnotes/Conditions Logic could go here if needed, keeping it simple for structure -->
-                 </td>
-                 <!-- Método -->
-                 <td>
-                    <span tal:define="methodId analysis/Method/MethodID|nothing"
-                          tal:content="structure python:view.hyphenize(methodId)">Metodo-01</span>
-                 </td>
-                 <!-- Especificación -->
-                 <td class="specs-cell">
-                    <span tal:content="formatted_specs">Specs</span>
-                 </td>
-                 <!-- Unidad -->
-                 <td class="unit-cell">
-                    <span tal:condition="formatted_specs" tal:content="structure formatted_unit"></span>
-                 </td>
-                 <!-- Resultado -->
-                 <td class="result-cell">
-                    <span tal:content="structure formatted_result"></span>
-                    <sup tal:condition="remark_index" tal:content="python:'[' + str(remark_index) + ']'"></sup>
-                 </td>
-                 <!-- Unidad -->
-                 <td class="unit-cell">
-                    <span tal:content="structure python:model.get_formatted_unit(analysis)"></span>
-                 </td>
-                 <!-- Conformidad -->
-                 <td>
-                    <span tal:define="out_of_range python:model.is_out_of_range(analysis)"
-                          tal:condition="out_of_range" class="out-of-range">NO CONFORME</span>
-                    <span tal:define="out_of_range python:model.is_out_of_range(analysis)"
-                          tal:condition="not:out_of_range">CONFORME</span>
-                 </td>
-               </tr>
-             </tal:block>
-          </tal:block>
-        </tbody>
-      </table>
-    </div>
+    <tal:t replace="structure python:view.render_coa_results(context, sorted_categories=sorted_categories,
+                      analyses_by_category=analyses_by_category, remarks=remarks)" />
 
     <!-- SECTION 3: OBSERVACIONES Y DICTAMEN -->
-    <div class="section-comments keep-together">
-      <!-- <h2>3. Observaciones y Dictamen</h2> -->
-      <div class="comments-section">
-        <div>Este documento no debe ser reproducido excepto en su totalidad, sin la aprobación por escrito de Laboratorios IFA.</div>
-        <tal:block tal:repeat="remark remarks">
-          <div>
-            <span tal:content="structure python: '[' + str(remark[0]) + ']'"></span>
-            <span tal:content="structure python: ' ' + remark[1]"></span>
-          </div>
-        </tal:block>
-        <div>
-          <strong>Observaciones:</strong>
-          <span>N/A</span>
-        </div>
-      </div>
-      
-      <div class="verdict-section">
-        <span class="verdict-label">DICTAMEN</span>
-        <span class="verdict-value"
-              tal:attributes="class python: 'verdict-value ' + ('text-danger' if not(in_aceptable_range_coa) else '')"
-              tal:content="python:'APROBADO' if in_aceptable_range_coa else 'RECHAZADO'">
-          APROBADO
-        </span>
-        <div>
-          <strong>Fecha liberación:</strong>
-          <span tal:content="python:verified_date.strftime(date_format)"></span>
-        </div>
-      </div>
-    </div>
+    <tal:t replace="structure python:view.render_coa_verdict(context, in_aceptable_range_coa=in_aceptable_range_coa,
+                      remarks=remarks, verified_date=verified_date, date_format=date_format)" />
 
     <!-- SECTION 4: FIRMAS -->
-    <div class="section-signatures keep-together">
-      <!-- <h2>4. Firmas Autorizadas</h2> -->
-      <table class="signatures-table">
-        <tbody>
-          <tr>
-             <tal:block tal:repeat="role_group user_signatures">
-                <tal:block tal:repeat="user role_group/users">
-                  <td>
-                    <div class="signature-cell">
-                      <div class="signature-box" tal:condition="user">
-                        <img tal:condition="user/getSignature|nothing" 
-                            tal:attributes="src string:${user/absolute_url}/Signature"
-                            class="signature-img" />
-                      </div>
-
-                      <div class="font-bold" tal:content="user/getFullname">Nombre Usuario</div>
-                      <div tal:content="role_group/role">Cargo</div>
-                    </div>
-                  </td>
-
-                </tal:block>
-             </tal:block>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
+    <tal:t replace="structure python:view.render_coa_signatures(context, user_signatures=user_signatures)" />
   </div>
+
+  <!-- TITRATION HPLC REPORT -->
+  <tal:t replace="structure python:view.render_titration_hplc(context, batch=batch, mktauth=mktauth)" />
+
+  <!-- UC REPORT -->
+  <tal:t replace="structure python:view.render_uc_report(context, batch=batch, mktauth=mktauth)" />
+
 </tal:report>
