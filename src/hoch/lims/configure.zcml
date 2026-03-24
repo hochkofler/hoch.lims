@@ -78,6 +78,7 @@
   <include package=".browser" />
   <include package=".catalog" />
   <include package=".content" />
+  <include package=".datamanagers" />
   <include package=".impress"/>
   <include package=".jsonapi" />
   <include package=".listing" />

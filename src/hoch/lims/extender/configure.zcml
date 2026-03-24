@@ -12,6 +12,25 @@
     name="batch-extender"
     provides="archetypes.schemaextender.interfaces.ISchemaExtender"/>
 
+    <!-- Analysis Schema Extenders (Sub-Instruments + Consumables) -->
+    <adapter
+      factory=".analysis.AbstractBaseAnalysisSchemaExtender"
+      name="abstract-base-analysis-extender"
+      for="bika.lims.interfaces.IBaseAnalysis"
+      provides="archetypes.schemaextender.interfaces.ISchemaExtender"/>
+
+    <adapter
+      factory=".analysis.AbstractAnalysisSchemaExtender"
+      name="abstract-analysis-extender"
+      for="bika.lims.interfaces.IAnalysis"
+      provides="archetypes.schemaextender.interfaces.ISchemaExtender"/>
+
+    <adapter
+      factory=".analysis.AnalysisServiceSchemaExtender"
+      name="analysis-service-extender"
+      for="bika.lims.interfaces.IAnalysisService"
+      provides="archetypes.schemaextender.interfaces.ISchemaExtender"/>
+
     <adapter
       factory=".sample.SampleSchemaExtender"
       name="sample-extender"

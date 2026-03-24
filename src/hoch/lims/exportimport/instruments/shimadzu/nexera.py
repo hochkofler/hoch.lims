@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 import json
 import six
+from AccessControl.SecurityManagement import getSecurityManager
+from AccessControl.SecurityManagement import newSecurityManager
+from AccessControl.SecurityManagement import setSecurityManager
+from AccessControl.User import UnrestrictedUser
 from bika.lims import api
 from senaite.core.exportimport.instruments import IInstrumentAutoImportInterface
 from senaite.core.exportimport.instruments import IInstrumentImportInterface
@@ -23,8 +27,24 @@ from senaite.core.registry import get_registry_record
 from bika.lims.interfaces import IReferenceAnalysis
 from bika.lims.interfaces import IRoutineAnalysis
 
+
 class CustomAnalysisResultImporter(AnalysisResultsImporter):
     "Custom importer"
+
+    def create_mime_attachmenttype(self):
+        """Override to create AttachmentType with elevated privileges"""
+        file_type = self.parser.getAttachmentFileType()
+        obj = self.get_attachment_type_by_title(file_type)
+        if obj:
+            return obj
+        old_sm = getSecurityManager()
+        try:
+            newSecurityManager(None, UnrestrictedUser("system", "", ["Manager"], []))
+            obj = api.create(self.attachment_types, "AttachmentType")
+            obj.edit(title=file_type, description="Auto generated")
+        finally:
+            setSecurityManager(old_sm)
+        return obj
 
 def extract_final_number_from_string(s):
     """Extracts the final number from a given string.
@@ -307,14 +327,27 @@ class quantitativeResultsImportInterface(CustomAnalysisResultImporter):
             parser = self.get_automatic_parser(infile)
             importer = self.get_automatic_importer(instrument, parser)
 
-            importer.process()
+            try:
+                importer.process()
+            except Exception as e:
+                import traceback
+                logger.error("Exception during importer.process(): %s\n%s",
+                             e, traceback.format_exc())
+                return json.dumps({
+                    "errors": [str(e)],
+                    "log": [],
+                    "warns": [],
+                })
+
+            logger.info("Import finished - errors: %s | warns: %s | logs: %s",
+                        self.errors, self.warns, self.logs)
 
             return json.dumps({
                 "errors": self.errors,
                 "log": self.logs,
                 "warns": self.warns,
             })
-            
+
 class quantitiveResultParser(InstrumentCSVResultsFileParser):
         """Parse the import file and fills the raw results dictionary
         """
@@ -544,6 +577,5 @@ def _safe_parse(value, fmt):
         datetime.strptime(value, fmt)
         return True
     except ValueError as err:
-        logger.info(err)
-        #logger.info("%s, Ok format: %s for datetime 14/12/2026 12:46:35 PM is: '%s'", err, fmt, datetime.strftime(datetime(2026,1,13,4,2,9), fmt))
+        logger.debug(err)
         return False

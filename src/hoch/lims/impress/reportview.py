@@ -482,32 +482,60 @@ class MultiReportView(BaseMultiReportView):
 
         return formatDecimalMark(fs, self.get_decimal_mark())
     
+    def get_sub_instruments(self, analysis):
+        """Returns the sub-instruments assigned to the given analysis.
+        Handles SuperModel, AT (getSubInstruments) and DX (field accessor) objects.
+        """
+        if not analysis:
+            return []
+        # SuperModel / DX: try field accessor first
+        field = None
+        try:
+            field = analysis.getField("SubInstruments")
+        except Exception:
+            pass
+        if field is not None:
+            try:
+                return field.get(analysis) or []
+            except Exception:
+                pass
+        # AT fallback via getter
+        getter = getattr(analysis, "getSubInstruments", None)
+        if callable(getter):
+            try:
+                return getter() or []
+            except Exception:
+                pass
+        return []
+
     def get_consumables(self, analysis):
         if not analysis:
             return []
-        consumables_dict = []
-        consumables_raw = analysis.getConsumablesFields()
-        if not consumables_raw:
-            return consumables_dict
+        # Unwrap SuperModel/brain to the real AT instance so getField works
+        obj = api.get_object(analysis)
+        if obj is None:
+            return []
+        field = obj.getField("ConsumablesFields")
+        if field is None:
+            return []
+        consumables_raw = field.get(obj) or []
+        result = []
         for consumable in consumables_raw:
-            logger.info("consumable: '%s'", consumable)
-            ref_definition_uid = consumable.get("keyword", '')
-            consumable_uid = consumable.get("value", '')
+            ref_definition_uid = consumable.get("keyword", "")
+            consumable_uid = consumable.get("value", "")
             if not ref_definition_uid:
                 continue
-            ref_definition_obj = api.get_object_by_uid(ref_definition_uid)
+            ref_definition_obj = api.get_object_by_uid(ref_definition_uid, None)
             if not ref_definition_obj:
                 continue
             if not consumable_uid:
                 continue
-            consumable_obj = api.get_object_by_uid(consumable_uid) or ''
-            consumables_dict.append(
-                {
-                    "ref_definition_obj": ref_definition_obj,
-                    "consumable_obj": consumable_obj,
-                }
-            )
-        return consumables_dict
+            consumable_obj = api.get_object_by_uid(consumable_uid, None) or ""
+            result.append({
+                "ref_definition_obj": ref_definition_obj,
+                "consumable_obj": consumable_obj,
+            })
+        return result
 
     def group_analysis_by_interim_value(self, analyses, interim_keyword):
         """Groups analyses by the value of a specified interim keyword.

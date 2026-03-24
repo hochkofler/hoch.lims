@@ -18,7 +18,7 @@
     </tr>
     <tr>
         <td>
-            <span class="colon-after"><strong>FORMA FARMACÉUTICA</strong></span>
+            <span class="colon-after">FORMA FARMACÉUTICA</span>
         </td>
         <td>
             <span tal:content="mktauth/DosageForm"></span>

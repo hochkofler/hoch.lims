@@ -10,4 +10,12 @@
       name="hoch_batch_guard"
       />
 
+  <!-- Analysis Guard Adapter: validates consumables before submit -->
+  <adapter
+      for="bika.lims.interfaces.IRoutineAnalysis"
+      provides="bika.lims.interfaces.IGuardAdapter"
+      factory=".analysis.AnalysisGuardAdapter"
+      name="hoch_analysis_guard"
+      />
+
 </configure>

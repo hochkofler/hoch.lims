@@ -20,4 +20,13 @@
     ignoreOriginal="True"
     replacement=".analysisrequest.getProcessesVocabulary" />
 
+  <monkey:patch
+    description="Preserve service-level interim overrides (value, hidden, etc.)
+                 when setCalculation merges Calculation interims with
+                 AnalysisService interims."
+    class="bika.lims.content.abstractanalysis.AbstractAnalysis"
+    original="setCalculation"
+    ignoreOriginal="False"
+    replacement=".analysis.setCalculation" />
+
 </configure>

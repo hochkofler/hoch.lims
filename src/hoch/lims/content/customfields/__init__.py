@@ -1,1 +1,2 @@
 from .VariablesSettingsField import VariablesSettingsField
+from .consumablefieldsfield import ConsumableFieldsField

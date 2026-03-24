@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    i18n_domain="hoch.lims">
+
+  <!-- Override table_lab_analyses for IAnalysisRequest -->
+  <browser:page
+      for="bika.lims.interfaces.IAnalysisRequest"
+      name="table_lab_analyses"
+      class="hoch.lims.browser.analysisrequest.tables.LabAnalysesTable"
+      permission="senaite.core.permissions.ManageAnalysisRequests"
+      layer="hoch.lims.interfaces.IHochLims"
+      />
+
+  <!-- Override table_field_analyses for IAnalysisRequest -->
+  <browser:page
+      for="bika.lims.interfaces.IAnalysisRequest"
+      name="table_field_analyses"
+      class="hoch.lims.browser.analysisrequest.tables.FieldAnalysesTable"
+      permission="senaite.core.permissions.ManageAnalysisRequests"
+      layer="hoch.lims.interfaces.IHochLims"
+      />
+
+  <!-- Override table_qc_analyses for IAnalysisRequest -->
+  <browser:page
+      for="bika.lims.interfaces.IAnalysisRequest"
+      name="table_qc_analyses"
+      class="hoch.lims.browser.analysisrequest.tables.QCAnalysesTable"
+      permission="senaite.core.permissions.ManageAnalysisRequests"
+      layer="hoch.lims.interfaces.IHochLims"
+      />
+
+</configure>

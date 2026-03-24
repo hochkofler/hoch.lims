@@ -8,9 +8,11 @@
     <table class="table table-sm table-condensed nopadding"
             tal:define="dependent_analyses python: analysis.getDependencies();
                         instruments python: set([i.getInstrument() for i in [analysis]+qcs_analyses+dependent_analyses if i.getInstrument() ]);
+                        analyses_ python: [analysis] + qcs_analyses + dependent_analyses;
                         subinstruments python: set(sub
-                                                    for i in [analysis] + qcs_analyses + dependent_analyses
-                                                    for sub in i.getSubInstruments()
+                                                    for i in analyses_
+                                                    for sub in view.get_sub_instruments(i)
+                                                    if view.get_sub_instruments(sub)
                                                 );
                         instruments_and_subinstruments python: list(dict.fromkeys(list(instruments) + list(subinstruments)))">
         <tr>

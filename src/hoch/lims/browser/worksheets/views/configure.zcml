@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    i18n_domain="hoch.lims">
+
+  <!-- Override analyses_classic_view for DX IWorksheet -->
+  <browser:page
+      for="senaite.core.interfaces.IWorksheet"
+      name="analyses_classic_view"
+      class="hoch.lims.browser.worksheets.views.analyses.AnalysesView"
+      permission="senaite.core.permissions.ViewResults"
+      layer="hoch.lims.interfaces.IHochLims"
+      />
+
+  <!-- Override print view for DX Worksheet to add custom template helpers -->
+  <browser:page
+      for="senaite.core.interfaces.IWorksheet"
+      name="print"
+      class="hoch.lims.browser.worksheets.views.printview.PrintView"
+      permission="senaite.core.permissions.ViewResults"
+      layer="hoch.lims.interfaces.IHochLims"
+      />
+
+</configure>

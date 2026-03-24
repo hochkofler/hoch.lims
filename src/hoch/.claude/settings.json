@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /home/lims/hochlims/src/senaite.core/src -name *analyses* -type f)",
+      "Bash(find /home/lims/hochlims/src/senaite.core/src -path */browser/analysisrequest* -name *analyses* -type f)",
+      "Bash(find /home/lims/hochlims/src/senaite.core/src/senaite -path */browser* -name *analyses* -type f)",
+      "Bash(grep -r \"table_lab_analyses\\\\|table_.*_analyses\" /home/lims/hochlims/src/senaite.core/src --include=*.py)",
+      "Bash(grep -r \"class.*AnalysesView\\\\|register.*table.*analyses\" /home/lims/hochlims/src/senaite.core/src/senaite/core/browser --include=*.py)",
+      "Bash(find /home/lims/hochlims/src/senaite.core/src/senaite/core/browser/samples -name *.py -type f)",
+      "Bash(find /home/lims/hochlims/src -path */browser/analyses.py -type f)",
+      "Bash(find /home/lims/hochlims/src -type f -name *.py -exec grep -l 'class AnalysesView' {})",
+      "Bash(2)",
+      "Read(//home/lims/hochlims/**)",
+      "Bash(find /home/lims/hochlims/src -name api.py -path */bika/lims/*)",
+      "Read(//home/lims/buildout-cache/eggs/**)",
+      "Bash(find /home/lims/buildout-cache/eggs -name widget.py -path */Archetypes/*)",
+      "Bash(find /home/lims/buildout-cache/eggs -name DisplayList.py -o -name *.py -path */Archetypes/utils*)"
+    ]
+  }
+}

@@ -9,6 +9,7 @@ from Products.Archetypes.Field import FloatField
 from Products.Archetypes.public import StringField
 from senaite.core.browser.fields.records import RecordsField
 from hoch.lims.content.customfields import VariablesSettingsField
+from hoch.lims.content.customfields import ConsumableFieldsField
 
 class UIDReferenceFieldDx(UIDReferenceField, ExtensionField):
     """Extends the UIDReferenceField to be used in Dexterity content types.
@@ -25,7 +26,7 @@ class DatetimeWidget(SenaiteDatetimeWidget):
 class UIDReferenceFieldAT(ExtensionField, ATUIDReferenceField):
     """Extends the UIDReferenceField to be used in Archetypes content types.
     """
-    
+
 class ExtDateTimeFieldAT(ExtensionField, DateTimeField):
     """Field extender of core's DateTimeField for AT
     """
@@ -41,11 +42,14 @@ class ExtFloatFieldAT(ExtensionField, FloatField):
 class ExtStringFieldAT(ExtensionField, StringField):
     """ Field extender of StringField AT
     """
-    
+
 class ExtRecordFieldAT(ExtensionField, RecordsField):
     """ Field extender of RecordWidget AT
     """
-    
+
 class ExtVariablesSettingsFieldAT(ExtensionField, VariablesSettingsField):
     """ Field extender of VariablesSettingsField AT
     """
+
+class ExtConsumableFieldsFieldAT(ExtensionField, ConsumableFieldsField):
+    """Field extender of ConsumableFieldsField for AT schemaextender"""

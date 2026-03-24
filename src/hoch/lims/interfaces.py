@@ -45,6 +45,13 @@ class IHochLimsCatalog(ISenaiteCatalogObject):
     """Marker interface for HochLims Catalog
     """
     
+class IHaveSubInstruments(Interface):
+    """Marker interface for objects that have sub Instrument(s) assigned"""
+
+    def getSubInstruments():
+        """Returns the sub instrument(s) the instance is assigned to"""
+
+
 class IVariablesSettingsVocabularyProvider(Interface):
     """Provide the vocabulary for VariablesSettingsField keyword subfield"""
 

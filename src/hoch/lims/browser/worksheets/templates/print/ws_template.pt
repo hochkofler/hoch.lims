@@ -179,7 +179,7 @@
                     <tr tal:attributes="class python: an['review_state'] if not an.get('outofrange') else 'out_of_range'"
                         tal:define= "method an/obj/getMethod;
                                     instrument an/obj/getInstrument;
-                                    subinstruments an/obj/getSubInstruments;
+                                    subinstruments python: view.get_sub_instruments(an['obj']);
                                     ResultOptions an/obj/ResultOptions;
                                     formatted_specs python: view.get_formatted_specs(an['obj']);
                                     formatted_result an/formatted_result;

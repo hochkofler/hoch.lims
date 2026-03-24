@@ -10,6 +10,7 @@ from hoch.lims.api import get_pharmaceutical_product_by_code
 from hoch.lims.api import get_process_by_title
 from hoch.lims.api import get_process_group_by_title
 from bika.lims import api
+from bika.lims.interfaces import IAnalysisService
 import plone.api as plone_api
 from six import string_types
 
@@ -497,9 +498,17 @@ class AnalysisService_SubInstruments(WorksheetImporter):
 
         for service_uid, subinstruments in services_subinstruments.items():
             service = api.get_object_by_uid(service_uid)
-            service.setSubInstrumentsAllowed(subinstruments["instruments"])
-            if subinstruments["defaults"]:   
-                service.setSubInstruments(subinstruments["defaults"])
+            if not IAnalysisService.providedBy(service):
+                logger.warning("Expected AnalysisService for uid %s, got %r — skipping",
+                               service_uid, service)
+                continue
+            field = service.getField("SubInstrumentsAllowed")
+            if field:
+                field.set(service, subinstruments["instruments"])
+            if subinstruments["defaults"]:
+                field = service.getField("SubInstruments")
+                if field:
+                    field.set(service, subinstruments["defaults"])
                 
     def getSubInstrumentAllowed(self, service):
         sub_instruments = []
@@ -1035,8 +1044,14 @@ class AnalysisService_Consumables(WorksheetImporter):
                 
         for service_uid, consumables in consumables_per_service.items():
             service = api.get_object_by_uid(service_uid)
+            if not IAnalysisService.providedBy(service):
+                logger.warning("Expected AnalysisService for uid %s, got %r — skipping",
+                               service_uid, service)
+                continue
             logger.info("setting consumables '%s' to service: '%s'", consumables, service)
-            service.setConsumablesFields(consumables)
+            field = service.getField("ConsumablesFields")
+            if field:
+                field.set(service, consumables)
 class Process(WorksheetImporter):
     """Import Processes"""
 
