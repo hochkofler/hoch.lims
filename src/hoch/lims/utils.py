@@ -90,6 +90,8 @@ def get_formatted_interim(interim):
         if choices:
             # values are predefined options for selection
             values = [choices.get(v) for v in values]
+        elif interim.get('result_type', '') == 'time':
+            values = [format_time_value(value) for value in values]
         else:
             dmk = get_decimal_mark()
             # values are captured directly by the user

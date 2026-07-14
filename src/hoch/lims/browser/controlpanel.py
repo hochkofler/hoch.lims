@@ -31,6 +31,10 @@ from hoch.lims.config import (
     SECUNDARY_PRESENTATIONS,
     DOSAGE_UNITS,
     DESTINATIONS,
+    OOS_CATEGORIES,
+    OOS_DISPOSITIONS,
+    OOS_ROOT_CAUSES,
+    OOS_INVESTIGATION_PHASES,
 )
 
 # Common interface for all vocabulary rows
@@ -95,6 +99,22 @@ def default_secundary_presentations(context):
 @provider(IContextAwareDefaultFactory)
 def default_destinations(context):
     return [{u"key": i[0], u"value": i[1]} for i in DESTINATIONS]
+
+@provider(IContextAwareDefaultFactory)
+def default_oos_categories(context):
+    return [{u"key": i[0], u"value": i[1]} for i in OOS_CATEGORIES]
+
+@provider(IContextAwareDefaultFactory)
+def default_oos_dispositions(context):
+    return [{u"key": i[0], u"value": i[1]} for i in OOS_DISPOSITIONS]
+
+@provider(IContextAwareDefaultFactory)
+def default_oos_root_causes(context):
+    return [{u"key": i[0], u"value": i[1]} for i in OOS_ROOT_CAUSES]
+
+@provider(IContextAwareDefaultFactory)
+def default_oos_investigation_phases(context):
+    return [{u"key": i[0], u"value": i[1]} for i in OOS_INVESTIGATION_PHASES]
 
 class IHochControlPanel(Interface):
     """Controlpanel Settings for HochLIMS"""
@@ -163,6 +183,17 @@ class IHochControlPanel(Interface):
         label=_(u"Destinations"),
         fields=[
             "destinations",
+        ],
+    )
+
+    model.fieldset(
+        "oos_settings",
+        label=_(u"OOS Investigation Settings"),
+        fields=[
+            "oos_categories",
+            "oos_dispositions",
+            "oos_root_causes",
+            "oos_investigation_phases",
         ],
     )
 
@@ -319,6 +350,62 @@ class IHochControlPanel(Interface):
         defaultFactory=default_destinations,
     )
     
+    # OOS Categories
+    directives.widget(
+        "oos_categories",
+        DataGridWidgetFactory,
+        allow_reorder=True,
+        auto_append=True)
+    oos_categories = schema.List(
+        title=_(u"OOS Categories"),
+        description=_(u"Classification categories for OOS investigations"),
+        value_type=DataGridRow(schema=IVocabularyRow),
+        required=True,
+        defaultFactory=default_oos_categories,
+    )
+
+    # OOS Dispositions
+    directives.widget(
+        "oos_dispositions",
+        DataGridWidgetFactory,
+        allow_reorder=True,
+        auto_append=True)
+    oos_dispositions = schema.List(
+        title=_(u"OOS Dispositions"),
+        description=_(u"Final disposition options for OOS investigations"),
+        value_type=DataGridRow(schema=IVocabularyRow),
+        required=True,
+        defaultFactory=default_oos_dispositions,
+    )
+
+    # OOS Root Causes
+    directives.widget(
+        "oos_root_causes",
+        DataGridWidgetFactory,
+        allow_reorder=True,
+        auto_append=True)
+    oos_root_causes = schema.List(
+        title=_(u"OOS Root Causes"),
+        description=_(u"Root cause categories for OOS investigations"),
+        value_type=DataGridRow(schema=IVocabularyRow),
+        required=True,
+        defaultFactory=default_oos_root_causes,
+    )
+
+    # OOS Investigation Phases
+    directives.widget(
+        "oos_investigation_phases",
+        DataGridWidgetFactory,
+        allow_reorder=True,
+        auto_append=True)
+    oos_investigation_phases = schema.List(
+        title=_(u"OOS Investigation Phases"),
+        description=_(u"Investigation phases for OOS workflow"),
+        value_type=DataGridRow(schema=IVocabularyRow),
+        required=True,
+        defaultFactory=default_oos_investigation_phases,
+    )
+
     @invariant
     def validate_keys(data):
         """Validate all vocabulary keys"""

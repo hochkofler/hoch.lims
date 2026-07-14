@@ -39,6 +39,15 @@ INDEXES = BASE_INDEXES + [
     ("product_dosage_unit_per_secundary_presentation", "", "FieldIndex"),
     ("product_dosage_unit_per_primary_presentation", "", "FieldIndex"),
     ("sample_destination", "", "FieldIndex"),
+    # OOS Investigation indexes
+    ("oos_analysis_uid", "", "FieldIndex"),
+    ("oos_sample_uid", "", "FieldIndex"),
+    ("oos_batch_uid", "", "FieldIndex"),
+    ("oos_category", "", "FieldIndex"),
+    ("oos_detection_date", "", "DateIndex"),
+    ("oos_due_date", "", "DateIndex"),
+    ("oos_disposition", "", "FieldIndex"),
+    ("oos_investigation_phase", "", "FieldIndex"),
 ]
 
 COLUMNS = BASE_COLUMNS + [
@@ -49,6 +58,7 @@ TYPES = [
     # portal_type name
     "MarketingAuthorization",
     "PharmaceuticalProduct",
+    "OOSInvestigation",
 ]
 
 

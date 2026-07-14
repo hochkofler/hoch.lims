@@ -39,6 +39,15 @@
         layer="hoch.lims.interfaces.IHochLims"
     />
 
+    <!-- Batch folder listing: adds ExpirationDate and BatchSize columns -->
+    <browser:page
+        name="base_view"
+        for="bika.lims.interfaces.IBatchFolder"
+        class=".batch.batches.BatchFolderContentsView"
+        permission="cmf.ListFolderContents"
+        layer="hoch.lims.interfaces.IHochLims"
+    />
+
     <!-- Batch workflow after-script handlers -->
     <browser:page
         name="hoch_batch_after_release"

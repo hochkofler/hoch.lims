@@ -31,3 +31,9 @@ PrimaryPresentationVocabularyFactory = registry_vocabulary_factory("hoch.lims.pr
 SecundaryPresentationVocabularyFactory = registry_vocabulary_factory("hoch.lims.secundary_presentations")
 DosageUnitsVocabularyFactory = registry_vocabulary_factory("hoch.lims.dosage_units")
 DestinationsVocabularyFactory = registry_vocabulary_factory("hoch.lims.destinations")
+
+# OOS Investigation vocabularies
+OOSCategoriesVocabularyFactory = registry_vocabulary_factory("hoch.lims.oos_categories")
+OOSDispositionsVocabularyFactory = registry_vocabulary_factory("hoch.lims.oos_dispositions")
+OOSRootCausesVocabularyFactory = registry_vocabulary_factory("hoch.lims.oos_root_causes")
+OOSInvestigationPhasesVocabularyFactory = registry_vocabulary_factory("hoch.lims.oos_investigation_phases")

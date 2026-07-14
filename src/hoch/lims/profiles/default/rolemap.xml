@@ -6,6 +6,12 @@
   </roles>
   
   <permissions>
+    <permission name="hoch.lims: Release Batch" acquire="False">
+      <role name="Manager"/>
+      <role name="LabManager"/>
+      <role name="RegulatoryPharmacist"/>
+    </permission>
+
     <permission name="hoch.lims: Field: Edit Extended Field" acquire="False">
       <role name="Manager"/>
       <role name="LabManager"/>
@@ -49,6 +55,32 @@
       <role name="Manager"/>
       <role name="LabManager"/>
       <role name="LabClerk"/>
+    </permission>
+
+    <!-- OOS Investigation permissions -->
+    <permission name="hoch.lims: Add OOSInvestigation" acquire="False">
+      <role name="Manager"/>
+      <role name="LabManager"/>
+    </permission>
+
+    <permission name="hoch.lims: Edit OOSInvestigation" acquire="False">
+      <role name="Manager"/>
+      <role name="LabManager"/>
+    </permission>
+
+    <permission name="hoch.lims: View OOSInvestigation" acquire="True">
+      <role name="Authenticated"/>
+    </permission>
+
+    <permission name="hoch.lims: Transition OOSInvestigation" acquire="False">
+      <role name="Manager"/>
+      <role name="LabManager"/>
+      <role name="RegulatoryPharmacist"/>
+    </permission>
+
+    <permission name="hoch.lims: Manage OOS Investigations" acquire="False">
+      <role name="Manager"/>
+      <role name="LabManager"/>
     </permission>
   </permissions>
 </rolemap>

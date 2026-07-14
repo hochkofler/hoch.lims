@@ -53,6 +53,7 @@ class MultiReportView(BaseMultiReportView):
     CONCLUSIONS_TEMPLATE = PT("templates/conclusions.pt")
     TITRATION_HPLC_TEMPLATE = PT("templates/titration_hplc.pt")
     CONSUMABLE_DATA_TEMPLATE = PT("templates/consumables_data.pt")
+    OOS_REPORT_TEMPLATE = PT("templates/oos_investigation_report.pt")
     PRODUCT_DATA_TEMPLATE = PT("templates/product_data.pt")
     COA_BATCH_DATA_TEMPLATE = PT("templates/coa_batch_data.pt")
     COA_RESULTS_TEMPLATE = PT("templates/coa_results.pt")
@@ -173,6 +174,13 @@ class MultiReportView(BaseMultiReportView):
         """Render the UC (Uniformidad de Contenido) report section
         """
         return self.UC_REPORT_TEMPLATE(context, **kw)
+
+    def getContactByUsername(self, username):
+        """Returns a Contact object for the given username.
+        This is independent of the supervisor or any other user object.
+        """
+        from bika.lims.content.contact import Contact
+        return Contact.getContactByUsername(username)
 
     def formatted_interim(self, interim, dmk="."):
         return get_formatted_interim(interim, dmk)
