@@ -6,6 +6,12 @@
   </roles>
   
   <permissions>
+    <permission name="hoch.lims: Release Batch" acquire="False">
+      <role name="Manager"/>
+      <role name="LabManager"/>
+      <role name="RegulatoryPharmacist"/>
+    </permission>
+
     <permission name="hoch.lims: Field: Edit Extended Field" acquire="False">
       <role name="Manager"/>
       <role name="LabManager"/>
