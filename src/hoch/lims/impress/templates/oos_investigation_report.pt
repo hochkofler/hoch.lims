@@ -1,0 +1,176 @@
+<tal:report define="oos python:view.context;
+                     analysis python:oos.getAnalysis();
+                     sample python:oos.getSample();
+                     batch python:oos.getBatch();">
+
+<div class="oos-report" style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto;">
+
+  <!-- Header -->
+  <div class="header" style="border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px;">
+    <h1 style="margin: 0; font-size: 24px;">OOS Investigation Report</h1>
+    <table style="width: 100%; margin-top: 10px;">
+      <tr>
+        <td style="width: 50%;"><strong>OOS Number:</strong>
+          <span tal:content="python:oos.Title()">OOS-000001</span>
+        </td>
+        <td style="width: 50%; text-align: right;"><strong>Status:</strong>
+          <span tal:content="python:view.get_workflow_status_of(oos) if hasattr(view, 'get_workflow_status_of') else ''">recorded</span>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Affected Analysis Details -->
+  <div class="section" style="margin-bottom: 20px;">
+    <h2 style="font-size: 18px; border-bottom: 1px solid #999; padding-bottom: 5px;">
+      1. Affected Analysis Details
+    </h2>
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr>
+        <td style="padding: 4px 8px; width: 30%; font-weight: bold;">Analysis Service:</td>
+        <td style="padding: 4px 8px;" tal:content="python:oos.getAnalysisServiceTitle() or 'N/A'">Service Name</td>
+      </tr>
+      <tr>
+        <td style="padding: 4px 8px; font-weight: bold;">OOS Result Value:</td>
+        <td style="padding: 4px 8px;" tal:content="python:oos.getResultValue() or 'N/A'">12.5</td>
+      </tr>
+      <tr>
+        <td style="padding: 4px 8px; font-weight: bold;">Specification Range:</td>
+        <td style="padding: 4px 8px;" tal:content="python:oos.getSpecificationRange() or 'N/A'">min=10, max=11</td>
+      </tr>
+      <tr tal:condition="sample">
+        <td style="padding: 4px 8px; font-weight: bold;">Sample ID:</td>
+        <td style="padding: 4px 8px;" tal:content="python:sample.getId()">S-001</td>
+      </tr>
+      <tr tal:condition="batch">
+        <td style="padding: 4px 8px; font-weight: bold;">Batch ID:</td>
+        <td style="padding: 4px 8px;" tal:content="python:batch.getId()">B-001</td>
+      </tr>
+      <tr>
+        <td style="padding: 4px 8px; font-weight: bold;">Responsible Analyst:</td>
+        <td style="padding: 4px 8px;" tal:content="python:oos.getResponsibleAnalyst() or 'N/A'">analyst1</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Timeline -->
+  <div class="section" style="margin-bottom: 20px;">
+    <h2 style="font-size: 18px; border-bottom: 1px solid #999; padding-bottom: 5px;">
+      2. Timeline
+    </h2>
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr>
+        <td style="padding: 4px 8px; width: 30%; font-weight: bold;">Detection Date:</td>
+        <td style="padding: 4px 8px;" tal:content="python:str(oos.getDetectionDate() or 'N/A')">2024-01-01</td>
+      </tr>
+      <tr>
+        <td style="padding: 4px 8px; font-weight: bold;">Investigation Start:</td>
+        <td style="padding: 4px 8px;" tal:content="python:str(oos.getInvestigationStartDate() or 'N/A')">2024-01-02</td>
+      </tr>
+      <tr>
+        <td style="padding: 4px 8px; font-weight: bold;">Phase II Start:</td>
+        <td style="padding: 4px 8px;" tal:content="python:str(oos.getPhase2StartDate() or 'N/A')">N/A</td>
+      </tr>
+      <tr>
+        <td style="padding: 4px 8px; font-weight: bold;">Due Date:</td>
+        <td style="padding: 4px 8px;" tal:content="python:str(oos.getDueDate() or 'N/A')">2024-01-31</td>
+      </tr>
+      <tr>
+        <td style="padding: 4px 8px; font-weight: bold;">Completion Date:</td>
+        <td style="padding: 4px 8px;" tal:content="python:str(oos.getCompletionDate() or 'N/A')">N/A</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Phase I Investigation -->
+  <div class="section" style="margin-bottom: 20px;">
+    <h2 style="font-size: 18px; border-bottom: 1px solid #999; padding-bottom: 5px;">
+      3. Phase I - Laboratory Investigation
+    </h2>
+    <div style="padding: 8px; min-height: 60px; border: 1px solid #ddd;">
+      <tal:block content="python:oos.getPhase1Summary() or 'Not documented yet.'" />
+    </div>
+  </div>
+
+  <!-- Root Cause Analysis -->
+  <div class="section" style="margin-bottom: 20px;">
+    <h2 style="font-size: 18px; border-bottom: 1px solid #999; padding-bottom: 5px;">
+      4. Root Cause Analysis
+    </h2>
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr>
+        <td style="padding: 4px 8px; width: 30%; font-weight: bold;">Root Cause Category:</td>
+        <td style="padding: 4px 8px;" tal:content="python:oos.getRootCause() or 'Not determined'">analyst_error</td>
+      </tr>
+    </table>
+    <div style="padding: 8px; min-height: 60px; border: 1px solid #ddd; margin-top: 8px;">
+      <tal:block content="python:oos.getRootCauseDescription() or 'Not documented yet.'" />
+    </div>
+  </div>
+
+  <!-- CAPA -->
+  <div class="section" style="margin-bottom: 20px;">
+    <h2 style="font-size: 18px; border-bottom: 1px solid #999; padding-bottom: 5px;">
+      5. Corrective and Preventive Actions (CAPA)
+    </h2>
+    <div style="padding: 8px; min-height: 60px; border: 1px solid #ddd;">
+      <tal:block content="python:oos.getCapaDescription() or 'Not documented yet.'" />
+    </div>
+  </div>
+
+  <!-- Impact Assessment -->
+  <div class="section" style="margin-bottom: 20px;">
+    <h2 style="font-size: 18px; border-bottom: 1px solid #999; padding-bottom: 5px;">
+      6. Impact Assessment
+    </h2>
+    <div style="padding: 8px; min-height: 60px; border: 1px solid #ddd;">
+      <tal:block content="python:oos.getImpactAssessment() or 'Not documented yet.'" />
+    </div>
+  </div>
+
+  <!-- Disposition and Conclusion -->
+  <div class="section" style="margin-bottom: 20px;">
+    <h2 style="font-size: 18px; border-bottom: 1px solid #999; padding-bottom: 5px;">
+      7. Disposition and Conclusion
+    </h2>
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr>
+        <td style="padding: 4px 8px; width: 30%; font-weight: bold;">OOS Category:</td>
+        <td style="padding: 4px 8px;" tal:content="python:oos.getOosCategory() or 'Not classified'">oos_confirmed</td>
+      </tr>
+      <tr>
+        <td style="padding: 4px 8px; font-weight: bold;">Disposition:</td>
+        <td style="padding: 4px 8px;" tal:content="python:oos.getDisposition() or 'Not determined'">reject_batch</td>
+      </tr>
+    </table>
+    <div style="padding: 8px; min-height: 60px; border: 1px solid #ddd; margin-top: 8px;">
+      <strong>Conclusion:</strong><br/>
+      <tal:block content="python:oos.getConclusion() or 'Not documented yet.'" />
+    </div>
+  </div>
+
+  <!-- Signatures -->
+  <div class="section" style="margin-bottom: 20px;">
+    <h2 style="font-size: 18px; border-bottom: 1px solid #999; padding-bottom: 5px;">
+      8. Signatures
+    </h2>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 30px;">
+      <tr>
+        <td style="width: 33%; text-align: center; padding-top: 40px; border-top: 1px solid #333;">
+          <strong>Investigator</strong><br/>
+          <span tal:content="python:oos.getInvestigator() or '________________'">investigator1</span>
+        </td>
+        <td style="width: 33%; text-align: center; padding-top: 40px; border-top: 1px solid #333;">
+          <strong>QA Reviewer</strong><br/>
+          <span tal:content="python:oos.getReviewer() or '________________'">reviewer1</span>
+        </td>
+        <td style="width: 33%; text-align: center; padding-top: 40px; border-top: 1px solid #333;">
+          <strong>Responsible Analyst</strong><br/>
+          <span tal:content="python:oos.getResponsibleAnalyst() or '________________'">analyst1</span>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+</div>
+</tal:report>

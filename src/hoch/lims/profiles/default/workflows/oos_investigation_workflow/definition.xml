@@ -1,0 +1,275 @@
+<?xml version="1.0"?>
+<dc-workflow xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+             workflow_id="oos_investigation_workflow"
+             title="OOS Investigation Workflow"
+             description="Workflow for OOS investigations per FDA 21 CFR Part 211.192"
+             state_variable="review_state"
+             initial_state="recorded"
+             manager_bypass="False"
+             i18n:domain="hoch.lims">
+
+  <!-- MANAGED PERMISSIONS -->
+  <permission>Access contents information</permission>
+  <permission>Modify portal content</permission>
+  <permission>View</permission>
+  <permission>hoch.lims: Edit OOSInvestigation</permission>
+  <!-- /MANAGED PERMISSIONS -->
+
+  <!-- State: recorded (initial) -->
+  <state state_id="recorded" title="Recorded" i18n:attributes="title">
+    <exit-transition transition_id="start_phase1" />
+    <permission-map name="Access contents information" acquired="False">
+      <permission-role>Authenticated</permission-role>
+    </permission-map>
+    <permission-map name="Modify portal content" acquired="False">
+      <permission-role>Manager</permission-role>
+      <permission-role>LabManager</permission-role>
+      <permission-role>Analyst</permission-role>
+    </permission-map>
+    <permission-map name="View" acquired="False">
+      <permission-role>Authenticated</permission-role>
+    </permission-map>
+    <permission-map name="hoch.lims: Edit OOSInvestigation" acquired="False">
+      <permission-role>Manager</permission-role>
+      <permission-role>LabManager</permission-role>
+      <permission-role>Analyst</permission-role>
+    </permission-map>
+  </state>
+
+  <!-- State: phase1 - Lab Investigation -->
+  <state state_id="phase1" title="Phase I - Lab Investigation" i18n:attributes="title">
+    <exit-transition transition_id="escalate_phase2" />
+    <exit-transition transition_id="resolve_lab_error" />
+    <exit-transition transition_id="cancel" />
+    <permission-map name="Access contents information" acquired="False">
+      <permission-role>Authenticated</permission-role>
+    </permission-map>
+    <permission-map name="Modify portal content" acquired="False">
+      <permission-role>Manager</permission-role>
+      <permission-role>LabManager</permission-role>
+      <permission-role>Analyst</permission-role>
+    </permission-map>
+    <permission-map name="View" acquired="False">
+      <permission-role>Authenticated</permission-role>
+    </permission-map>
+    <permission-map name="hoch.lims: Edit OOSInvestigation" acquired="False">
+      <permission-role>Manager</permission-role>
+      <permission-role>LabManager</permission-role>
+      <permission-role>Analyst</permission-role>
+    </permission-map>
+  </state>
+
+  <!-- State: phase2 - Full Scale Investigation -->
+  <state state_id="phase2" title="Phase II - Full Scale Investigation" i18n:attributes="title">
+    <exit-transition transition_id="submit_for_review" />
+    <permission-map name="Access contents information" acquired="False">
+      <permission-role>Authenticated</permission-role>
+    </permission-map>
+    <permission-map name="Modify portal content" acquired="False">
+      <permission-role>Manager</permission-role>
+      <permission-role>LabManager</permission-role>
+    </permission-map>
+    <permission-map name="View" acquired="False">
+      <permission-role>Authenticated</permission-role>
+    </permission-map>
+    <permission-map name="hoch.lims: Edit OOSInvestigation" acquired="False">
+      <permission-role>Manager</permission-role>
+      <permission-role>LabManager</permission-role>
+    </permission-map>
+  </state>
+
+  <!-- State: review - Under QA Review -->
+  <state state_id="review" title="Under QA Review" i18n:attributes="title">
+    <exit-transition transition_id="approve" />
+    <exit-transition transition_id="reject_review" />
+    <permission-map name="Access contents information" acquired="False">
+      <permission-role>Authenticated</permission-role>
+    </permission-map>
+    <permission-map name="Modify portal content" acquired="False">
+      <permission-role>Manager</permission-role>
+    </permission-map>
+    <permission-map name="View" acquired="False">
+      <permission-role>Authenticated</permission-role>
+    </permission-map>
+    <permission-map name="hoch.lims: Edit OOSInvestigation" acquired="False">
+      <permission-role>Manager</permission-role>
+    </permission-map>
+  </state>
+
+  <!-- State: closed (terminal) -->
+  <state state_id="closed" title="Closed" i18n:attributes="title">
+    <permission-map name="Access contents information" acquired="False">
+      <permission-role>Authenticated</permission-role>
+    </permission-map>
+    <permission-map name="Modify portal content" acquired="False">
+      <permission-role>Manager</permission-role>
+    </permission-map>
+    <permission-map name="View" acquired="False">
+      <permission-role>Authenticated</permission-role>
+    </permission-map>
+    <permission-map name="hoch.lims: Edit OOSInvestigation" acquired="False">
+      <permission-role>Manager</permission-role>
+    </permission-map>
+  </state>
+
+  <!-- State: cancelled (terminal - lab error resolved) -->
+  <state state_id="cancelled" title="Cancelled (Lab Error)" i18n:attributes="title">
+    <permission-map name="Access contents information" acquired="False">
+      <permission-role>Authenticated</permission-role>
+    </permission-map>
+    <permission-map name="Modify portal content" acquired="False">
+      <permission-role>Manager</permission-role>
+    </permission-map>
+    <permission-map name="View" acquired="False">
+      <permission-role>Authenticated</permission-role>
+    </permission-map>
+    <permission-map name="hoch.lims: Edit OOSInvestigation" acquired="False">
+      <permission-role>Manager</permission-role>
+    </permission-map>
+  </state>
+
+  <!-- Transition: start_phase1 -->
+  <transition transition_id="start_phase1"
+              title="Start Phase I Investigation"
+              new_state="phase1"
+              trigger="USER"
+              before_script=""
+              after_script=""
+              i18n:attributes="title">
+    <action url="" category="workflow" icon="">Start Phase I Investigation</action>
+    <guard>
+      <guard-permission>hoch.lims: Transition OOSInvestigation</guard-permission>
+    </guard>
+  </transition>
+
+  <!-- Transition: escalate_phase2 -->
+  <transition transition_id="escalate_phase2"
+              title="Escalate to Phase II"
+              new_state="phase2"
+              trigger="USER"
+              before_script=""
+              after_script=""
+              i18n:attributes="title">
+    <action url="" category="workflow" icon="">Escalate to Phase II</action>
+    <guard>
+      <guard-permission>hoch.lims: Transition OOSInvestigation</guard-permission>
+    </guard>
+  </transition>
+
+  <!-- Transition: resolve_lab_error -->
+  <transition transition_id="resolve_lab_error"
+              title="Resolve as Lab Error"
+              new_state="cancelled"
+              trigger="USER"
+              before_script=""
+              after_script=""
+              i18n:attributes="title">
+    <action url="" category="workflow" icon="">Resolve as Lab Error</action>
+    <guard>
+      <guard-permission>hoch.lims: Transition OOSInvestigation</guard-permission>
+    </guard>
+  </transition>
+
+  <!-- Transition: cancel -->
+  <transition transition_id="cancel"
+              title="Cancel Investigation"
+              new_state="cancelled"
+              trigger="USER"
+              before_script=""
+              after_script=""
+              i18n:attributes="title">
+    <action url="" category="workflow" icon="">Cancel Investigation</action>
+    <guard>
+      <guard-permission>hoch.lims: Transition OOSInvestigation</guard-permission>
+    </guard>
+  </transition>
+
+  <!-- Transition: submit_for_review -->
+  <transition transition_id="submit_for_review"
+              title="Submit for QA Review"
+              new_state="review"
+              trigger="USER"
+              before_script=""
+              after_script=""
+              i18n:attributes="title">
+    <action url="" category="workflow" icon="">Submit for QA Review</action>
+    <guard>
+      <guard-permission>hoch.lims: Transition OOSInvestigation</guard-permission>
+    </guard>
+  </transition>
+
+  <!-- Transition: approve -->
+  <transition transition_id="approve"
+              title="Approve and Close"
+              new_state="closed"
+              trigger="USER"
+              before_script=""
+              after_script=""
+              i18n:attributes="title">
+    <action url="" category="workflow" icon="">Approve and Close</action>
+    <guard>
+      <guard-permission>hoch.lims: Transition OOSInvestigation</guard-permission>
+    </guard>
+  </transition>
+
+  <!-- Transition: reject_review -->
+  <transition transition_id="reject_review"
+              title="Return for Further Investigation"
+              new_state="phase2"
+              trigger="USER"
+              before_script=""
+              after_script=""
+              i18n:attributes="title">
+    <action url="" category="workflow" icon="">Return for Further Investigation</action>
+    <guard>
+      <guard-permission>hoch.lims: Transition OOSInvestigation</guard-permission>
+    </guard>
+  </transition>
+
+  <!-- WF Variables -->
+  <variable variable_id="action" for_catalog="False" for_status="True" update_always="True">
+    <description>Previous transition</description>
+    <default>
+      <expression>transition/getId|nothing</expression>
+    </default>
+    <guard>
+    </guard>
+  </variable>
+
+  <variable variable_id="actor" for_catalog="False" for_status="True" update_always="True">
+    <description>The ID of the user who performed the last transition</description>
+    <default>
+      <expression>user/getId</expression>
+    </default>
+    <guard>
+    </guard>
+  </variable>
+
+  <variable variable_id="comments" for_catalog="False" for_status="True" update_always="True">
+    <description>Comment about the last transition</description>
+    <default>
+      <expression>python:state_change.kwargs.get('comment', '')</expression>
+    </default>
+    <guard>
+    </guard>
+  </variable>
+
+  <variable variable_id="review_history" for_catalog="False" for_status="False" update_always="False">
+    <description>Provides access to workflow history</description>
+    <default>
+      <expression>state_change/getHistory</expression>
+    </default>
+    <guard>
+    </guard>
+  </variable>
+
+  <variable variable_id="time" for_catalog="False" for_status="True" update_always="True">
+    <description>When the previous transition was performed</description>
+    <default>
+      <expression>state_change/getDateTime</expression>
+    </default>
+    <guard>
+    </guard>
+  </variable>
+
+</dc-workflow>

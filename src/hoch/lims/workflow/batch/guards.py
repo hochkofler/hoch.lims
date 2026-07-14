@@ -2,6 +2,7 @@
 
 from bika.lims import api
 from bika.lims import logger
+from hoch.lims.catalog import HOCHLIMS_CATALOG
 
 
 def guard_release(batch):
@@ -66,6 +67,14 @@ def guard_release(batch):
                 batch_id, sample.getId()))
             return False
     
+    # 7b. No open OOS investigations for release samples
+    for sample in release_samples:
+        if _has_open_oos(sample):
+            logger.info(
+                "guard_release [REJECT] Batch {0}: sample {1} has open "
+                "OOS investigation(s)".format(batch_id, sample.getId()))
+            return False
+
     # 8. Publication must be published
     pub_status = api.get_review_status(release_pub)
     if pub_status != 'active':
@@ -94,6 +103,26 @@ def is_sample_in_spec(sample):
             return False
     
     return True
+
+
+def _has_open_oos(sample):
+    """Check if sample has any open OOS investigations.
+
+    Returns:
+        bool: True if there are open (non-closed/cancelled) OOS investigations
+    """
+    sample_uid = api.get_uid(sample)
+    try:
+        catalog = api.get_tool(HOCHLIMS_CATALOG)
+        open_oos = catalog(
+            portal_type="OOSInvestigation",
+            oos_sample_uid=sample_uid,
+            review_state=["recorded", "phase1", "phase2", "review"],
+        )
+        return len(open_oos) > 0
+    except Exception:
+        # If catalog not available yet, don't block
+        return False
 
 
 def guard_close(batch):

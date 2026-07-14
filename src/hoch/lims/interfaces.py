@@ -57,3 +57,11 @@ class IVariablesSettingsVocabularyProvider(Interface):
 
     def getVocabulary():
         """Return a DisplayList"""
+
+
+class IOOSInvestigation(Interface):
+    """Marker interface for OOS Investigation"""
+
+
+class IOOSFolder(Interface):
+    """Marker interface for OOS Investigations folder"""

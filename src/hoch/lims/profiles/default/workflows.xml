@@ -7,6 +7,7 @@
   <object name="process_workflow" meta_type="Workflow"/>
   <object name="one_state_workflow" meta_type="Workflow"/>
   <object name="hoch_batch_workflow" meta_type="Workflow"/>
+  <object name="oos_investigation_workflow" meta_type="Workflow"/>
 
   <bindings>
 
@@ -43,6 +44,15 @@
     <!-- Bindings to "Batch" -->
     <type type_id="Batch">
       <bound-workflow workflow_id="hoch_batch_workflow"/>
+    </type>
+
+    <!-- Bindings to OOS Investigation -->
+    <type type_id="OOSInvestigation">
+      <bound-workflow workflow_id="oos_investigation_workflow"/>
+    </type>
+
+    <type type_id="OOSFolder">
+      <bound-workflow workflow_id="one_state_workflow"/>
     </type>
 
   </bindings>

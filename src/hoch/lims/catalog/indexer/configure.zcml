@@ -35,4 +35,14 @@
   
   <!-- Sample Indexes -->
   <adapter name="sample_destination" factory=".sample.sample_destination" />
+
+  <!-- OOS Investigation Indexes -->
+  <adapter name="oos_analysis_uid" factory=".oosinvestigation.oos_analysis_uid" />
+  <adapter name="oos_sample_uid" factory=".oosinvestigation.oos_sample_uid" />
+  <adapter name="oos_batch_uid" factory=".oosinvestigation.oos_batch_uid" />
+  <adapter name="oos_category" factory=".oosinvestigation.oos_category" />
+  <adapter name="oos_detection_date" factory=".oosinvestigation.oos_detection_date" />
+  <adapter name="oos_due_date" factory=".oosinvestigation.oos_due_date" />
+  <adapter name="oos_disposition" factory=".oosinvestigation.oos_disposition" />
+  <adapter name="oos_investigation_phase" factory=".oosinvestigation.oos_investigation_phase" />
 </configure>

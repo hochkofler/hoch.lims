@@ -31,5 +31,21 @@
   <!-- Batch Release Permission -->
   <permission id="hoch.lims.permissions.ReleaseBatch"
     title="hoch.lims: Release Batch"/>
-  
+
+  <!-- OOS Investigation permissions -->
+  <permission id="hoch.lims.permissions.AddOOSInvestigation"
+    title="hoch.lims: Add OOSInvestigation"/>
+
+  <permission id="hoch.lims.permissions.EditOOSInvestigation"
+    title="hoch.lims: Edit OOSInvestigation"/>
+
+  <permission id="hoch.lims.permissions.ViewOOSInvestigation"
+    title="hoch.lims: View OOSInvestigation"/>
+
+  <permission id="hoch.lims.permissions.TransitionOOSInvestigation"
+    title="hoch.lims: Transition OOSInvestigation"/>
+
+  <permission id="hoch.lims.permissions.ManageOOSInvestigations"
+    title="hoch.lims: Manage OOS Investigations"/>
+
 </configure>

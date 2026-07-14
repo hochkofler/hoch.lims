@@ -53,6 +53,7 @@ class MultiReportView(BaseMultiReportView):
     CONCLUSIONS_TEMPLATE = PT("templates/conclusions.pt")
     TITRATION_HPLC_TEMPLATE = PT("templates/titration_hplc.pt")
     CONSUMABLE_DATA_TEMPLATE = PT("templates/consumables_data.pt")
+    OOS_REPORT_TEMPLATE = PT("templates/oos_investigation_report.pt")
     PRODUCT_DATA_TEMPLATE = PT("templates/product_data.pt")
     COA_BATCH_DATA_TEMPLATE = PT("templates/coa_batch_data.pt")
     COA_RESULTS_TEMPLATE = PT("templates/coa_results.pt")

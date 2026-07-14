@@ -18,4 +18,19 @@
       name="hoch_analysis_guard"
       />
 
+  <!-- OOS Investigation Guard Adapter -->
+  <adapter
+      for="hoch.lims.interfaces.IOOSInvestigation"
+      provides="bika.lims.interfaces.IGuardAdapter"
+      factory=".oos.OOSInvestigationGuardAdapter"
+      name="hoch_oos_guard"
+      />
+
+  <!-- OOS auto-detection: create investigation on submit/verify if OOS -->
+  <subscriber
+      for="bika.lims.interfaces.IRoutineAnalysis
+           Products.DCWorkflow.interfaces.IAfterTransitionEvent"
+      handler=".oos_detection.on_analysis_transition"
+      />
+
 </configure>
