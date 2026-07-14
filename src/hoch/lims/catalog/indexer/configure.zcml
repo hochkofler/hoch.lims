@@ -36,6 +36,19 @@
   <!-- Sample Indexes -->
   <adapter name="sample_destination" factory=".sample.sample_destination" />
 
+  <!-- Worksheet Indexes -->
+  <adapter
+      name="worksheet_samples_searchable_text"
+      factory=".worksheet.WorksheetSamplesSearchableText"
+      for="senaite.core.interfaces.IWorksheet
+           zope.publisher.interfaces.IRequest
+           senaite.core.interfaces.IWorksheetCatalog"
+      provides="bika.lims.interfaces.IListingSearchableTextProvider"
+      />
+
+  <!-- Instrument Indexes -->
+  <adapter name="instrument_certificate_expiry_date" factory=".instrument.instrument_certificate_expiry_date" />
+
   <!-- OOS Investigation Indexes -->
   <adapter name="oos_analysis_uid" factory=".oosinvestigation.oos_analysis_uid" />
   <adapter name="oos_sample_uid" factory=".oosinvestigation.oos_sample_uid" />

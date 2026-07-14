@@ -4,3 +4,4 @@
 import hoch.lims.patches.archetypes  # noqa
 import hoch.lims.patches.batch  # noqa
 import hoch.lims.patches.workflow  # noqa
+import hoch.lims.patches.worksheets  # noqa

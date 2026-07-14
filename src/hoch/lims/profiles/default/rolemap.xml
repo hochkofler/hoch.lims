@@ -39,6 +39,24 @@
       <role name="RegulatoryPharmacist"/>
     </permission>
 
+    <permission name="senaite.core: Add Worksheet" acquire="False">
+      <role name="Manager"/>
+      <role name="LabManager"/>
+      <role name="LabClerk"/>
+    </permission>
+
+    <permission name="senaite.core: Edit Worksheet" acquire="False">
+      <role name="Manager"/>
+      <role name="LabManager"/>
+      <role name="LabClerk"/>
+    </permission>
+
+    <permission name="senaite.core: Manage Worksheets" acquire="False">
+      <role name="Manager"/>
+      <role name="LabManager"/>
+      <role name="LabClerk"/>
+    </permission>
+
     <!-- OOS Investigation permissions -->
     <permission name="hoch.lims: Add OOSInvestigation" acquire="False">
       <role name="Manager"/>

@@ -15,7 +15,8 @@ from Products.CMFCore.permissions import ManagePortal
 ADD_COLUMNS = [
     ("APIURL", {
         "title": _("API URL"),
-        "sortable": False,
+        "index": "getId",
+        "sortable": True,
     }),
 ]
 

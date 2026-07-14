@@ -64,6 +64,8 @@ class PharmaceuticalProductsView(ListingView):
             ("APIURL", {
                 "title": _(u"label_product_api",
                             default=u"API URL"),
+                "index": "getId",
+                "sortable": True,
                 "toggle": True}),
             ("Title", {
                 "title": _(u"label_product_title",

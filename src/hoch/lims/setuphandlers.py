@@ -15,6 +15,7 @@ from zope.component import getUtility
 from plone import api as ploneapi
 from hoch.lims import messageFactory as _
 from senaite.core.catalog import SETUP_CATALOG
+from senaite.core.catalog import WORKSHEET_CATALOG
 
 PROFILE_ID = "profile-{}:default".format(PRODUCT_NAME)
 
@@ -70,7 +71,7 @@ SETUP_FOLDERS = [
 # Tuples of (catalog, index_name, index_attribute, index_type)
 INDEXES = [
     (SETUP_CATALOG, "marketingauthorization_uid_for_sampletype", "", "KeywordIndex"),
-
+    (SETUP_CATALOG, "instrument_certificate_expiry_date", "", "DateIndex"),
 ]
 
 # Tuples of (catalog, column_name)
@@ -161,6 +162,9 @@ def setup_handler(context):
 
     # Setup workflow (for field permissions mostly)
     setup_workflow(portal)
+
+    # Reindex worksheet listing_searchable_text to include sample IDs
+    reindex_worksheet_searchable_text(portal)
 
     logger.info("{} setup handler [DONE]".format(PRODUCT_NAME.upper()))
 
@@ -427,6 +431,21 @@ def update_workflow_transition(workflow, transition_id, settings):
     guard_props = settings.get("guard", guard_props)
     guard.changeFromProperties(guard_props)
     transition.guard = guard
+
+def reindex_worksheet_searchable_text(portal):
+    """Reindex listing_searchable_text for all worksheets so sample IDs
+    are included in the full-text index.
+    """
+    logger.info("Reindexing worksheet listing_searchable_text ...")
+    catalog = api.get_tool(WORKSHEET_CATALOG)
+    brains = catalog(portal_type="Worksheet")
+    total = len(brains)
+    for i, brain in enumerate(brains):
+        obj = api.get_object(brain)
+        obj.reindexObject(idxs=["listing_searchable_text"])
+        if i % 50 == 0:
+            logger.info("Reindexed {}/{} worksheets".format(i, total))
+    logger.info("Reindexing worksheet listing_searchable_text [DONE]")
 
 def setup_catalog_mappings(portal):
     """Setup the catalog mappings for portal types in senaite registry
