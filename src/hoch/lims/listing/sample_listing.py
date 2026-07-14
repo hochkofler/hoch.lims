@@ -12,7 +12,8 @@ from hoch.lims import messageFactory as _
 ADD_COLUMNS = [
     ("APIURL", {
         "title": _("API URL"),
-        "sortable": False,
+        "index": "getId",
+        "sortable": True,
     }),
 ]
 

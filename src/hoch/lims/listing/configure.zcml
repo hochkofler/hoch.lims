@@ -21,6 +21,13 @@
     provides="senaite.app.listing.interfaces.IListingViewAdapter"
     factory=".generic_api.APIListingViewAdapter" />
 
+  <!-- Instruments listing with expiry date filter tabs -->
+  <subscriber
+    for="bika.lims.controlpanel.bika_instruments.InstrumentsView
+         bika.lims.interfaces.IInstruments"
+    provides="senaite.app.listing.interfaces.IListingViewAdapter"
+    factory=".instruments_listing.InstrumentsListingViewAdapter" />
+
   <subscriber
     for="senaite.core.browser.controlpanel.suppliers.referencesamples.SupplierReferenceSamplesView
          senaite.core.interfaces.ISupplier"
