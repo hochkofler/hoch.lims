@@ -12,7 +12,7 @@
                      mktauth product/MarketingAuthorization;
                      analysts_user_names python: view.uniquify_items(reduce(lambda a1, a2: a1+a2, map(lambda m: m.getAnalysts(), collection)));
                      supervisor_user python: laboratory.get('Supervisor');
-                     analysts python: [supervisor_user.getContactByUsername(u) for u in analysts_user_names if supervisor_user.getContactByUsername(u)];
+                     analysts python: [view.getContactByUsername(u) for u in analysts_user_names if view.getContactByUsername(u)];
                      supervisor python: [supervisor_user] if supervisor_user else [];
                      user_signatures python: [{'users': analysts, 'role': 'Analista de Control de Calidad'},
                                               {'users': supervisor, 'role': 'Jefe de Control de Calidad'}];

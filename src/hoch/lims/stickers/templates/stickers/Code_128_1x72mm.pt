@@ -30,7 +30,8 @@
                      analyses_categories python: [c.Title() for c in {a.getCategory() for a in analyses}];
                      lab_departments python: [i.Title() for i in item.getDepartments()];
                      sample_units item/SampledUnits;
-                     processes item/Processes|nothing;">
+                     processes item/Processes|nothing;
+                     lab_departments_from_categories python: [c.getDepartment().Title() for c in {a.getCategory() for a in analyses}];">
                      <!--analyses_categories python: set([a.getCategory() for a in analyses]);-->
                      <!--lab_departments2 python: [c.getDepartment().Title() for c in analyses_categories];-->
 
@@ -83,7 +84,7 @@
     </tr>
     <tr>
       <th i18n:translate="">Dpto. Lab:</th>
-      <td colspan='3' tal:content="python: ', '.join(lab_departments or analyses_categories or [])"/>
+      <td colspan='3' tal:content="python: ', '.join(dict.fromkeys(lab_departments_from_categories or []))"/>
     </tr>
     <tr>
       <td colspan="4" class="barcode-container">
