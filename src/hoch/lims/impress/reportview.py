@@ -175,6 +175,13 @@ class MultiReportView(BaseMultiReportView):
         """
         return self.UC_REPORT_TEMPLATE(context, **kw)
 
+    def getContactByUsername(self, username):
+        """Returns a Contact object for the given username.
+        This is independent of the supervisor or any other user object.
+        """
+        from bika.lims.content.contact import Contact
+        return Contact.getContactByUsername(username)
+
     def formatted_interim(self, interim, dmk="."):
         return get_formatted_interim(interim, dmk)
 

@@ -106,6 +106,44 @@ class BaseCalculator(object):
             return api.to_float(raw, default)
         return raw
 
+    @staticmethod
+    def parse_time_to_seconds(value):
+        """Convert duration strings to total seconds.
+
+        Accepts "MM:SS" or "HH:MM:SS" and returns float seconds.
+        """
+        if value is None or value == "":
+            return None
+        if isinstance(value, (int, float)):
+            return float(value)
+
+        text = str(value).strip()
+        parts = text.split(":")
+        if len(parts) not in (2, 3):
+            raise ValueError("Invalid time format, expected MM:SS or HH:MM:SS")
+
+        try:
+            parts = [float(p) for p in parts]
+        except ValueError:
+            raise ValueError("Time parts must be numeric")
+
+        if len(parts) == 2:
+            minutes, seconds = parts
+            return minutes * 60.0 + seconds
+        hours, minutes, seconds = parts
+        return hours * 3600.0 + minutes * 60.0 + seconds
+
+    def get_interim_time_seconds(self, keyword, default=None):
+        """Read a time interim in MM:SS/HH:MM:SS and return total seconds."""
+        raw = self.get_interim_value(keyword, default=None)
+        if raw in (None, "", "None"):
+            return default
+        try:
+            return self.parse_time_to_seconds(raw)
+        except ValueError:
+            self._raise("Interval '{}' value '{}' is not valid time".format(keyword, raw))
+            return default
+
     def set_interim_value(self, keyword, value, overwrite=True):
         """Set the value of one interim field by keyword and persist.
 

@@ -9,10 +9,10 @@
               verificators python: [a.getVerificators() for a in analyses if a.getVerificators()];
               verificators_user_names python:view.uniquify_items(verificators);
               analysts_user_names python:view.uniquify_items(a.getAnalyst() for a in analyses);
-              verficators python: [supervisor_user.getContactByUsername(u) for u in verificators_user_names if supervisor_user.getContactByUsername(u)];
-              analysts python: [supervisor_user.getContactByUsername(u) for u in analysts_user_names if supervisor_user.getContactByUsername(u)];
+              verficators python: [view.getContactByUsername(u) for u in verificators_user_names if view.getContactByUsername(u)];
+              analysts python: [view.getContactByUsername(u) for u in analysts_user_names if view.getContactByUsername(u)];
               current_user_name python: view.current_user.get('username', '');
-              publisher_user python: supervisor_user.getContactByUsername(current_user_name);
+              publisher_user python: view.getContactByUsername(current_user_name);
               user_signatures python: [{'users': analysts,'role':'Analizado por'}, 
                                         {'users': verficators, 'role':'Verificado por'}, 
                                         {'users':[supervisor_user], 'role':'Resp. del laboratorio'}];">
