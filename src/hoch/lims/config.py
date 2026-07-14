@@ -109,3 +109,36 @@ DESTINATIONS = (
     (u"development", _(u"Development")),
     (u"validation", _(u"Method Validation")),
 )
+
+# OOS Investigation constants
+OOS_CATEGORIES = (
+    (u"laboratory_error", _(u"Laboratory Error")),
+    (u"assignable_cause", _(u"Assignable Cause")),
+    (u"oos_confirmed", _(u"OOS Confirmed")),
+    (u"inconclusive", _(u"Inconclusive")),
+)
+
+OOS_DISPOSITIONS = (
+    (u"retest", _(u"Retest")),
+    (u"reject_batch", _(u"Reject Batch")),
+    (u"release_batch", _(u"Release Batch (with justification)")),
+    (u"rework", _(u"Rework")),
+    (u"reprocess", _(u"Reprocess")),
+)
+
+OOS_ROOT_CAUSES = (
+    (u"analyst_error", _(u"Analyst Error")),
+    (u"instrument_malfunction", _(u"Instrument Malfunction")),
+    (u"sample_preparation", _(u"Sample Preparation Error")),
+    (u"reagent_issue", _(u"Reagent / Standard Issue")),
+    (u"environmental", _(u"Environmental Conditions")),
+    (u"method_issue", _(u"Method / Procedure Issue")),
+    (u"manufacturing_deviation", _(u"Manufacturing Deviation")),
+    (u"raw_material", _(u"Raw Material Issue")),
+    (u"other", _(u"Other")),
+)
+
+OOS_INVESTIGATION_PHASES = (
+    (u"phase_1", _(u"Phase I - Lab Investigation")),
+    (u"phase_2", _(u"Phase II - Full Scale Investigation")),
+)

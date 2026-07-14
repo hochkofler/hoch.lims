@@ -8,4 +8,6 @@
   <object name="Process" meta_type="Dexterity FTI" />
   <object name="Processes" meta_type="Dexterity FTI" />
   <object name="ProcessGroups" meta_type="Dexterity FTI" />
+  <object name="OOSInvestigation" meta_type="Dexterity FTI" />
+  <object name="OOSFolder" meta_type="Dexterity FTI" />
 </object>

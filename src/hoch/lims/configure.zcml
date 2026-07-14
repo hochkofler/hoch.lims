@@ -74,6 +74,27 @@
     component="hoch.lims.vocabularies.DestinationsVocabularyFactory"
 />
 
+<!-- OOS Investigation vocabularies -->
+<utility
+    name="hoch.lims.vocabularies.oos_categories"
+    component="hoch.lims.vocabularies.OOSCategoriesVocabularyFactory"
+/>
+
+<utility
+    name="hoch.lims.vocabularies.oos_dispositions"
+    component="hoch.lims.vocabularies.OOSDispositionsVocabularyFactory"
+/>
+
+<utility
+    name="hoch.lims.vocabularies.oos_root_causes"
+    component="hoch.lims.vocabularies.OOSRootCausesVocabularyFactory"
+/>
+
+<utility
+    name="hoch.lims.vocabularies.oos_investigation_phases"
+    component="hoch.lims.vocabularies.OOSInvestigationPhasesVocabularyFactory"
+/>
+
   <!-- Package includes -->
   <include package=".browser" />
   <include package=".catalog" />

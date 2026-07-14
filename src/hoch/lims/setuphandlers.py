@@ -51,6 +51,7 @@ CATALOG_MAPPINGS = (
     ("PharmaceuticalProduct", [HOCHLIMS_CATALOG]),
     ("ProcessGroup", [HOCHLIMS_CATALOG, SETUP_CATALOG]),
     ("Process", [HOCHLIMS_CATALOG, SETUP_CATALOG]),
+    ("OOSInvestigation", [HOCHLIMS_CATALOG]),
 )
 
 # Folder in sidebar (folder_id, folder_name, type)
@@ -58,7 +59,8 @@ SIDEBAR_FOLDERS = [
     ("MarketingAuthorizations", "Marketing Authorizations", "MarketingAuthorizations"),
     ("PharmaceuticalProducts", "Pharmaceutical Products", "PharmaceuticalProducts"),
     ("ProcessGroups", "Process Groups", "ProcessGroups"),
-    ("Processes", "Processes", "Processes")
+    ("Processes", "Processes", "Processes"),
+    ("OOSInvestigations", "OOS Investigations", "OOSFolder"),
 ]
 
 # Tuples of (folder_id, folder_name, type)
@@ -81,6 +83,7 @@ NAVTYPES = [
     "PharmaceuticalProducts",
     "ProcessGroups",
     "Processes",
+    "OOSInvestigations",
 ]
 
 # An array of dicts. Each dict represents an ID formatting configuration
@@ -108,6 +111,12 @@ ID_FORMATTING = [
         "portal_type": "ProcessGroup",
         "form": "PG{seq:05d}",
         "prefix": "processgroup",
+        "sequence_type": "generated",
+        "split_length": 1,
+    }, {
+        "portal_type": "OOSInvestigation",
+        "form": "OOS-{seq:06d}",
+        "prefix": "oosinvestigation",
         "sequence_type": "generated",
         "split_length": 1,
     }

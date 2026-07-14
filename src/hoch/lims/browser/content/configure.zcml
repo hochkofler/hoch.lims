@@ -47,4 +47,22 @@
       layer="hoch.lims.interfaces.IHochLims"
       />
 
+  <!-- OOS Investigations folder listing -->
+  <browser:page
+      name="view"
+      for="hoch.lims.content.oosfolder.IOOSFolder"
+      class=".oosinvestigations.OOSInvestigationsView"
+      permission="zope2.View"
+      layer="hoch.lims.interfaces.IHochLims"
+      />
+
+  <!-- OOS Investigation edit form -->
+  <browser:page
+      name="edit"
+      for="hoch.lims.content.oosinvestigation.IOOSInvestigation"
+      class=".oosinvestigation.EditForm"
+      permission="hoch.lims.permissions.EditOOSInvestigation"
+      layer="hoch.lims.interfaces.IHochLims"
+      />
+
 </configure>
