@@ -5,6 +5,14 @@ from bika.lims import logger
 from hoch.lims.catalog import HOCHLIMS_CATALOG
 
 
+def _get_field_value(obj, field_name, default=None):
+    """Read an extender field without relying on generated accessors."""
+    field = obj.getField(field_name)
+    if field is None:
+        return default
+    return field.get(obj)
+
+
 def guard_release(batch):
     """Validate that batch can be released.
     
@@ -23,26 +31,26 @@ def guard_release(batch):
         return False
     
     # 2. Must have a release publication selected
-    release_pub = batch.getReleasePublication()
+    release_pub = _get_field_value(batch, "ReleasePublication")
     if not release_pub:
         logger.info("guard_release [REJECT] Batch {0}: no ReleasePublication selected".format(
             batch_id))
         return False
     
-    # 3. Get samples from the publication
-    pub_samples = release_pub.getAnalysisRequests()
-    
-    # 4. Get batch "release" samples
+    # 3. Get batch "release" samples
     batch_samples = batch.getAnalysisRequests()
     release_samples = [s for s in batch_samples
-                      if s.getDestination() == 'release']
+                       if _get_field_value(s, "Destination") == "release"]
     
     if not release_samples:
         logger.info("guard_release [REJECT] Batch {0}: no samples with Destination='release'".format(
             batch_id))
         return False
     
-    # 5. Verify publication contains all release samples
+    # 4. Verify publication contains all release samples
+    primary = release_pub.getSample()
+    contained = release_pub.getContainedSamples() or []
+    pub_samples = ([primary] if primary else []) + list(contained)
     pub_sample_uids = set([api.get_uid(s) for s in pub_samples])
     release_sample_uids = set([api.get_uid(s) for s in release_samples])
     
@@ -52,22 +60,23 @@ def guard_release(batch):
             batch_id, len(missing)))
         return False
     
-    # 6. All release samples must be verified
+    # 5. All non-invalid release samples must be final
+    valid_statuses = ["verified", "published"]
     for sample in release_samples:
         sample_status = api.get_review_status(sample)
-        if sample_status != 'verified':
-            logger.info("guard_release [REJECT] Batch {0}: sample {1} is '{2}', must be 'verified'".format(
+        if sample_status not in valid_statuses and not sample.isInvalid():
+            logger.info("guard_release [REJECT] Batch {0}: sample {1} is '{2}', must be verified or published".format(
                 batch_id, sample.getId(), sample_status))
             return False
     
-    # 7. All release samples must be in spec
+    # 6. All release samples must be in spec
     for sample in release_samples:
         if not is_sample_in_spec(sample):
             logger.info("guard_release [REJECT] Batch {0}: sample {1} is out of specification".format(
                 batch_id, sample.getId()))
             return False
     
-    # 7b. No open OOS investigations for release samples
+    # 7. No open OOS investigations for release samples
     for sample in release_samples:
         if _has_open_oos(sample):
             logger.info(
@@ -75,10 +84,10 @@ def guard_release(batch):
                 "OOS investigation(s)".format(batch_id, sample.getId()))
             return False
 
-    # 8. Publication must be published
+    # 8. Publication must be active
     pub_status = api.get_review_status(release_pub)
     if pub_status != 'active':
-        logger.info("guard_release [REJECT] Batch {0}: publication status is '{1}', must be 'published'".format(
+        logger.info("guard_release [REJECT] Batch {0}: publication status is '{1}', must be 'active'".format(
             batch_id, pub_status))
         return False
     

@@ -250,3 +250,59 @@ Complete-suite result after adding the characterization:
 
 The matching results establish that this merge behavior is owned and supplied
 by `hoch.lims`; it does not require the historical SENAITE Core checkout.
+
+## Batch workflow characterization
+
+Focused commands:
+
+```bash
+/tmp/hoch-lims-official-core-test \
+  -s hoch.lims -t test_batch_workflow
+/tmp/hoch-lims-worktree-test \
+  -s hoch.lims -t test_batch_workflow
+```
+
+Each matrix reports:
+
+- 15 tests;
+- 0 failures;
+- 0 errors;
+- 0 skipped;
+- exit code 0.
+
+The characterization found two release implementations with different
+behavior. The workflow profile invokes the legacy
+`Batch.guard_release_batch()` expression, while `BatchGuardAdapter` invokes
+`workflow.batch.guards.guard_release()`. Before unification, the legacy path
+did not reject out-of-specification samples or open OOS investigations, and
+the adapter path rejected samples already in the `published` state.
+
+Both entry points now converge on the canonical guard while the legacy method
+retains its acquisition-safe Batch lookup for compatibility with installed
+workflow definitions. No GenericSetup workflow migration is required by this
+change.
+
+The tests protect these release invariants:
+
+- the Batch is closed;
+- a release publication is selected and active;
+- at least one Batch sample has `Destination` set to `release`;
+- every release sample belongs to the selected publication;
+- every non-invalid release sample is verified or published;
+- verified analyses are within specification;
+- no release sample has an open OOS investigation.
+
+They also protect close/reopen state guards, adapter delegation, and the
+post-release audit behavior that records `ReleaseDate` and `ReleasedBy` and
+reindexes the Batch. Missing optional audit fields do not abort the event.
+
+Complete-suite result after guard unification:
+
+| Matrix | Tests | Failures | Errors | Skipped |
+| --- | ---: | ---: | ---: | ---: |
+| Official core `ba57f85e8` | 50 | 0 | 0 | 0 |
+| Historical core `e98fb15` plus local patches | 50 | 0 | 0 | 0 |
+
+The matching results establish that the Batch release rules and compatibility
+bridge are supplied by `hoch.lims`; they do not require a modification to
+official SENAITE Core.
