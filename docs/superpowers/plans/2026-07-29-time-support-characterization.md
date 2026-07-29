@@ -132,6 +132,7 @@ Expected: `test_time_interim_is_formatted_for_display` errors with `NameError: g
 In `src/hoch/lims/utils.py`, add:
 
 ```python
+from datetime import datetime
 from senaite.core.api import dtime
 from senaite.core.i18n import get_dt_format
 ```
@@ -141,12 +142,18 @@ Add immediately before `get_formatted_interim`:
 ```python
 def format_time_value(value):
     """Return a stored time value using SENAITE's locale time format."""
-    value = dtime.to_dt(value)
-    if not value:
-        return ""
-    value = value.replace(tzinfo=None)
-    return dtime.date_to_string(value, get_dt_format("time"))
+    for source_format in ("%H:%M:%S", "%H:%M"):
+        try:
+            value = datetime.strptime(value, source_format)
+            return dtime.date_to_string(value, get_dt_format("time"))
+        except (TypeError, ValueError):
+            continue
+    return ""
 ```
+
+Parse the HTML `time` control formats explicitly. `dtime.to_dt` is a
+date/datetime parser and interprets a standalone `HH:MM:SS` string as
+midnight in this stack.
 
 - [ ] **Step 4: Run the focused tests and verify GREEN**
 

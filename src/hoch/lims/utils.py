@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from datetime import datetime
 from bika.lims.utils import formatDecimalMark
 from bika.lims import api
 import re
@@ -7,6 +8,8 @@ from bika.lims.api import get_object_by_uid
 from bika.lims.config import MAX_OPERATORS
 from bika.lims.config import MIN_OPERATORS
 from bika.lims.utils.analysis import _format_decimal_or_sci
+from senaite.core.api import dtime
+from senaite.core.i18n import get_dt_format
 _marker = object()
 
 def is_interim_editable(interim):
@@ -70,7 +73,19 @@ def is_multi_interim(interim):
     """
     result_type = interim.get("result_type", "")
     return result_type.startswith("multi")
-    
+
+
+def format_time_value(value):
+    """Return a stored time value using SENAITE's locale time format."""
+    for source_format in ("%H:%M:%S", "%H:%M"):
+        try:
+            value = datetime.strptime(value, source_format)
+            return dtime.date_to_string(value, get_dt_format("time"))
+        except (TypeError, ValueError):
+            continue
+    return ""
+
+
 def get_formatted_interim(interim):
         """Returns the formatted value of the interim
         """

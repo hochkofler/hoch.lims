@@ -4,6 +4,7 @@ import unittest2 as unittest
 
 from bika.lims.content.abstractbaseanalysis import RESULT_TYPES
 from hoch.lims.calc import BaseCalculator
+from hoch.lims.utils import get_formatted_interim
 
 
 class TestTimeSupport(unittest.TestCase):
@@ -31,6 +32,13 @@ class TestTimeSupport(unittest.TestCase):
     def test_invalid_time_is_rejected(self):
         with self.assertRaises(ValueError):
             BaseCalculator.parse_time_to_seconds("invalid")
+
+    def test_time_interim_is_formatted_for_display(self):
+        interim = {
+            "result_type": "time",
+            "value": "01:02:03",
+        }
+        self.assertEqual("01:02", get_formatted_interim(interim))
 
 
 def test_suite():
