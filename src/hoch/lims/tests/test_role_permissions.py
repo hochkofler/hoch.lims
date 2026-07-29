@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from bika.lims import api
+from plone.app.testing import setRoles
+from plone.app.testing import TEST_USER_ID
+
 from hoch.lims.tests.base import SimpleTestCase
 
 
@@ -47,6 +51,31 @@ class TestInstalledRolePermissions(SimpleTestCase):
             item["name"]
             for item in self.portal.rolesOfPermission(permission)
             if item["selected"]))
+
+    def set_test_role(self, role):
+        setRoles(self.portal, TEST_USER_ID, [role])
+
+    def transition_ids(self, obj):
+        return set(
+            transition["id"]
+            for transition in api.get_transitions_for(obj))
+
+    def create_oos(self):
+        return api.create(
+            self.portal.OOSInvestigations, "OOSInvestigation")
+
+    def create_review_oos(self, investigator="investigator-1"):
+        self.set_test_role("LabManager")
+        investigation = self.create_oos()
+        api.do_transition_for(investigation, "start_phase1")
+        investigation.phase1_summary = u"Laboratory checks complete"
+        api.do_transition_for(investigation, "escalate_phase2")
+        investigation.conclusion = u"Confirmed OOS"
+        investigation.disposition = u"reject_batch"
+        investigation.oos_category = u"confirmed"
+        investigation.investigator = investigator
+        api.do_transition_for(investigation, "submit_for_review")
+        return investigation
 
     def test_batch_transitions_have_exact_role_guards(self):
         workflow = self.get_workflow("hoch_batch_workflow")
@@ -134,6 +163,57 @@ class TestInstalledRolePermissions(SimpleTestCase):
             ),
             self.permission_roles(
                 "hoch.lims: Transition OOSInvestigation"))
+
+    def test_initial_oos_transition_is_authorized_by_effective_role(self):
+        investigation = self.create_oos()
+        expected = {
+            "Analyst": True,
+            "LabManager": True,
+            "Manager": True,
+            "RegulatoryPharmacist": False,
+        }
+
+        for role, allowed in expected.items():
+            self.set_test_role(role)
+            self.assertEqual(
+                allowed,
+                "start_phase1" in self.transition_ids(investigation),
+                role)
+
+    def test_review_transitions_are_authorized_by_effective_role(self):
+        investigation = self.create_review_oos()
+        expected = {
+            "Analyst": False,
+            "LabManager": True,
+            "Manager": True,
+            "RegulatoryPharmacist": True,
+        }
+
+        for role, allowed in expected.items():
+            self.set_test_role(role)
+            transitions = self.transition_ids(investigation)
+            self.assertEqual(
+                allowed, "approve" in transitions, role)
+            self.assertEqual(
+                allowed, "reject_review" in transitions, role)
+
+    def test_allowed_reviewer_cannot_approve_own_investigation(self):
+        investigation = self.create_review_oos(
+            investigator=TEST_USER_ID)
+
+        for role in (
+                "LabManager", "Manager", "RegulatoryPharmacist"):
+            self.set_test_role(role)
+            transitions = self.transition_ids(investigation)
+            self.assertNotIn("approve", transitions, role)
+            self.assertIn("reject_review", transitions, role)
+
+        investigation.investigator = "investigator-2"
+        for role in (
+                "LabManager", "Manager", "RegulatoryPharmacist"):
+            self.set_test_role(role)
+            self.assertIn(
+                "approve", self.transition_ids(investigation), role)
 
 
 def test_suite():
