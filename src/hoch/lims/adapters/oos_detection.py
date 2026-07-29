@@ -77,7 +77,9 @@ def _check_and_create_oos(analysis):
         logger.info(
             "Created OOS Investigation %s for analysis %s (result=%s)",
             api.get_id(oos), analysis.getId(), result_value)
+        return oos
     except Exception as e:
         logger.error(
             "Failed to create OOS Investigation for analysis %s: %s",
             analysis_uid, str(e))
+        raise
