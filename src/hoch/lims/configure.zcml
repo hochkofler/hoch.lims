@@ -109,6 +109,7 @@
   <include package=".adapters" />
   <include package=".stickers" />
   <include package=".exportimport" />
+  <include package=".upgrades" />
 
   <!-- Default Profile -->
   <genericsetup:registerProfile

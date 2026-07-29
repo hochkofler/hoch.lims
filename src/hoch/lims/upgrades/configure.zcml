@@ -1,0 +1,15 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+    i18n_domain="hoch.lims">
+
+  <genericsetup:upgradeStep
+      title="Enable the HOCH OOS workflow"
+      description="Connect OOS workflow guards for SENAITE 2.x"
+      source="1000"
+      destination="1001"
+      handler="hoch.lims.upgrades.v1001.upgrade"
+      profile="hoch.lims:default"
+      />
+
+</configure>
