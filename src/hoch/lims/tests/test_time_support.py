@@ -5,8 +5,38 @@ import unittest2 as unittest
 from bika.lims.browser.fields.interimfieldsfield import InterimFieldsField
 from bika.lims.content.abstractbaseanalysis import ResultType
 from hoch.lims.calc import BaseCalculator
+from hoch.lims.patches.time_support import format_analysis_result
+from hoch.lims.patches.time_support import format_listing_interim
 from hoch.lims.patches.time_support import TimeResultTypesVocabulary
 from hoch.lims.utils import get_formatted_interim
+
+
+class DummyAnalysis(object):
+
+    def __init__(self, result_type, result):
+        self.result_type = result_type
+        self.result = result
+        self.original_calls = 0
+
+    def getResultType(self):
+        return self.result_type
+
+    def getResult(self):
+        return self.result
+
+    def _old_getFormattedResult(self, *args, **kwargs):
+        self.original_calls += 1
+        return "original-analysis"
+
+
+class DummyAnalysesView(object):
+
+    def __init__(self):
+        self.original_calls = 0
+
+    def _old_get_formatted_interim(self, interim):
+        self.original_calls += 1
+        return "original-interim"
 
 
 class TestTimeSupport(unittest.TestCase):
@@ -49,6 +79,30 @@ class TestTimeSupport(unittest.TestCase):
             "value": "01:02:03",
         }
         self.assertEqual("01:02", get_formatted_interim(interim))
+
+    def test_time_analysis_result_uses_hoch_formatter(self):
+        analysis = DummyAnalysis("time", "01:02:03")
+        self.assertEqual("01:02", format_analysis_result(analysis))
+        self.assertEqual(0, analysis.original_calls)
+
+    def test_non_time_analysis_result_delegates_to_core(self):
+        analysis = DummyAnalysis("numeric", "12.3")
+        self.assertEqual(
+            "original-analysis", format_analysis_result(analysis))
+        self.assertEqual(1, analysis.original_calls)
+
+    def test_time_listing_interim_uses_hoch_formatter(self):
+        view = DummyAnalysesView()
+        interim = {"result_type": "time", "value": "01:02:03"}
+        self.assertEqual("01:02", format_listing_interim(view, interim))
+        self.assertEqual(0, view.original_calls)
+
+    def test_non_time_listing_interim_delegates_to_core(self):
+        view = DummyAnalysesView()
+        interim = {"result_type": "numeric", "value": "12.3"}
+        self.assertEqual(
+            "original-interim", format_listing_interim(view, interim))
+        self.assertEqual(1, view.original_calls)
 
 
 def test_suite():

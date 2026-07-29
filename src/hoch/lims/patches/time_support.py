@@ -5,6 +5,7 @@
 from bika.lims import _
 from bika.lims.browser.fields.interimfieldsfield import InterimFieldsField
 from bika.lims.content import abstractbaseanalysis
+from hoch.lims.utils import format_time_value
 from Products.Archetypes.public import DisplayList
 from senaite.core.config import vocabularies as config_vocabularies
 from senaite.core.schema.vocabulary import to_simple_vocabulary
@@ -36,6 +37,20 @@ def enable_time_result_type():
 
     config_vocabularies.RESULT_TYPES = append_time(
         config_vocabularies.RESULT_TYPES)
+
+
+def format_analysis_result(self, *args, **kwargs):
+    """Format time results and delegate all other types to SENAITE."""
+    if self.getResultType() == "time":
+        return format_time_value(self.getResult())
+    return self._old_getFormattedResult(*args, **kwargs)
+
+
+def format_listing_interim(self, interim):
+    """Format time interims and delegate all other types to SENAITE."""
+    if interim.get("result_type") == "time":
+        return format_time_value(interim.get("value"))
+    return self._old_get_formatted_interim(interim)
 
 
 @implementer(IVocabularyFactory)
