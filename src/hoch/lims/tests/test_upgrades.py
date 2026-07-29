@@ -4,6 +4,7 @@ import unittest2 as unittest
 
 from Products.DCWorkflow.Guard import Guard
 from hoch.lims.upgrades import v1001
+from hoch.lims.upgrades import v1002
 
 
 PERMISSION = "hoch.lims: Transition OOSInvestigation"
@@ -69,6 +70,66 @@ class DummyPortalSetup(object):
         return DummyContext(self.portal)
 
 
+class RoleDummyTransition(object):
+
+    def __init__(self):
+        self.guard = Guard()
+        self.guard.changeFromProperties({
+            "guard_permissions": "Keep permission",
+            "guard_expr": "python:True",
+            "guard_groups": "KeepGroup",
+            "guard_roles": "LegacyRole",
+        })
+
+
+class RoleDummyState(object):
+
+    def __init__(self):
+        self.permissions = {}
+
+    def setPermission(self, permission, acquire, roles):
+        self.permissions[permission] = (acquire, tuple(roles))
+
+
+class RoleDummyWorkflow(object):
+
+    def __init__(self, transition_roles):
+        self.transitions = DummyTransitions(
+            (transition_id, RoleDummyTransition())
+            for transition_id in transition_roles)
+        self.states = dict(
+            (state_id, RoleDummyState())
+            for state_id in v1002.OOS_EDIT_STATES)
+        self.permissions = tuple(v1002.OOS_EDIT_PERMISSIONS)
+
+
+class RoleDummyWorkflowTool(object):
+
+    def __init__(self, workflows):
+        self.workflows = workflows
+
+    def getWorkflowById(self, workflow_id):
+        return self.workflows.get(workflow_id)
+
+
+class RoleDummyPortal(object):
+
+    def __init__(self):
+        self.batch_workflow = RoleDummyWorkflow(
+            v1002.BATCH_TRANSITION_ROLES)
+        self.oos_workflow = RoleDummyWorkflow(
+            v1002.OOS_TRANSITION_ROLES)
+        self.portal_workflow = RoleDummyWorkflowTool({
+            v1002.BATCH_WORKFLOW_ID: self.batch_workflow,
+            v1002.OOS_WORKFLOW_ID: self.oos_workflow,
+        })
+        self.managed_permissions = {}
+
+    def manage_permission(self, permission, roles, acquire):
+        self.managed_permissions[permission] = (
+            tuple(roles), acquire)
+
+
 class TestOOSUpgrade(unittest.TestCase):
 
     def setUp(self):
@@ -122,6 +183,116 @@ class TestOOSUpgrade(unittest.TestCase):
             v1001.upgrade(self.portal_setup)
 
 
+class TestRolePermissionsUpgrade(unittest.TestCase):
+
+    def setUp(self):
+        self.portal = RoleDummyPortal()
+        self.portal_setup = DummyPortalSetup(self.portal)
+
+    def snapshot(self):
+        workflows = (
+            (self.portal.batch_workflow,
+             v1002.BATCH_TRANSITION_ROLES),
+            (self.portal.oos_workflow,
+             v1002.OOS_TRANSITION_ROLES),
+        )
+        transitions = tuple(
+            (
+                transition_id,
+                workflow.transitions[transition_id].guard.permissions,
+                workflow.transitions[transition_id].guard.expr.text,
+                workflow.transitions[transition_id].guard.groups,
+                workflow.transitions[transition_id].guard.roles,
+            )
+            for workflow, role_map in workflows
+            for transition_id in role_map)
+        states = tuple(
+            (
+                state_id,
+                tuple(sorted(
+                    self.portal.oos_workflow.states[
+                        state_id].permissions.items())),
+            )
+            for state_id in v1002.OOS_EDIT_STATES)
+        return transitions, states, self.portal.managed_permissions.copy()
+
+    def test_upgrade_installs_exact_transition_roles(self):
+        v1002.upgrade(self.portal_setup)
+
+        self.assertEqual([v1002.PROFILE_ID], self.portal_setup.profile_ids)
+        workflows = (
+            (self.portal.batch_workflow,
+             v1002.BATCH_TRANSITION_ROLES),
+            (self.portal.oos_workflow,
+             v1002.OOS_TRANSITION_ROLES),
+        )
+        for workflow, role_map in workflows:
+            for transition_id, expected_roles in role_map.items():
+                guard = workflow.transitions[transition_id].guard
+                self.assertEqual(tuple(expected_roles), guard.roles)
+                self.assertEqual(("Keep permission",), guard.permissions)
+                self.assertEqual("python:True", guard.expr.text)
+                self.assertEqual(("KeepGroup",), guard.groups)
+
+    def test_upgrade_installs_edit_and_global_permissions(self):
+        v1002.upgrade(self.portal_setup)
+
+        expected = (0, ("LabManager", "Manager"))
+        for state_id in v1002.OOS_EDIT_STATES:
+            state = self.portal.oos_workflow.states[state_id]
+            for permission in v1002.OOS_EDIT_PERMISSIONS:
+                self.assertEqual(expected, state.permissions[permission])
+        self.assertEqual(
+            (
+                v1002.OOS_TRANSITION_PERMISSION_ROLES,
+                0,
+            ),
+            self.portal.managed_permissions[
+                v1002.OOS_TRANSITION_PERMISSION])
+
+    def test_upgrade_is_idempotent(self):
+        v1002.upgrade(self.portal_setup)
+        first = self.snapshot()
+
+        v1002.upgrade(self.portal_setup)
+
+        self.assertEqual(first, self.snapshot())
+
+    def test_upgrade_rejects_missing_workflow(self):
+        self.portal.portal_workflow.workflows.pop(
+            v1002.BATCH_WORKFLOW_ID)
+
+        with self.assertRaisesRegexp(
+                ValueError, v1002.BATCH_WORKFLOW_ID):
+            v1002.upgrade(self.portal_setup)
+
+    def test_upgrade_rejects_missing_transition(self):
+        missing = sorted(v1002.OOS_TRANSITION_ROLES)[0]
+        self.portal.oos_workflow.transitions.pop(missing)
+
+        with self.assertRaisesRegexp(ValueError, missing):
+            v1002.upgrade(self.portal_setup)
+
+    def test_upgrade_rejects_missing_state(self):
+        missing = v1002.OOS_EDIT_STATES[0]
+        self.portal.oos_workflow.states.pop(missing)
+
+        with self.assertRaisesRegexp(ValueError, missing):
+            v1002.upgrade(self.portal_setup)
+
+    def test_upgrade_rejects_unmanaged_edit_permission(self):
+        missing = v1002.OOS_EDIT_PERMISSIONS[0]
+        self.portal.oos_workflow.permissions = (
+            v1002.OOS_EDIT_PERMISSIONS[1],)
+
+        with self.assertRaisesRegexp(ValueError, missing):
+            v1002.upgrade(self.portal_setup)
+
+
 def test_suite():
-    return unittest.defaultTestLoader.loadTestsFromTestCase(
-        TestOOSUpgrade)
+    suite = unittest.TestSuite()
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(
+        TestOOSUpgrade))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(
+        TestRolePermissionsUpgrade))
+    return suite

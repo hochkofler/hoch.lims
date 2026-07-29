@@ -12,4 +12,13 @@
       profile="hoch.lims:default"
       />
 
+  <genericsetup:upgradeStep
+      title="Install Batch and OOS role permissions"
+      description="Apply the approved workflow role matrix"
+      source="1001"
+      destination="1002"
+      handler="hoch.lims.upgrades.v1002.upgrade"
+      profile="hoch.lims:default"
+      />
+
 </configure>
