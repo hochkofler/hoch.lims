@@ -147,6 +147,61 @@ git add src/hoch/lims/tests/test_vocabulary.py
 git commit -m "test: repair vocabulary test discovery"
 ```
 
+### Task 1B: Complete the documented Batch vocabulary resolution
+
+**Files:**
+
+- Modify: `src/hoch/lims/patches/analysisrequest.py`
+- Test: `src/hoch/lims/tests/test_vocabulary.py`
+
+**Interfaces:**
+
+- Consumes: AnalysisRequest, Batch-like, acquisition-wrapper, and request
+  traversal contexts passed by `ar_add`
+- Produces: a `DisplayList` containing the linked product processes
+
+- [ ] **Step 1: Preserve the three failing regression cases**
+
+Verify that the focused suite reports failures for direct Batch, `aq_inner`,
+and physical-path contexts, while the AnalysisRequest and empty-container
+cases pass.
+
+- [ ] **Step 2: Resolve a direct Batch-like context**
+
+When no Batch accessor produced a value and the context exposes
+`getProduct`, treat the context itself as the Batch. Run only
+`test_processes_vocabulary_on_batch` and require it to pass.
+
+- [ ] **Step 3: Resolve an acquisition inner context**
+
+When unresolved, inspect `aq_inner`; if it is a distinct object exposing
+`getProduct`, use it as the Batch. Run only
+`test_processes_vocabulary_with_wrapper` and require it to pass.
+
+- [ ] **Step 4: Resolve the context physical path**
+
+When unresolved and the request contains a portal parent, traverse the
+non-empty segments returned by `getPhysicalPath()`. Accept the traversed
+object only when it exposes `getProduct`. Run only
+`test_processes_vocabulary_with_physical_path_resolution` and require it to
+pass.
+
+- [ ] **Step 5: Run all vocabulary tests**
+
+```bash
+/tmp/hoch-lims-worktree-test -s hoch.lims -t test_vocabulary
+```
+
+Expected: 5 tests, 0 failures, 0 errors, exit code `0`.
+
+- [ ] **Step 6: Commit the production correction separately**
+
+```bash
+git add src/hoch/lims/patches/analysisrequest.py \
+        src/hoch/lims/tests/test_vocabulary.py
+git commit -m "fix: resolve process vocabulary from batch contexts"
+```
+
 ### Task 2: Remove the invalid JSON API product installation
 
 **Files:**
