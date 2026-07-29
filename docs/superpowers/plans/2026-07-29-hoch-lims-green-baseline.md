@@ -24,10 +24,51 @@ and document the exact component matrix used by the shared test environment.
 - Do not include the preserved local `reportview.py` change.
 - Do not change workflows, catalogs, contents, permissions, or runtime
   behavior in this phase.
-- Use `/home/lims/hochlims/bin/test -s hoch.lims` as the acceptance command.
+- Use the worktree-specific `/tmp/hoch-lims-worktree-test` runner created
+  below as the acceptance command.
 - Do not create a GitHub PR in this phase.
 
 ---
+
+### Task 0: Create a worktree-specific test runner
+
+**Files:**
+
+- Generate: `/tmp/hoch-lims-worktree-test` (not committed)
+
+**Interfaces:**
+
+- Consumes: `/home/lims/hochlims/bin/test` and its resolved dependency paths
+- Produces: the same runner with only the `hoch.lims` import path redirected
+  to the isolated worktree
+
+- [ ] **Step 1: Copy the generated runner**
+
+Run:
+
+```bash
+cp /home/lims/hochlims/bin/test /tmp/hoch-lims-worktree-test
+```
+
+- [ ] **Step 2: Redirect only the addon source path**
+
+Run:
+
+```bash
+sed -i 's#/home/lims/hochlims/src/hoch.lims/src#/home/lims/hochlims/worktrees/hoch-lims-senaite-baseline/src#' /tmp/hoch-lims-worktree-test
+```
+
+- [ ] **Step 3: Verify runner isolation**
+
+Run:
+
+```bash
+rg -n "hoch\\.lims/src|hoch-lims-senaite-baseline/src" /tmp/hoch-lims-worktree-test
+```
+
+Expected: one match for
+`/home/lims/hochlims/worktrees/hoch-lims-senaite-baseline/src` and no match
+for `/home/lims/hochlims/src/hoch.lims/src`.
 
 ### Task 1: Make vocabulary tests discoverable
 
@@ -45,7 +86,7 @@ and document the exact component matrix used by the shared test environment.
 Run:
 
 ```bash
-/home/lims/hochlims/bin/test -s hoch.lims -t test_vocabulary
+/tmp/hoch-lims-worktree-test -s hoch.lims -t test_vocabulary
 ```
 
 Expected: exit code `1` with
@@ -94,7 +135,7 @@ def test_suite():
 Run:
 
 ```bash
-/home/lims/hochlims/bin/test -s hoch.lims -t test_vocabulary
+/tmp/hoch-lims-worktree-test -s hoch.lims -t test_vocabulary
 ```
 
 Expected: 5 tests run, 0 failures, 0 errors, exit code `0`.
@@ -123,7 +164,7 @@ git commit -m "test: repair vocabulary test discovery"
 Run:
 
 ```bash
-/home/lims/hochlims/bin/test -s hoch.lims -t test_jsonapi_registered
+/tmp/hoch-lims-worktree-test -s hoch.lims -t test_jsonapi_registered
 ```
 
 Expected: output contains `Could not install product senaite.jsonapi`.
@@ -151,7 +192,7 @@ a legacy Zope product requiring `zope.installProduct`.
 Run:
 
 ```bash
-/home/lims/hochlims/bin/test -s hoch.lims -t test_jsonapi_registered
+/tmp/hoch-lims-worktree-test -s hoch.lims -t test_jsonapi_registered
 ```
 
 Expected: test passes with exit code `0` and output does not contain
@@ -162,7 +203,7 @@ Expected: test passes with exit code `0` and output does not contain
 Run:
 
 ```bash
-/home/lims/hochlims/bin/test -s hoch.lims
+/tmp/hoch-lims-worktree-test -s hoch.lims
 ```
 
 Expected: 13 tests run, 0 failures, 0 errors, exit code `0`, and no failed
@@ -264,7 +305,7 @@ git commit -m "docs: record senaite test baseline matrix"
 - [ ] **Step 1: Run the full suite from a clean process**
 
 ```bash
-/home/lims/hochlims/bin/test -s hoch.lims
+/tmp/hoch-lims-worktree-test -s hoch.lims
 ```
 
 Expected: exit code `0`, 13 tests, 0 failures, 0 errors.
@@ -307,4 +348,3 @@ Report:
 - remaining warnings;
 - confirmation that no changes have yet been transferred to the shared test
   base and no PR has been created.
-
