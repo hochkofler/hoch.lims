@@ -65,4 +65,3 @@ official `senaite.core/2.x` SHA and record a second matrix.
 The core checkout contains eight uncommitted historical customizations. Tests
 in this phase characterize existing behavior; they do not establish
 compatibility with a clean official core.
-

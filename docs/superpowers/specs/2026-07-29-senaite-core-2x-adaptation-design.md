@@ -187,4 +187,3 @@ Migration acceptance also verifies:
 - representative database migration evidence;
 - validation and rollback documentation;
 - no changes to `senaite.core`.
-
