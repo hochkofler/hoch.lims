@@ -306,3 +306,54 @@ Complete-suite result after guard unification:
 The matching results establish that the Batch release rules and compatibility
 bridge are supplied by `hoch.lims`; they do not require a modification to
 official SENAITE Core.
+
+## OOS detection and workflow
+
+The existing OOS implementation contained the content type, catalog,
+automatic analysis subscriber, guard adapter, workflow guard functions, and
+transition event functions, but the workflow was not connected end to end:
+
+- `escalate_phase2`, `submit_for_review`, and `approve` had permission guards
+  but did not invoke SENAITE's `guard_handler`;
+- the local OOS event module was not reachable through Core's portal-type
+  module dispatcher;
+- automatic detection swallowed persistence failures after logging them.
+
+HOCH.LIMS now uses public extension points without modifying or injecting
+modules into SENAITE Core:
+
+- the analysis subscriber continues to detect out-of-range results on
+  `submit` and `verify`;
+- creation is idempotent by analysis UID and snapshots the result, range,
+  service, responsible user, detection date, and 30-day due date;
+- persistence failures are logged and re-raised instead of silently omitting
+  the compliance record;
+- the three business transitions use `guard_handler` and therefore exercise
+  the existing named OOS guard adapter;
+- a dedicated `IAfterTransitionEvent` subscriber dispatches Phase I, Phase II,
+  and approval audit effects.
+
+Focused results:
+
+| Focus | Official core `ba57f85e8` | Historical core `e98fb15` |
+| --- | ---: | ---: |
+| OOS detection | 9 passed | 9 passed |
+| OOS guards and events | 15 passed | 15 passed |
+| Profile upgrade | 4 passed | 4 passed |
+
+The default profile is now version `1001`. The registered
+`1000 -> 1001` GenericSetup upgrade changes only the guard expressions of the
+three required transitions. Tests prove that it preserves permission guards,
+rejects incomplete installed workflows with an identifying error, and
+produces the same configuration when executed a second time.
+
+Complete-suite result:
+
+| Matrix | Tests | Failures | Errors | Skipped |
+| --- | ---: | ---: | ---: | ---: |
+| Official core `ba57f85e8` | 78 | 0 | 0 | 0 |
+| Historical core `e98fb15` plus local patches | 78 | 0 | 0 | 0 |
+
+The matching results establish that OOS detection, workflow validation,
+transition auditing, and installed-site migration are owned by `hoch.lims`
+and operate without an official Core change.
