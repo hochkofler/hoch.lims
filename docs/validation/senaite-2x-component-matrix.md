@@ -210,3 +210,43 @@ result and interim cases. The environment has no JavaScript runtime such as
 Node.js, so JavaScript syntax was not independently checked by a JS parser;
 the server-side normalization protects interim persistence independently of
 the client synchronizer.
+
+## Calculation interim merge characterization
+
+Focused commands:
+
+```bash
+/tmp/hoch-lims-official-core-test \
+  -s hoch.lims -t test_calculation_interims
+/tmp/hoch-lims-worktree-test \
+  -s hoch.lims -t test_calculation_interims
+```
+
+Each matrix reports:
+
+- 6 tests;
+- 0 failures;
+- 0 errors;
+- 0 skipped;
+- exit code 0.
+
+The tests protect:
+
+- calculation UID, formula, imports, and version snapshots;
+- service ownership of `value`, `hidden`, `report`, `unit`, `title`, and
+  `wide` for shared interims;
+- calculation ownership of `choices`, `result_type`, and `allow_empty`;
+- calculation-first and service-only ordering;
+- one record per shared keyword;
+- deep-copy isolation from source dictionaries;
+- unlink behavior.
+
+Complete-suite result after adding the characterization:
+
+| Matrix | Tests | Failures | Errors | Skipped |
+| --- | ---: | ---: | ---: | ---: |
+| Official core `ba57f85e8` | 35 | 0 | 0 | 0 |
+| Historical core `e98fb15` plus local patches | 35 | 0 | 0 | 0 |
+
+The matching results establish that this merge behavior is owned and supplied
+by `hoch.lims`; it does not require the historical SENAITE Core checkout.
