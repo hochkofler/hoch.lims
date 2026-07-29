@@ -357,3 +357,59 @@ Complete-suite result:
 The matching results establish that OOS detection, workflow validation,
 transition auditing, and installed-site migration are owned by `hoch.lims`
 and operate without an official Core change.
+
+## Batch and OOS role permissions
+
+The default profile and installed-site upgrade now apply the approved role
+matrix consistently:
+
+- Batch close and reopen: `LabManager`, `Manager`;
+- Batch release: `LabManager`, `Manager`, `RegulatoryPharmacist`;
+- OOS Phase I start, Phase II escalation, and lab-error resolution:
+  `Analyst`, `LabManager`, `Manager`;
+- OOS cancel and review submission: `LabManager`, `Manager`;
+- OOS approval and review rejection: `LabManager`, `Manager`,
+  `RegulatoryPharmacist`.
+
+`LabManager` has the same OOS edit access as `Manager` in review and terminal
+states. `RegulatoryPharmacist` can perform the review decisions but does not
+receive general edit access. The existing business guard still prevents an
+investigator from approving their own investigation regardless of role.
+
+The profile is now version `1002`. The registered `1001 -> 1002`
+GenericSetup upgrade updates transition roles while preserving guard
+permissions, expressions, and groups; updates both OOS edit permissions in
+review, closed, and cancelled states; and installs the global OOS transition
+permission roles. It rejects incomplete workflow installations and is
+idempotent.
+
+Focused command:
+
+```bash
+/tmp/hoch-lims-official-core-test \
+  -s hoch.lims -t 'test_(role_permissions|upgrades)'
+/tmp/hoch-lims-worktree-test \
+  -s hoch.lims -t 'test_(role_permissions|upgrades)'
+```
+
+Focused result:
+
+| Matrix | Tests | Failures | Errors | Skipped |
+| --- | ---: | ---: | ---: | ---: |
+| Official core `ba57f85e8` | 20 | 0 | 0 | 0 |
+| Historical core `e98fb15` plus local patches | 20 | 0 | 0 | 0 |
+
+This includes nine integration tests that verify effective workflow actions
+for each role, including the self-approval prohibition, and eleven upgrade
+tests covering versions `1000 -> 1001` and `1001 -> 1002`.
+
+Complete-suite result:
+
+| Matrix | Tests | Failures | Errors | Skipped |
+| --- | ---: | ---: | ---: | ---: |
+| Official core `ba57f85e8` | 94 | 0 | 0 | 0 |
+| Historical core `e98fb15` plus local patches | 94 | 0 | 0 | 0 |
+
+The official Core checkout remains unmodified; the permission policy,
+workflow configuration, tests, and installed-site migration are all supplied
+by `hoch.lims`.
