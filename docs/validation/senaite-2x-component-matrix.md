@@ -101,3 +101,64 @@ Complete-suite result after the formatter correction:
 The registration test intentionally depends on the historical core patch. It
 must fail when the clean official core is first introduced, identifying the
 capability that must be supplied upstream or through a supported add-on hook.
+
+## Official core failure baseline
+
+Official source:
+
+```text
+https://github.com/senaite/senaite.core.git
+branch: 2.x
+SHA: ba57f85e84cea821a5c206d7f90b3ccfcaad43f5
+checkout: /home/lims/hochlims/worktrees/senaite-core-official-2x
+```
+
+The isolated runner `/tmp/hoch-lims-official-core-test` replaces both source
+paths:
+
+```text
+hoch.lims -> /home/lims/hochlims/worktrees/hoch-lims-senaite-baseline/src
+senaite.core -> /home/lims/hochlims/worktrees/senaite-core-official-2x/src
+```
+
+Focused command:
+
+```bash
+/tmp/hoch-lims-official-core-test -s hoch.lims -t test_time_support
+```
+
+Focused result:
+
+- 7 tests;
+- 1 failure;
+- 0 errors;
+- 0 skipped;
+- non-zero exit code.
+
+Complete command:
+
+```bash
+/tmp/hoch-lims-official-core-test -s hoch.lims
+```
+
+Complete result:
+
+- 20 tests;
+- 1 failure;
+- 0 errors;
+- 0 skipped;
+- non-zero exit code.
+
+The sole observed regression is
+`TestTimeSupport.test_time_result_type_is_registered`: official core exposes
+`numeric`, `string`, `text`, selection types, `date`, and `datetime`, but not
+`time`.
+
+Classification: **missing general SENAITE capability suitable for upstream**.
+Time is a general analysis/interim result type rather than a HOCH-specific
+domain concept. HOCH.LIMS may carry an isolated compatibility layer while an
+upstream change is proposed, but the durable owner should be SENAITE Core.
+
+No other failure is exposed by the current 20-test suite. This is not evidence
+that the other historical core changes are obsolete; each still requires
+behavioral characterization before removal.
