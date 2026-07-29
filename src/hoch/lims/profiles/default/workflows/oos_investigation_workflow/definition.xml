@@ -86,12 +86,14 @@
       <permission-role>Authenticated</permission-role>
     </permission-map>
     <permission-map name="Modify portal content" acquired="False">
+      <permission-role>LabManager</permission-role>
       <permission-role>Manager</permission-role>
     </permission-map>
     <permission-map name="View" acquired="False">
       <permission-role>Authenticated</permission-role>
     </permission-map>
     <permission-map name="hoch.lims: Edit OOSInvestigation" acquired="False">
+      <permission-role>LabManager</permission-role>
       <permission-role>Manager</permission-role>
     </permission-map>
   </state>
@@ -102,12 +104,14 @@
       <permission-role>Authenticated</permission-role>
     </permission-map>
     <permission-map name="Modify portal content" acquired="False">
+      <permission-role>LabManager</permission-role>
       <permission-role>Manager</permission-role>
     </permission-map>
     <permission-map name="View" acquired="False">
       <permission-role>Authenticated</permission-role>
     </permission-map>
     <permission-map name="hoch.lims: Edit OOSInvestigation" acquired="False">
+      <permission-role>LabManager</permission-role>
       <permission-role>Manager</permission-role>
     </permission-map>
   </state>
@@ -118,12 +122,14 @@
       <permission-role>Authenticated</permission-role>
     </permission-map>
     <permission-map name="Modify portal content" acquired="False">
+      <permission-role>LabManager</permission-role>
       <permission-role>Manager</permission-role>
     </permission-map>
     <permission-map name="View" acquired="False">
       <permission-role>Authenticated</permission-role>
     </permission-map>
     <permission-map name="hoch.lims: Edit OOSInvestigation" acquired="False">
+      <permission-role>LabManager</permission-role>
       <permission-role>Manager</permission-role>
     </permission-map>
   </state>
@@ -139,6 +145,9 @@
     <action url="" category="workflow" icon="">Start Phase I Investigation</action>
     <guard>
       <guard-permission>hoch.lims: Transition OOSInvestigation</guard-permission>
+      <guard-role>Analyst</guard-role>
+      <guard-role>LabManager</guard-role>
+      <guard-role>Manager</guard-role>
     </guard>
   </transition>
 
@@ -153,6 +162,9 @@
     <action url="" category="workflow" icon="">Escalate to Phase II</action>
     <guard>
       <guard-permission>hoch.lims: Transition OOSInvestigation</guard-permission>
+      <guard-role>Analyst</guard-role>
+      <guard-role>LabManager</guard-role>
+      <guard-role>Manager</guard-role>
       <guard-expression>python:here.guard_handler("escalate_phase2")</guard-expression>
     </guard>
   </transition>
@@ -168,6 +180,9 @@
     <action url="" category="workflow" icon="">Resolve as Lab Error</action>
     <guard>
       <guard-permission>hoch.lims: Transition OOSInvestigation</guard-permission>
+      <guard-role>Analyst</guard-role>
+      <guard-role>LabManager</guard-role>
+      <guard-role>Manager</guard-role>
     </guard>
   </transition>
 
@@ -182,6 +197,8 @@
     <action url="" category="workflow" icon="">Cancel Investigation</action>
     <guard>
       <guard-permission>hoch.lims: Transition OOSInvestigation</guard-permission>
+      <guard-role>LabManager</guard-role>
+      <guard-role>Manager</guard-role>
     </guard>
   </transition>
 
@@ -196,6 +213,8 @@
     <action url="" category="workflow" icon="">Submit for QA Review</action>
     <guard>
       <guard-permission>hoch.lims: Transition OOSInvestigation</guard-permission>
+      <guard-role>LabManager</guard-role>
+      <guard-role>Manager</guard-role>
       <guard-expression>python:here.guard_handler("submit_for_review")</guard-expression>
     </guard>
   </transition>
@@ -211,6 +230,9 @@
     <action url="" category="workflow" icon="">Approve and Close</action>
     <guard>
       <guard-permission>hoch.lims: Transition OOSInvestigation</guard-permission>
+      <guard-role>LabManager</guard-role>
+      <guard-role>Manager</guard-role>
+      <guard-role>RegulatoryPharmacist</guard-role>
       <guard-expression>python:here.guard_handler("approve")</guard-expression>
     </guard>
   </transition>
@@ -226,6 +248,9 @@
     <action url="" category="workflow" icon="">Return for Further Investigation</action>
     <guard>
       <guard-permission>hoch.lims: Transition OOSInvestigation</guard-permission>
+      <guard-role>LabManager</guard-role>
+      <guard-role>Manager</guard-role>
+      <guard-role>RegulatoryPharmacist</guard-role>
     </guard>
   </transition>
 
