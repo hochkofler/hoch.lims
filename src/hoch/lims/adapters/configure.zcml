@@ -33,4 +33,11 @@
       handler=".oos_detection.on_analysis_transition"
       />
 
+  <!-- OOS workflow transition side effects -->
+  <subscriber
+      for="hoch.lims.interfaces.IOOSInvestigation
+           Products.DCWorkflow.interfaces.IAfterTransitionEvent"
+      handler=".oos_detection.on_oos_transition"
+      />
+
 </configure>

@@ -153,6 +153,7 @@
     <action url="" category="workflow" icon="">Escalate to Phase II</action>
     <guard>
       <guard-permission>hoch.lims: Transition OOSInvestigation</guard-permission>
+      <guard-expression>python:here.guard_handler("escalate_phase2")</guard-expression>
     </guard>
   </transition>
 
@@ -195,6 +196,7 @@
     <action url="" category="workflow" icon="">Submit for QA Review</action>
     <guard>
       <guard-permission>hoch.lims: Transition OOSInvestigation</guard-permission>
+      <guard-expression>python:here.guard_handler("submit_for_review")</guard-expression>
     </guard>
   </transition>
 
@@ -209,6 +211,7 @@
     <action url="" category="workflow" icon="">Approve and Close</action>
     <guard>
       <guard-permission>hoch.lims: Transition OOSInvestigation</guard-permission>
+      <guard-expression>python:here.guard_handler("approve")</guard-expression>
     </guard>
   </transition>
 

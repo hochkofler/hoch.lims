@@ -9,6 +9,14 @@ from bika.lims.api.analysis import is_out_of_range
 from DateTime import DateTime
 from hoch.lims import logger
 from hoch.lims.catalog import HOCHLIMS_CATALOG
+from hoch.lims.workflow.oos import events as oos_events
+
+
+OOS_EVENT_HANDLERS = {
+    "start_phase1": oos_events.after_start_phase1,
+    "escalate_phase2": oos_events.after_escalate_phase2,
+    "approve": oos_events.after_approve,
+}
 
 
 def on_analysis_transition(analysis, event):
@@ -20,6 +28,16 @@ def on_analysis_transition(analysis, event):
     if transition_id not in ("submit", "verify"):
         return
     _check_and_create_oos(analysis)
+
+
+def on_oos_transition(investigation, event):
+    """Dispatch supported OOS after-transition effects."""
+    transition = event.transition
+    if not transition:
+        return
+    handler = OOS_EVENT_HANDLERS.get(transition.getId())
+    if handler:
+        handler(investigation)
 
 
 def _check_and_create_oos(analysis):
