@@ -1,0 +1,19 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:plone="http://namespaces.plone.org/plone"
+    i18n_domain="hoch.lims">
+
+  <plone:static
+      directory="static"
+      type="plone"
+      name="hoch.lims.edit_analysis" />
+
+  <browser:page
+      name="edit_analysis_modal"
+      for="*"
+      class=".edit.HochEditAnalysisForm"
+      permission="senaite.core.permissions.FieldEditAnalysisResult"
+      layer="hoch.lims.interfaces.IHochLims" />
+
+</configure>

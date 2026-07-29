@@ -4,6 +4,7 @@
     xmlns:plone="http://namespaces.plone.org/plone">
 
     <!-- package includes -->
+    <include package=".analysis"/>
     <include package=".analyses"/>
     <include package=".theme"/>
     <include package=".viewlets"/>
