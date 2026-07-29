@@ -2,16 +2,26 @@
 
 import unittest2 as unittest
 
-from bika.lims.content.abstractbaseanalysis import RESULT_TYPES
+from bika.lims.browser.fields.interimfieldsfield import InterimFieldsField
+from bika.lims.content.abstractbaseanalysis import ResultType
 from hoch.lims.calc import BaseCalculator
+from hoch.lims.patches.time_support import TimeResultTypesVocabulary
 from hoch.lims.utils import get_formatted_interim
 
 
 class TestTimeSupport(unittest.TestCase):
 
-    def test_time_result_type_is_registered(self):
-        result_type_ids = [item[0] for item in RESULT_TYPES]
-        self.assertIn("time", result_type_ids)
+    def test_time_is_available_for_analysis_results(self):
+        self.assertIn("time", list(ResultType.vocabulary))
+
+    def test_time_is_available_for_legacy_interims(self):
+        field = InterimFieldsField("Interims")
+        vocabulary = field.subfield_vocabularies["result_type"]
+        self.assertIn("time", list(vocabulary))
+
+    def test_time_is_available_for_modern_interims(self):
+        vocabulary = TimeResultTypesVocabulary()(None)
+        self.assertIn("time", [term.value for term in vocabulary])
 
     def test_minutes_and_seconds_are_converted_to_seconds(self):
         self.assertEqual(
