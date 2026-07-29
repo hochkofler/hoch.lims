@@ -65,3 +65,39 @@ official `senaite.core/2.x` SHA and record a second matrix.
 The core checkout contains eight uncommitted historical customizations. Tests
 in this phase characterize existing behavior; they do not establish
 compatibility with a clean official core.
+
+## Time-support characterization
+
+Focused command:
+
+```bash
+/tmp/hoch-lims-worktree-test -s hoch.lims -t test_time_support
+```
+
+Focused result:
+
+- 7 tests;
+- 0 failures;
+- 0 errors;
+- 0 skipped;
+- exit code 0.
+
+Coverage:
+
+- `time` registration in `RESULT_TYPES`;
+- `MM:SS` and `HH:MM:SS` conversion to seconds;
+- numeric and empty inputs;
+- invalid conversion input rejection;
+- locale-aware display of a time-valued interim.
+
+Complete-suite result after the formatter correction:
+
+- 20 tests;
+- 0 failures;
+- 0 errors;
+- 0 skipped;
+- exit code 0.
+
+The registration test intentionally depends on the historical core patch. It
+must fail when the clean official core is first introduced, identifying the
+capability that must be supplied upstream or through a supported add-on hook.
