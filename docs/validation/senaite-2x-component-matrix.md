@@ -162,3 +162,51 @@ upstream change is proposed, but the durable owner should be SENAITE Core.
 No other failure is exposed by the current 20-test suite. This is not evidence
 that the other historical core changes are obsolete; each still requires
 behavioral characterization before removal.
+
+## Official core time compatibility result
+
+HOCH.LIMS now supplies the temporary compatibility layer without modifying
+official core `ba57f85e84cea821a5c206d7f90b3ccfcaad43f5`.
+
+Coverage added:
+
+- legacy AnalysisService result vocabulary;
+- legacy and modern interim vocabularies;
+- time conversion and locale-aware formatting;
+- delegation of non-time analysis and interim formatting;
+- modal result and interim time controls;
+- server-side interim submission normalization.
+
+Final official-core command:
+
+```bash
+/tmp/hoch-lims-official-core-test -s hoch.lims
+```
+
+Result:
+
+- 29 tests;
+- 0 failures;
+- 0 errors;
+- 0 skipped;
+- exit code 0.
+
+Final historical-core command:
+
+```bash
+/tmp/hoch-lims-worktree-test -s hoch.lims
+```
+
+Result:
+
+- 29 tests;
+- 0 failures;
+- 0 errors;
+- 0 skipped;
+- exit code 0.
+
+The Page Template is compiled and rendered in the integration layer for both
+result and interim cases. The environment has no JavaScript runtime such as
+Node.js, so JavaScript syntax was not independently checked by a JS parser;
+the server-side normalization protects interim persistence independently of
+the client synchronizer.
