@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from Products.CMFPlone.utils import get_installer
+from plone.dexterity.interfaces import IDexterityFTI
 from senaite.impress.interfaces import ITemplateFinder
 from zope.component import getUtility
+from zope.component import queryUtility
 
 from hoch.lims.tests.base import SimpleTestCase
 from hoch.lims.interfaces import IHochLims
@@ -31,6 +33,22 @@ class TestSetup(SimpleTestCase):
         endpoint = "hoch.lims/version"
         response = self.get_json(endpoint)
         self.assertEquals(response.get("version"), "1.0.0")
+
+    def test_publication_email_default_renders_for_setup(self):
+        setup = self.portal.restrictedTraverse("setup")
+        if "laboratory" in setup:
+            setup._delObject("laboratory")
+        if hasattr(setup, "email_body_sample_publication"):
+            delattr(setup, "email_body_sample_publication")
+        fti = queryUtility(IDexterityFTI, name="Setup")
+        field = fti.lookupSchema()["email_body_sample_publication"]
+
+        value = field.bind(setup).default
+
+        self.assertIn("Thank you for your analysis request", value)
+        self.assertIn("$client_name", value)
+        self.assertIn("$recipients", value)
+        self.assertIn("$lab_name", value)
 
 
 def test_suite():
