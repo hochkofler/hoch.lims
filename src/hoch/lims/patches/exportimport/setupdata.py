@@ -78,6 +78,29 @@ def Import_sample_templates(self):
                 obj.setSamplingRequired(bool(saple_collected_by_lab))
             obj.reindexObject()
 
+
+def import_instrument_types(self):
+    container = self.context.setup.instrumenttypes
+    for row in self.get_rows(3):
+        title = row.get("title")
+        if not title:
+            continue
+        api.create(container, "InstrumentType",
+                   title=api.safe_unicode(title),
+                   description=row.get("description"))
+
+
+def import_sample_conditions(self):
+    container = self.context.setup.sampleconditions
+    for row in self.get_rows(3):
+        title = row.get("title")
+        if not title:
+            continue
+        description = row.get("description")
+        api.create(container, "SampleCondition",
+                   title=api.safe_unicode(title),
+                   description=description)
+
 def get_interim_fields(self):
     # preload Calculation Interim Fields sheet
     sheetname = 'Calculation Interim Fields'
