@@ -43,4 +43,11 @@
     preserveOriginal="True"
     replacement=".time_support.format_listing_interim" />
 
+  <monkey:patch
+    description="Render non-ASCII sample analysis keywords"
+    class="senaite.core.browser.samples.view.SamplesView"
+    original="render_keyword_filter_chip"
+    preserveOriginal="True"
+    replacement=".sample_keywords.render_keyword_filter_chip" />
+
 </configure>
