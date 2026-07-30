@@ -29,4 +29,18 @@
     ignoreOriginal="False"
     replacement=".analysis.setCalculation" />
 
+  <monkey:patch
+    description="Format time-valued analysis results"
+    class="bika.lims.content.abstractanalysis.AbstractAnalysis"
+    original="getFormattedResult"
+    preserveOriginal="True"
+    replacement=".time_support.format_analysis_result" />
+
+  <monkey:patch
+    description="Format time-valued interims in analysis listings"
+    class="bika.lims.browser.analyses.view.AnalysesView"
+    original="get_formatted_interim"
+    preserveOriginal="True"
+    replacement=".time_support.format_listing_interim" />
+
 </configure>

@@ -160,6 +160,8 @@
     <action url="" category="workflow" icon="">Close Batch</action>
     <guard>
       <guard-permission>Modify portal content</guard-permission>
+      <guard-role>LabManager</guard-role>
+      <guard-role>Manager</guard-role>
     </guard>
   </transition>
 
@@ -174,6 +176,9 @@
     <action url="" category="workflow" icon="">Release Batch</action>
     <guard>
       <guard-permission>hoch.lims: Release Batch</guard-permission>
+      <guard-role>LabManager</guard-role>
+      <guard-role>Manager</guard-role>
+      <guard-role>RegulatoryPharmacist</guard-role>
       <guard-expression>python:here.guard_release_batch()</guard-expression>
     </guard>
   </transition>
@@ -189,6 +194,8 @@
     <action url="" category="workflow" icon="">Reopen Batch</action>
     <guard>
       <guard-permission>Modify portal content</guard-permission>
+      <guard-role>LabManager</guard-role>
+      <guard-role>Manager</guard-role>
     </guard>
   </transition>
 

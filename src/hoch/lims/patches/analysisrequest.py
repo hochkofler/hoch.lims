@@ -48,7 +48,30 @@ def getProcessesVocabulary(self):
         except Exception:
             pass
 
-    # Method 4: Acquisition chain walk - fallback for edge cases
+    # Method 4: the add form can pass the Batch itself as context
+    if not batch and hasattr(self, 'getProduct'):
+        batch = self
+
+    # Method 5: unwrap an acquisition context passed by the add form
+    if not batch:
+        inner = getattr(self, 'aq_inner', None)
+        if inner is not self and hasattr(inner, 'getProduct'):
+            batch = inner
+
+    # Method 6: resolve the context path from the request portal
+    if not batch and hasattr(self, 'getPhysicalPath'):
+        try:
+            request = getattr(self, 'REQUEST', None)
+            parents = request and request.get('PARENTS', [])
+            portal = parents and parents[0]
+            path = u'/'.join(filter(None, self.getPhysicalPath()))
+            candidate = portal and portal.restrictedTraverse(path, None)
+            if candidate is not self and hasattr(candidate, 'getProduct'):
+                batch = candidate
+        except Exception:
+            pass
+
+    # Method 7: Acquisition chain walk - fallback for edge cases
     if not batch or (hasattr(batch, 'meta_type') and batch.meta_type == 'AnalysisRequest'):
         parent = self
         for _ in range(10):

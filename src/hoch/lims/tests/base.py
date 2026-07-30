@@ -54,7 +54,6 @@ class SimpleTestLayer(PloneSandboxLayer):
         zope.installProduct(app, "senaite.core")
         zope.installProduct(app, "senaite.impress")
         zope.installProduct(app, "plone.jsonapi.core")
-        zope.installProduct(app, "senaite.jsonapi")
         zope.installProduct(app, "senaite.lims")
         zope.installProduct(app, "hoch.lims")
 

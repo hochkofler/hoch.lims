@@ -7,4 +7,9 @@
        <includeOverrides>) to take precedence over the senaite.core registration. -->
   <adapter factory="hoch.lims.datamanagers.analysis.HochRoutineAnalysisDataManager" />
 
+  <utility
+      provides="zope.schema.interfaces.IVocabularyFactory"
+      name="senaite.core.vocabularies.resulttypes"
+      component="hoch.lims.patches.time_support.TimeResultTypesVocabulary" />
+
 </configure>

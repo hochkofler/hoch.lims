@@ -73,6 +73,7 @@
     </permission>
 
     <permission name="hoch.lims: Transition OOSInvestigation" acquire="False">
+      <role name="Analyst"/>
       <role name="Manager"/>
       <role name="LabManager"/>
       <role name="RegulatoryPharmacist"/>
