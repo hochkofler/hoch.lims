@@ -88,4 +88,18 @@
     ignoreOriginal="True"
     replacement=".setupdata.setup_Import"/>
 
+    <monkey:patch
+    description="Unicode InstrumentType setup-data titles"
+    class="senaite.core.exportimport.setupdata.Instrument_Types"
+    original="Import"
+    ignoreOriginal="True"
+    replacement=".setupdata.import_instrument_types" />
+
+    <monkey:patch
+    description="Unicode SampleCondition setup-data titles"
+    class="senaite.core.exportimport.setupdata.Sample_Conditions"
+    original="Import"
+    ignoreOriginal="True"
+    replacement=".setupdata.import_sample_conditions" />
+
 </configure>
