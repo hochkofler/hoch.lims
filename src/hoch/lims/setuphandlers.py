@@ -14,6 +14,8 @@ from hoch.lims.catalog.hochlims_catalog import HochLimsCatalog
 from zope.component import getUtility
 from plone import api as ploneapi
 from hoch.lims import messageFactory as _
+from hoch.lims.patches.worksheet_permissions import (
+    synchronize_worksheet_permissions)
 from senaite.core.catalog import SETUP_CATALOG
 from senaite.core.catalog import WORKSHEET_CATALOG
 
@@ -162,6 +164,9 @@ def setup_handler(context):
 
     # Setup workflow (for field permissions mostly)
     setup_workflow(portal)
+
+    # Preserve HOCH worksheet roles after SENAITE local permission updates
+    synchronize_worksheet_permissions(portal)
 
     # Reindex worksheet listing_searchable_text to include sample IDs
     reindex_worksheet_searchable_text(portal)

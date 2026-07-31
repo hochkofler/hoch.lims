@@ -5,6 +5,7 @@ from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 
 from hoch.lims.tests.base import SimpleTestCase
+from hoch.lims.patches.worksheet_permissions import WORKSHEET_PERMISSIONS
 
 
 BATCH_ROLES = {
@@ -163,6 +164,15 @@ class TestInstalledRolePermissions(SimpleTestCase):
             ),
             self.permission_roles(
                 "hoch.lims: Transition OOSInvestigation"))
+
+    def test_labclerk_has_all_local_worksheet_permissions(self):
+        for permission in WORKSHEET_PERMISSIONS:
+            roles = tuple(sorted(
+                item["name"]
+                for item in self.portal.worksheets.rolesOfPermission(
+                    permission)
+                if item["selected"]))
+            self.assertIn("LabClerk", roles, permission)
 
     def test_initial_oos_transition_is_authorized_by_effective_role(self):
         investigation = self.create_oos()
