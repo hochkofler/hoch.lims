@@ -30,4 +30,13 @@
       profile="hoch.lims:default"
       />
 
+  <genericsetup:upgradeStep
+      title="Restore global LabClerk worksheet permissions"
+      description="Allow worksheet creation from the Samples view"
+      source="1003"
+      destination="1004"
+      handler="hoch.lims.upgrades.v1004.upgrade"
+      profile="hoch.lims:default"
+      />
+
 </configure>

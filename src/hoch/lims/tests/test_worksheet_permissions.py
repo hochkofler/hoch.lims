@@ -6,7 +6,7 @@ from hoch.lims.patches import worksheet_permissions
 from senaite.core.subscribers import senaite_setup as core_setup
 
 
-class DummyWorksheetFolder(object):
+class DummyPermissionContext(object):
 
     def __init__(self, roles=("LabManager", "Manager")):
         self.selected_roles = {}
@@ -21,16 +21,14 @@ class DummyWorksheetFolder(object):
     def rolesOfPermission(self, permission):
         return [
             {"name": role, "selected": role in self.selected_roles[permission]}
-            for role in ("Analyst", "LabClerk", "LabManager", "Manager")
+            for role in (
+                "Analyst", "LabClerk", "LabManager", "Manager", "Owner")
         ]
 
     def manage_permission(self, permission, roles, acquire):
         roles = tuple(roles)
         self.managed_permissions[permission] = (roles, acquire)
         self.selected_roles[permission] = roles
-
-    def reindexObject(self):
-        self.reindexed += 1
 
     def snapshot(self):
         return (
@@ -39,9 +37,16 @@ class DummyWorksheetFolder(object):
         )
 
 
-class DummyPortal(object):
+class DummyWorksheetFolder(DummyPermissionContext):
+
+    def reindexObject(self):
+        self.reindexed += 1
+
+
+class DummyPortal(DummyPermissionContext):
 
     def __init__(self, folder):
+        super(DummyPortal, self).__init__()
         self.worksheets = folder
 
 
@@ -51,19 +56,27 @@ class TestWorksheetPermissionSynchronization(unittest.TestCase):
         self.folder = DummyWorksheetFolder()
         self.portal = DummyPortal(self.folder)
 
-    def test_adds_labclerk_to_all_worksheet_permissions(self):
+    def test_adds_labclerk_to_portal_and_worksheet_permissions(self):
         worksheet_permissions.synchronize_worksheet_permissions(self.portal)
 
-        for permission in worksheet_permissions.WORKSHEET_PERMISSIONS:
-            self.assertEqual(
-                (("LabClerk", "LabManager", "Manager"), 1),
-                self.folder.managed_permissions[permission])
+        for context in (self.portal, self.folder):
+            for permission in worksheet_permissions.WORKSHEET_PERMISSIONS:
+                self.assertIn(permission, context.managed_permissions)
+                self.assertEqual(
+                    (("LabClerk", "LabManager", "Manager"), 1),
+                    context.managed_permissions[permission])
 
-    def test_preserves_roles_selected_by_core(self):
+    def test_preserves_roles_selected_by_core_in_both_contexts(self):
+        self.portal.set_roles(("LabManager", "Manager", "Owner"))
         self.folder.set_roles(("Analyst", "LabManager", "Manager"))
 
         worksheet_permissions.synchronize_worksheet_permissions(self.portal)
 
+        for permission in worksheet_permissions.WORKSHEET_PERMISSIONS:
+            self.assertIn(permission, self.portal.managed_permissions)
+            self.assertEqual(
+                (("LabClerk", "LabManager", "Manager", "Owner"), 1),
+                self.portal.managed_permissions[permission])
         for permission in worksheet_permissions.WORKSHEET_PERMISSIONS:
             self.assertEqual(
                 (("Analyst", "LabClerk", "LabManager", "Manager"), 1),
@@ -71,11 +84,12 @@ class TestWorksheetPermissionSynchronization(unittest.TestCase):
 
     def test_is_idempotent(self):
         worksheet_permissions.synchronize_worksheet_permissions(self.portal)
-        first = self.folder.snapshot()
+        first = (self.portal.snapshot(), self.folder.snapshot())
 
         worksheet_permissions.synchronize_worksheet_permissions(self.portal)
 
-        self.assertEqual(first, self.folder.snapshot())
+        self.assertEqual(
+            first, (self.portal.snapshot(), self.folder.snapshot()))
 
 
 class TestWorksheetPermissionPatch(unittest.TestCase):

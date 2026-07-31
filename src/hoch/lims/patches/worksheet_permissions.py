@@ -15,23 +15,26 @@ WORKSHEET_PERMISSIONS = (
 )
 
 
-def synchronize_worksheet_permissions(portal=None):
-    """Add LabClerk without discarding roles selected by SENAITE Core."""
-    portal = portal or api.get_portal()
-    folder = portal.worksheets
-
+def _add_labclerk_permissions(context):
+    """Add LabClerk to worksheet permissions on the given context."""
     for permission in WORKSHEET_PERMISSIONS:
         roles = set(
             info["name"]
-            for info in folder.rolesOfPermission(permission)
+            for info in context.rolesOfPermission(permission)
             if info["selected"])
         roles.add("LabClerk")
-        folder.manage_permission(
+        context.manage_permission(
             permission,
             roles=tuple(sorted(roles)),
             acquire=1)
 
-    folder.reindexObject()
+
+def synchronize_worksheet_permissions(portal=None):
+    """Add LabClerk globally and on the worksheets folder."""
+    portal = portal or api.get_portal()
+    _add_labclerk_permissions(portal)
+    _add_labclerk_permissions(portal.worksheets)
+    portal.worksheets.reindexObject()
 
 
 def apply_worksheet_permissions_patch():
