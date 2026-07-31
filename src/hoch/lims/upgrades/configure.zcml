@@ -21,4 +21,13 @@
       profile="hoch.lims:default"
       />
 
+  <genericsetup:upgradeStep
+      title="Restore LabClerk worksheet permissions"
+      description="Preserve LabClerk access after SENAITE recalculations"
+      source="1002"
+      destination="1003"
+      handler="hoch.lims.upgrades.v1003.upgrade"
+      profile="hoch.lims:default"
+      />
+
 </configure>

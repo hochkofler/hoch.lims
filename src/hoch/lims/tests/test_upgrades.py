@@ -5,6 +5,7 @@ import unittest2 as unittest
 from Products.DCWorkflow.Guard import Guard
 from hoch.lims.upgrades import v1001
 from hoch.lims.upgrades import v1002
+from hoch.lims.upgrades import v1003
 
 
 PERMISSION = "hoch.lims: Transition OOSInvestigation"
@@ -128,6 +129,41 @@ class RoleDummyPortal(object):
     def manage_permission(self, permission, roles, acquire):
         self.managed_permissions[permission] = (
             tuple(roles), acquire)
+
+
+class WorksheetDummyFolder(object):
+
+    def __init__(self):
+        self.selected_roles = {}
+        self.managed_permissions = {}
+        for permission in v1003.WORKSHEET_PERMISSIONS:
+            self.selected_roles[permission] = ("LabManager", "Manager")
+
+    def rolesOfPermission(self, permission):
+        return [
+            {"name": role, "selected": role in self.selected_roles[permission]}
+            for role in ("LabClerk", "LabManager", "Manager")
+        ]
+
+    def manage_permission(self, permission, roles, acquire):
+        roles = tuple(roles)
+        self.selected_roles[permission] = roles
+        self.managed_permissions[permission] = (roles, acquire)
+
+    def reindexObject(self):
+        pass
+
+    def snapshot(self):
+        return (
+            dict(self.selected_roles),
+            dict(self.managed_permissions),
+        )
+
+
+class WorksheetDummyPortal(object):
+
+    def __init__(self):
+        self.worksheets = WorksheetDummyFolder()
 
 
 class TestOOSUpgrade(unittest.TestCase):
@@ -289,10 +325,36 @@ class TestRolePermissionsUpgrade(unittest.TestCase):
             v1002.upgrade(self.portal_setup)
 
 
+class TestWorksheetPermissionsUpgrade(unittest.TestCase):
+
+    def setUp(self):
+        self.portal = WorksheetDummyPortal()
+        self.portal_setup = DummyPortalSetup(self.portal)
+
+    def test_restores_all_labclerk_worksheet_permissions(self):
+        v1003.upgrade(self.portal_setup)
+
+        self.assertEqual([v1003.PROFILE_ID], self.portal_setup.profile_ids)
+        for permission in v1003.WORKSHEET_PERMISSIONS:
+            self.assertEqual(
+                (("LabClerk", "LabManager", "Manager"), 1),
+                self.portal.worksheets.managed_permissions[permission])
+
+    def test_is_idempotent(self):
+        v1003.upgrade(self.portal_setup)
+        first = self.portal.worksheets.snapshot()
+
+        v1003.upgrade(self.portal_setup)
+
+        self.assertEqual(first, self.portal.worksheets.snapshot())
+
+
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(
         TestOOSUpgrade))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(
         TestRolePermissionsUpgrade))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(
+        TestWorksheetPermissionsUpgrade))
     return suite
