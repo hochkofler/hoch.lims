@@ -10,6 +10,6 @@
   <utility
       provides="zope.schema.interfaces.IVocabularyFactory"
       name="senaite.core.vocabularies.resulttypes"
-      component="hoch.lims.patches.time_support.TimeResultTypesVocabulary" />
+      component="hoch.lims.patches.time_support.TimeResultTypesVocabularyFactory" />
 
 </configure>

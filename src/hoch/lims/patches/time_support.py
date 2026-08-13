@@ -62,4 +62,7 @@ class TimeResultTypesVocabulary(object):
             append_time(config_vocabularies.RESULT_TYPES))
 
 
+TimeResultTypesVocabularyFactory = TimeResultTypesVocabulary()
+
+
 enable_time_result_type()
