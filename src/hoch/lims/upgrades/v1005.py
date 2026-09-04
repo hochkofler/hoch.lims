@@ -14,18 +14,26 @@ This upgrade:
 
 1. Normalises the stored interim records of every AnalysisService so the
    three checkbox subfields are always present as real booleans.
-2. Re-applies the service overrides on the interims of every analysis that
-   is still awaiting results, so already-created samples show the fields.
+2. Re-applies the service's *display flags* on the interims of every
+   analysis that is still awaiting results, so already-created samples show
+   the fields.
+
+Only `hidden`, `report` and `wide` are re-applied.  `value` is deliberately
+NOT synced: an interim on an existing analysis may already hold data
+captured by an analyst -- chromatography areas and retention times,
+pycnometer weights, average weights -- and the service's default for those
+is empty, so copying it down would destroy laboratory data.
 
 Analyses that are past result entry (to_be_verified, verified, published,
-retracted, rejected, cancelled) are deliberately left untouched: their
-records are part of the audit trail.
+retracted, rejected, cancelled) are left untouched: their records are part
+of the audit trail.  The review state is read from the object rather than
+from the catalog, because a stale `review_state` index would otherwise let
+a submitted analysis be modified.
 """
 
 from bika.lims import api
 from hoch.lims import logger
 from hoch.lims.patches.analysis import SERVICE_BOOLEAN_KEYS
-from hoch.lims.patches.analysis import SERVICE_OVERRIDE_KEYS
 from hoch.lims.patches.analysis import _normalize_service_interim
 
 PROFILE_ID = "profile-hoch.lims:default"
@@ -33,6 +41,10 @@ PROFILE_ID = "profile-hoch.lims:default"
 # Analyses in these states are still awaiting result entry, so refreshing
 # their interim display flags cannot alter any recorded outcome.
 EDITABLE_STATES = ("registered", "unassigned", "assigned")
+
+# Subfields safe to re-apply on an analysis that already exists.  Everything
+# that could carry captured data -- `value` above all -- is excluded.
+RESYNC_KEYS = SERVICE_BOOLEAN_KEYS
 
 
 def normalize_service_interims(portal):
@@ -51,13 +63,17 @@ def normalize_service_interims(portal):
 
 
 def resync_analysis_interims(portal):
-    """Re-apply service interim overrides on analyses awaiting results."""
+    """Re-apply the service's interim display flags on open analyses."""
     catalog = api.get_tool("senaite_catalog_analysis")
     brains = catalog.unrestrictedSearchResults(
         portal_type="Analysis", review_state=EDITABLE_STATES)
     total = 0
     for brain in brains:
         analysis = api.get_object(brain)
+        # Re-check on the object: a stale review_state index would otherwise
+        # let an already submitted analysis through.
+        if api.get_review_status(analysis) not in EDITABLE_STATES:
+            continue
         service = api.get_object_by_uid(analysis.getRawAnalysisService(), None)
         if service is None:
             continue
@@ -69,7 +85,7 @@ def resync_analysis_interims(portal):
             override = overrides.get(interim.get("keyword"))
             if override is None:
                 continue
-            for key in SERVICE_OVERRIDE_KEYS:
+            for key in RESYNC_KEYS:
                 if key not in override or interim.get(key) == override[key]:
                     continue
                 interim[key] = override[key]
@@ -78,7 +94,7 @@ def resync_analysis_interims(portal):
             continue
         analysis.setInterimFields(interims)
         total += 1
-        logger.info("Re-synced interims of %s", api.get_path(analysis))
+        logger.info("Re-synced interim flags of %s", api.get_path(analysis))
     return total
 
 
