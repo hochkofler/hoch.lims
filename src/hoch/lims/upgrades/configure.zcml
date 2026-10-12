@@ -39,4 +39,13 @@
       profile="hoch.lims:default"
       />
 
+  <genericsetup:upgradeStep
+      title="Enable Dynamic Calculation rules"
+      description="Add the dynamic rules behavior to Calculation"
+      source="1005"
+      destination="1006"
+      handler="hoch.lims.upgrades.v1006.upgrade"
+      profile="hoch.lims:default"
+      />
+
 </configure>

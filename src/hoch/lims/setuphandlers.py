@@ -26,6 +26,10 @@ BEHAVIORS = [
          "hoch.lims.extender.samplematrix.ISampleMatrixSchemaExtender",
          "hoch.lims.extender.behaviors.variablestable.IVariablesTableBehavior",
      ]),
+    ("Calculation", [
+         "hoch.lims.extender.behaviors.dynamiccalculation"
+         ".IDynamicCalculationRulesBehavior",
+     ]),
 ]
 
 GROUPS = [
