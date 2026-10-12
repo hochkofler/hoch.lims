@@ -15,6 +15,11 @@ dependencies, so this subclass:
    them to their dynamic Calculation and adds missing dependencies, and
 3. removes the empty dependency analyses no Calculation needs anymore.
 
+It also leaves out the services whose category excludes them for the
+sample (see ``hoch.lims.dynamiccalculation.is_excluded``), unless their
+analysis already has data, and remembers the services requested for the
+primary sample so that excluded ones can come back later.
+
 The analyses of the whole lineage (partitions included) are handled.
 When no Calculation declares dynamic rules and no analysis uses a dynamic
 Calculation, the result is the same as with the base class.
@@ -26,7 +31,9 @@ from bika.lims.interfaces import ISubmitted
 from hoch.lims.dynamiccalculation import MatchContext
 from hoch.lims.dynamiccalculation import get_calculation_dependencies
 from hoch.lims.dynamiccalculation import get_dynamic_calculations
+from hoch.lims.dynamiccalculation import is_excluded
 from hoch.lims.dynamiccalculation import resolve_calculation
+from hoch.lims.dynamiccalculation import set_requested_services
 from senaite.core.datamanagers.field.sample_analyses import DETACHED_STATES
 from senaite.core.datamanagers.field.sample_analyses import \
     SampleAnalysesFieldDataManager
@@ -81,6 +88,17 @@ class HochSampleAnalysesFieldDataManager(SampleAnalysesFieldDataManager):
         # dependencies are always resolved from the analyses calculations
         calculations = get_dynamic_calculations()
         services = filter(None, map(self._to_service, items))
+
+        # Remember what was requested for the primary sample, before the
+        # category exclusions are applied
+        if not self.context.getParentAnalysisRequest():
+            set_requested_services(self.context, map(api.get_uid, services))
+
+        # Leave out the services whose category excludes them
+        performed = filter(lambda s: not self.is_excluded(s), services)
+        if len(performed) != len(services):
+            items = map(api.get_uid, performed)
+            services = performed
         requested = set(map(api.get_uid, services))
 
         def base_set(extra):
@@ -103,6 +121,23 @@ class HochSampleAnalysesFieldDataManager(SampleAnalysesFieldDataManager):
 
         self.remove_unneeded_dependencies(requested, calculations)
         return result
+
+    def is_excluded(self, service):
+        """Returns whether the service is not performed in this sample
+
+        Services whose analysis already has data are always performed
+        """
+        analyses = self.find_analyses(service)
+        if any(map(has_data, analyses)):
+            return False
+        analysis = analyses and analyses[0] or None
+        sample = analysis.getRequest() if analysis else self.context
+        context = MatchContext(sample, analysis=analysis)
+        if not is_excluded(service, context):
+            return False
+        logger.info("Dynamic category: {} not performed in {}".format(
+            service.getKeyword(), api.get_id(self.context)))
+        return True
 
     def get_lineage_analyses(self):
         """Returns the analyses of the sample and its partitions

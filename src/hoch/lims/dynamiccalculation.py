@@ -37,18 +37,34 @@ Rules are evaluated when analyses are added or saved, when the sample is
 edited and when analysis conditions are set (see ``reapply``). An analysis
 is only (re)linked while neither it nor its dependencies have results, so
 captured data never changes of Calculation.
+
+The same criteria decide whether the analyses of a category are performed:
+an AnalysisCategory lists, one per line, the criteria under which its
+analyses are not added to the sample (``IDynamicCategoryBehavior``). Each
+line matches when all its criteria match, and a single matching line
+excludes the analyses. The services requested for a primary sample are
+remembered, so excluded analyses come back when the criteria no longer
+match.
 """
 
 from fnmatch import fnmatchcase
 
 from Acquisition import aq_base
 from AccessControl import Unauthorized
+from persistent.list import PersistentList
+from zope.annotation.interfaces import IAnnotations
 from bika.lims import api
 from bika.lims import logger
 from senaite.core.catalog import SETUP_CATALOG
 
 # Attribute where the behavior stores the rules on the Calculation
 RULES_ATTR = "dynamic_calculation_rules"
+
+# Attribute where the behavior stores the exclusion criteria on the category
+EXCLUDE_ATTR = "dynamic_exclude_when"
+
+# Annotation key where the services requested for a sample are remembered
+REQUESTED_KEY = "hoch.lims.dynamic.requested_services"
 
 # Separators of the criteria of a rule
 CRITERIA_SEPARATOR = ";"
@@ -325,6 +341,53 @@ def resolve_calculation(keyword, context, calculations=None):
     return winners.pop()
 
 
+def get_exclusion_criteria(category):
+    """Returns the exclusion lines of the category with valid criteria
+    """
+    if category is None:
+        return []
+    text = getattr(aq_base(category), EXCLUDE_ATTR, None) or u""
+    lines = map(lambda line: line.strip(), api.safe_unicode(text).splitlines())
+    return filter(parse_criteria, lines)
+
+
+def is_excluded(service, context):
+    """Returns whether the analyses of the service are not performed
+
+    :param service: the AnalysisService
+    :param context: the `MatchContext` the criteria are evaluated against
+    """
+    getter = getattr(service, "getCategory", None)
+    category = getter() if getter else None
+    for criteria in get_exclusion_criteria(category):
+        if rule_matches({"criteria": criteria}, "", context):
+            return True
+    return False
+
+
+def get_requested_services(sample):
+    """Returns the UIDs of the services requested for the primary sample
+    """
+    root = get_root_sample(sample)
+    try:
+        return list(IAnnotations(root).get(REQUESTED_KEY) or [])
+    except TypeError:
+        return []
+
+
+def set_requested_services(sample, uids):
+    """Remembers the UIDs of the services requested for the primary sample
+    """
+    root = get_root_sample(sample)
+    try:
+        annotations = IAnnotations(root)
+    except TypeError:
+        return
+    uids = list(uids)
+    if list(annotations.get(REQUESTED_KEY) or []) != uids:
+        annotations[REQUESTED_KEY] = PersistentList(uids)
+
+
 def get_calculation_dependencies(calculation):
     """Returns the services the calculation depends on
     """
@@ -351,8 +414,6 @@ def reapply(sample):
     """
     if sample is None or not api.is_active(sample):
         return False
-    if not get_dynamic_calculations():
-        return False
 
     request = api.get_request()
     if request is not None and request.get(REAPPLY_KEY):
@@ -377,6 +438,11 @@ def reapply(sample):
                 api.get_uid, get_calculation_dependencies(calculation)))
     requested = [an.getServiceUID() for an in analyses
                  if an.getServiceUID() not in dependencies]
+    # services excluded by category rules have no analysis, but they were
+    # requested and have to come back if the criteria no longer match
+    for uid in get_requested_services(root):
+        if uid not in requested:
+            requested.append(uid)
 
     # keep the current prices and hidden flags, otherwise they are reset to
     # the values of the service
