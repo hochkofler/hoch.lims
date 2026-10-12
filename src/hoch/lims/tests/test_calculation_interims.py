@@ -120,6 +120,42 @@ class TestCalculationInterims(unittest.TestCase):
         self.assertEqual("degC", interim["unit"])
         self.assertTrue(interim["wide"])
 
+    def test_form_saved_service_interim_unhides_calculation_interim(self):
+        """An interim saved through the AnalysisService edit form only stores
+        the checkbox subfields that were checked, so `hidden` is absent when
+        the user leaves "Hidden Field" unchecked.  The service must still win
+        over the Calculation's `hidden=True`, otherwise the interim (e.g. the
+        declared potency) never shows up on the analysis.
+        """
+        calculation = DummyCalculation([{
+            "keyword": "potencia_declarada_m",
+            "title": "potencia declarada muestra",
+            "value": "",
+            "hidden": True,
+            "unit": "mg",
+            "wide": False,
+            "choices": "",
+            "result_type": "",
+            "allow_empty": False,
+        }])
+        # Exactly what RecordsField stores for a form-saved interim with
+        # "Report" checked and "Hidden Field"/"Apply wide" unchecked.
+        analysis = DummyAnalysis([{
+            "keyword": "potencia_declarada_m",
+            "title": "potencia declarada muestra",
+            "value": "500",
+            "unit": "mg",
+            "report": "on",
+        }])
+
+        analysis_patch.setCalculation(analysis, calculation)
+
+        interim = analysis.interims[0]
+        self.assertEqual("500", interim["value"])
+        self.assertFalse(interim["hidden"])
+        self.assertTrue(interim["report"])
+        self.assertFalse(interim["wide"])
+
     def test_calculation_owns_control_properties(self):
         calculation = DummyCalculation([{
             "keyword": "Temperature",

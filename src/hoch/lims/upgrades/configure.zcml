@@ -40,6 +40,15 @@
       />
 
   <genericsetup:upgradeStep
+      title="Re-sync AnalysisService and Analysis interim flags"
+      description="Restore interims hidden by an incomplete service record"
+      source="1004"
+      destination="1005"
+      handler="hoch.lims.upgrades.v1005.upgrade"
+      profile="hoch.lims:default"
+      />
+
+  <genericsetup:upgradeStep
       title="Enable Dynamic Calculation rules"
       description="Add the dynamic rules behavior to Calculation"
       source="1005"

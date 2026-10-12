@@ -29,6 +29,28 @@ from bika.lims.content.abstractanalysis import _normalize_interim
 # relative to the Calculation's definition.
 SERVICE_OVERRIDE_KEYS = ("value", "hidden", "report", "unit", "title", "wide")
 
+# Subset of SERVICE_OVERRIDE_KEYS that is rendered as a checkbox in the
+# AnalysisService edit form.  RecordsField only stores the subfields present
+# in the request, and an unchecked checkbox is *absent* from the POST, so a
+# form-saved interim silently lacks these keys.  Without normalisation the
+# missing key would be read as "the service has no opinion" and the
+# Calculation's own value (typically `hidden=True`) would win, hiding an
+# interim the user explicitly unchecked.
+SERVICE_BOOLEAN_KEYS = ("hidden", "report", "wide")
+
+
+def _normalize_service_interim(interim):
+    """Fill in the checkbox subfields missing from a form-saved interim.
+
+    Returns a copy of `interim` where every key in SERVICE_BOOLEAN_KEYS is
+    present and coerced to a real boolean, so that the AnalysisService is
+    authoritative for all of SERVICE_OVERRIDE_KEYS.
+    """
+    row = dict(interim)
+    for key in SERVICE_BOOLEAN_KEYS:
+        row[key] = bool(row.get(key, False))
+    return row
+
 
 def setCalculation(self, value):
     """Link a Calculation and snapshot its formula, imports and version.
@@ -61,7 +83,7 @@ def setCalculation(self, value):
     # Build indexed lookup of service interims by keyword so we can apply
     # service-level overrides to shared interims.
     service_interims_by_kw = {
-        i.get("keyword"): i
+        i.get("keyword"): _normalize_service_interim(i)
         for i in copy.deepcopy(self.getInterimFields())
     }
 
