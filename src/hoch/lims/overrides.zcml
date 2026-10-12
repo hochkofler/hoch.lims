@@ -1,5 +1,6 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
     i18n_domain="hoch.lims">
 
   <!-- Override senaite.core's RoutineAnalysisDataManager with our subclass
@@ -7,9 +8,30 @@
        <includeOverrides>) to take precedence over the senaite.core registration. -->
   <adapter factory="hoch.lims.datamanagers.analysis.HochRoutineAnalysisDataManager" />
 
+  <!-- Override senaite.core's sample "Analyses" field data manager so that
+       analyses use the Calculation (and dependencies) chosen by Dynamic
+       Calculation rules. See hoch.lims.dynamiccalculation -->
+  <adapter
+      name="Analyses"
+      for="bika.lims.interfaces.IAnalysisRequest
+           zope.publisher.interfaces.browser.IBrowserRequest
+           Products.Archetypes.interfaces.IField"
+      factory="hoch.lims.datamanagers.sample_analyses.HochSampleAnalysesFieldDataManager" />
+
   <utility
       provides="zope.schema.interfaces.IVocabularyFactory"
       name="senaite.core.vocabularies.resulttypes"
       component="hoch.lims.patches.time_support.TimeResultTypesVocabularyFactory" />
+
+  <!-- Override senaite.core's "set_analysis_conditions" modal to fix numeric
+       condition inputs missing step="any" (browsers default to step="1" and
+       reject decimal values). See hoch.lims.browser.modals.conditions. -->
+  <browser:page
+      name="set_analysis_conditions"
+      for="*"
+      class="hoch.lims.browser.modals.conditions.SetAnalysisConditionsView"
+      permission="senaite.core.permissions.FieldEditAnalysisConditions"
+      layer="senaite.core.interfaces.ISenaiteCore"
+      />
 
 </configure>

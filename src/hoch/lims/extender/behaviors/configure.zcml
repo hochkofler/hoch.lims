@@ -13,6 +13,14 @@
       factory=".variablestable.VariablesTable"
       for="senaite.core.interfaces.ISampleMatrix" />
   
+  <plone:behavior
+      name="hoch.lims.extender.behavior.dynamiccalculation"
+      title="DynamicCalculationRules"
+      description="Rules to apply a calculation dynamically"
+      provides=".dynamiccalculation.IDynamicCalculationRulesBehavior"
+      factory=".dynamiccalculation.DynamicCalculationRules"
+      for="senaite.core.interfaces.ICalculation" />
+
   <subscriber
       for="senaite.core.interfaces.ISampleMatrix
            zope.lifecycleevent.interfaces.IObjectAddedEvent"
