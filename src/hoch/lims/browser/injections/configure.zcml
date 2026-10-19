@@ -1,0 +1,15 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    i18n_domain="hoch.lims">
+
+  <!-- HPLC injections table of an analysis -->
+  <browser:page
+      for="bika.lims.interfaces.IRoutineAnalysis"
+      name="injections"
+      class=".view.InjectionsView"
+      permission="senaite.core.permissions.ViewResults"
+      layer="hoch.lims.interfaces.IHochLims"
+      />
+
+</configure>

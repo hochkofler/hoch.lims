@@ -985,28 +985,31 @@ def calc_average(*args):
     return sum(values) / len(values)
 
 
-def calc_uniformidad_contenido(context=None, T=100, k=2.4, SUBGROUPS=2, POTENCIA_DECLARADA=1, **kwargs):
-    """Función para calcular la uniformidad de contenido"""
-    unknown_concentration = [kwargs[key] for key in sorted(kwargs) if 'CONC_UNK_' in key]
-    logger.info("Unknown concentrations: '%s'", unknown_concentration)
+def content_uniformity(values, T=100, k=2.4, subgroups=2, potency=1):
+    """Acceptance value of content uniformity from the sample concentrations
 
-    unknown_concentrations_gruped = []
-    for i in range(0, len(unknown_concentration), SUBGROUPS):
-        logger.info("Index i: '%s'", i)
-        val1 = api.to_float(unknown_concentration[i], 0)
-        val2 = api.to_float(unknown_concentration[i + 1], 0)
+    Concentrations are averaged in groups of `subgroups` consecutive
+    injections (duplicates of the same unit) and expressed as % of the
+    declared potency.
+
+    :returns: dict with result, mean, std and m, or None when the values are
+        not enough to evaluate all the units
+    """
+    subgroups = int(subgroups)
+    grouped = []
+    for i in range(0, len(values) - subgroups + 1, subgroups):
+        val1 = api.to_float(values[i], 0)
+        val2 = api.to_float(values[i + 1], 0)
         logger.info("Values to group: '%s' and '%s'", val1, val2)
         if val1 > 0 and val2 > 0:
-            unknown_concentrations_gruped.append(
-                (val1 + val2) / SUBGROUPS / POTENCIA_DECLARADA * 100
-            )
-    logger.info("Unknown concentrations gruped: '%s'", unknown_concentrations_gruped)
-    if len(unknown_concentrations_gruped) < len(unknown_concentration) / SUBGROUPS:
-        return
+            grouped.append((val1 + val2) / subgroups / potency * 100)
+    logger.info("Unknown concentrations gruped: '%s'", grouped)
+    if len(grouped) < 2 or len(grouped) < len(values) / subgroups:
+        return None
 
-    mean = sum(unknown_concentrations_gruped) / len(unknown_concentrations_gruped)
+    mean = sum(grouped) / len(grouped)
     logger.info("Mean of unknown concentrations gruped: '%s'", mean)
-    variance = sum((x - mean) ** 2 for x in unknown_concentrations_gruped) / (len(unknown_concentrations_gruped) - 1)
+    variance = sum((x - mean) ** 2 for x in grouped) / (len(grouped) - 1)
     logger.info("Variance of unknown concentrations gruped: '%s'", variance)
     std = variance ** 0.5
     M = 0
@@ -1024,27 +1027,160 @@ def calc_uniformidad_contenido(context=None, T=100, k=2.4, SUBGROUPS=2, POTENCIA
             M = mean
         else:
             M = T
-    logger.info("M:'%s' | k: '%s' | mean: '%s' | std: '%s'", M, k, mean, std)
-    logger.info("result value: '%s'", abs(M - mean) + float(k) * std)
-
     result = abs(M - mean) + k * std
+    logger.info("M:'%s' | k: '%s' | mean: '%s' | std: '%s'", M, k, mean, std)
+    logger.info("result value: '%s'", result)
+    return {"result": result, "mean": mean, "std": std, "m": M}
 
-    interims_to_modify = {'mean': mean, 'std': std, 'm': M}
+
+def set_analysis_interims(analysis, values):
+    """Writes the given values into the editable interims of the analysis
+
+    Only interims already defined on the analysis are written
+    """
+    interim_fields = api.safe_getattr(analysis, "getInterimFields", [])
+    for interim in interim_fields:
+        if not is_interim_editable(interim):
+            continue
+        if interim.get("keyword") in values:
+            logger.info(
+                "Setting interim field '%s' with value '%s'",
+                interim.get("keyword"), values[interim.get("keyword")]
+            )
+            interim["value"] = values[interim.get("keyword")]
+    analysis.setInterimFields(interim_fields)
+
+
+def calc_uniformidad_contenido(context=None, T=100, k=2.4, SUBGROUPS=2, POTENCIA_DECLARADA=1, **kwargs):
+    """Función para calcular la uniformidad de contenido"""
+    unknown_concentration = [kwargs[key] for key in sorted(kwargs) if 'CONC_UNK_' in key]
+    logger.info("Unknown concentrations: '%s'", unknown_concentration)
+
+    uniformity = content_uniformity(
+        unknown_concentration, T=T, k=k, subgroups=SUBGROUPS,
+        potency=POTENCIA_DECLARADA)
+    if uniformity is None:
+        return
+
     if context:
         analysis = api.get_object(context)
         if analysis:
-            interim_fields = api.safe_getattr(analysis, "getInterimFields", [])
-            for interim in interim_fields:
-                if not is_interim_editable(interim):
-                    continue
-                if interim.get("keyword") in interims_to_modify:
-                    logger.info(
-                        "Setting interim field '%s' with value '%s'",
-                        interim.get("keyword"), interims_to_modify[interim.get("keyword")]
-                    )
-                    interim["value"] = interims_to_modify[interim.get("keyword")]
-            analysis.setInterimFields(interim_fields)
+            set_analysis_interims(analysis, {
+                "mean": uniformity["mean"],
+                "std": uniformity["std"],
+                "m": uniformity["m"],
+            })
+    return uniformity["result"]
+
+
+# Keyword of the interim that keeps the declared potency used
+DECLARED_POTENCY_INTERIM = "potencia_declarada_m"
+
+# Parameter of the sample matrix variables table with the declared potency
+DECLARED_POTENCY_VARIABLE = "declared_potency"
+
+
+def get_interim_value(analysis, keyword):
+    from hoch.lims.injections import to_float
+    for interim in api.safe_getattr(analysis, "getInterimFields", []):
+        if interim.get("keyword") == keyword:
+            return to_float(interim.get("value"))
+    return None
+
+
+def get_root_sample(sample):
+    parent = sample.getParentAnalysisRequest()
+    while parent:
+        sample = parent
+        parent = sample.getParentAnalysisRequest()
+    return sample
+
+
+def get_declared_potency(analysis):
+    """Returns the declared potency (label claim) for the analysis
+
+    The value entered in the analysis wins. Otherwise it is read from the
+    variables table of the sample matrix of the product (primary sample),
+    for the service of the analysis.
+    """
+    potency = get_interim_value(analysis, DECLARED_POTENCY_INTERIM)
+    if potency:
+        return potency
+    sample = get_root_sample(analysis.getRequest())
+    sampletype = sample.getSampleType()
+    matrix = sampletype.getSampleMatrix() if sampletype else None
+    if not matrix:
+        return None
+    from hoch.lims.injections import to_float
+    variables = compute_variables_dict(matrix).get(analysis.getKeyword(), {})
+    value = variables.get(DECLARED_POTENCY_VARIABLE)
+    return to_float(value[0]) if value else None
+
+
+def calc_assay(context=None):
+    """Assay (% of the declared potency) from the injections of the run
+
+    The injections are read from the analysis injections table (see
+    hoch.lims.injections), so any number of injections is supported:
+
+        calc_assay(context=%(context_uid)s)
+
+    The declared potency used, and the number of sample and standard
+    injections, are written into the interims `potencia_declarada_m`,
+    `n_unk` and `n_st` when the analysis defines them.
+    """
+    from hoch.lims.injections import SAMPLE, STANDARD, get_values
+    analysis = api.get_object(context)
+    values = get_values(analysis, SAMPLE)
+    if not values:
+        logger.info("[Assay] %s: no sample injections yet",
+                    api.get_id(analysis))
+        return ""
+    potency = get_declared_potency(analysis)
+    if not potency:
+        logger.error("[Assay] %s: declared potency not set",
+                     api.get_id(analysis))
+        return ""
+    result = calc_average(*values) / potency * 100
+    set_analysis_interims(analysis, {
+        DECLARED_POTENCY_INTERIM: potency,
+        "n_unk": len(values),
+        "n_st": len(get_values(analysis, STANDARD) or []),
+    })
     return result
+
+
+def calc_content_uniformity(context=None, T=100, k=2.4, SUBGROUPS=2):
+    """Content uniformity from the injections of the assay of the sample
+
+        calc_content_uniformity(context=%(context_uid)s, T=[t], k=[k])
+
+    The sample injections are read from the analysis of the same sample
+    that receives them (usually the assay), so they are not duplicated.
+    """
+    from hoch.lims.injections import SAMPLE, get_values
+    analysis = api.get_object(context)
+    values = get_values(analysis, SAMPLE)
+    if not values:
+        logger.info("[Uniformity] %s: no sample injections yet",
+                    api.get_id(analysis))
+        return ""
+    potency = get_declared_potency(analysis)
+    if not potency:
+        logger.error("[Uniformity] %s: declared potency not set",
+                     api.get_id(analysis))
+        return ""
+    uniformity = content_uniformity(
+        values, T=T, k=k, subgroups=SUBGROUPS, potency=potency)
+    if uniformity is None:
+        return ""
+    set_analysis_interims(analysis, {
+        DECLARED_POTENCY_INTERIM: potency,
+        "mean": uniformity["mean"],
+        "std": uniformity["std"],
+        "m": uniformity["m"],
+    })
+    return uniformity["result"]
 
 
 def calc_net_average(gross, tare, context=None):

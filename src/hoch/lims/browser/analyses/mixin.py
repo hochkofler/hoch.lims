@@ -20,6 +20,8 @@ from bika.lims import logger
 from bika.lims.interfaces import IAnalysis
 from bika.lims.interfaces import IAnalysisService
 from bika.lims.utils import get_link_for
+from bika.lims.utils import t
+from hoch.lims import injections as inj
 from hoch.lims import messageFactory as _
 from senaite.core.catalog import SENAITE_CATALOG
 from senaite.core.permissions import FieldEditAnalysisResult
@@ -220,7 +222,23 @@ class SubInstrumentsConsumablesMixin(object):
         item = super(SubInstrumentsConsumablesMixin, self).folderitem(obj, item, index)
         self._folder_item_sub_instruments(obj, item)
         self._folder_item_consumables(obj, item)
+        self._folder_item_injections(obj, item)
         return item
+
+    def _folder_item_injections(self, obj, item):
+        """Adds a link to the HPLC injections table of the analysis
+        """
+        analysis = self.get_object(obj)
+        if not inj.receives_injections(analysis):
+            return
+        rows = inj.get_injections(analysis)
+        unk = len([r for r in rows if r.get("type") == inj.SAMPLE])
+        st = len([r for r in rows if r.get("type") == inj.STANDARD])
+        url = "{}/injections".format(api.get_url(analysis))
+        title = t(_("Injections"))
+        html = u"<a href='{}' class='small'>{}: {} + {}</a>".format(
+            url, title, unk, st)
+        self._append_html_element(item, "Service", html, glue="<br/>")
 
     def _on_method_change(self, uid=None, value=None, item=None, **kw):
         item = super(SubInstrumentsConsumablesMixin, self)._on_method_change(

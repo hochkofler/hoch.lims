@@ -1,0 +1,93 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      metal:use-macro="context/main_template/macros/master"
+      i18n:domain="hoch.lims">
+<body>
+<metal:content-core fill-slot="content-core">
+<tal:view define="rows view/get_rows;
+                  columns view/get_columns;
+                  can_edit view/can_edit;
+                  summary view/get_summary">
+
+  <h1 class="documentFirstHeading" tal:content="view/get_title">Injections</h1>
+  <p>
+    <a tal:attributes="href view/get_sample_url"
+       i18n:translate="">Back to the sample</a>
+  </p>
+
+  <p class="discreet" tal:condition="not: view/receives_injections"
+     i18n:translate="">
+    The service of this analysis does not receive HPLC injections.
+  </p>
+
+  <p>
+    <strong i18n:translate="">Sample injections</strong>:
+    <span tal:content="summary/unk">0</span> &middot;
+    <strong i18n:translate="">Standard injections</strong>:
+    <span tal:content="summary/st">0</span>
+  </p>
+
+  <form method="post"
+        tal:attributes="action string:${context/absolute_url}/injections">
+    <input type="hidden" name="_authenticator"
+           tal:replace="structure context/@@authenticator/authenticator"/>
+    <input type="hidden" name="count"
+           tal:attributes="value python: len(rows) + (1 if can_edit else 0)"/>
+    <table class="table table-sm table-bordered">
+      <thead>
+        <tr>
+          <th i18n:translate="">Type</th>
+          <th i18n:translate="">Injection</th>
+          <th i18n:translate="">Conc.</th>
+          <th i18n:translate="">Ret. time</th>
+          <th i18n:translate="">Area</th>
+          <th i18n:translate="">NTP (USP)</th>
+          <th i18n:translate="">Vial</th>
+          <th i18n:translate="">Acquired</th>
+          <th i18n:translate="">Data file</th>
+          <th tal:condition="can_edit" i18n:translate="">Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr tal:repeat="row rows">
+          <tal:cols repeat="column columns">
+            <td tal:define="value python: view.format_value(row.get(column))">
+              <input tal:condition="can_edit" type="text" size="8"
+                     tal:attributes="name string:row-${repeat/row/index}-${column};
+                                     value value"/>
+              <span tal:condition="not: can_edit" tal:content="value"/>
+            </td>
+          </tal:cols>
+          <td tal:content="python: view.format_value(row.get('acquired'))"/>
+          <td tal:content="python: view.format_value(row.get('data_file'))"/>
+          <td tal:condition="can_edit">
+            <input type="checkbox"
+                   tal:attributes="name string:row-${repeat/row/index}-delete"/>
+          </td>
+        </tr>
+        <tr tal:condition="can_edit">
+          <tal:cols repeat="column columns">
+            <td>
+              <input type="text" size="8"
+                     tal:attributes="name python: 'row-%s-%s' % (len(rows), column);
+                                     placeholder python: 'UNK' if column == 'type' else ''"/>
+            </td>
+          </tal:cols>
+          <td colspan="3" class="discreet" i18n:translate="">New injection</td>
+        </tr>
+      </tbody>
+    </table>
+    <input tal:condition="can_edit" class="btn btn-primary" type="submit"
+           name="form.button.save" value="Save and recalculate"
+           i18n:attributes="value"/>
+    <p class="discreet" tal:condition="not: can_edit" i18n:translate="">
+      Injections can only be changed before the analysis is submitted.
+    </p>
+  </form>
+
+</tal:view>
+</metal:content-core>
+</body>
+</html>

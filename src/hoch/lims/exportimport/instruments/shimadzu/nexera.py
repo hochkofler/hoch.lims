@@ -26,6 +26,7 @@ import unicodedata
 from senaite.core.registry import get_registry_record
 from bika.lims.interfaces import IReferenceAnalysis
 from bika.lims.interfaces import IRoutineAnalysis
+from hoch.lims import injections as inj
 
 
 class CustomAnalysisResultImporter(AnalysisResultsImporter):
@@ -347,6 +348,127 @@ class quantitativeResultsImportInterface(CustomAnalysisResultImporter):
                 "log": self.logs,
                 "warns": self.warns,
             })
+
+    def parse_results(self):
+        """Parse the file and import the injections into injection tables
+
+        Samples (or partitions) with an analysis that receives injections get
+        their ``CONC_*`` lines stored as rows of that analysis. The remaining
+        results (samples created before the injections table) are returned
+        to the base importer, that writes them into ``CONC_*`` analyses.
+        """
+        parsed = super(quantitativeResultsImportInterface, self).parse_results()
+        if not parsed:
+            return parsed
+
+        remaining = {}
+        for sid, results in parsed.items():
+            sample = self.get_injections_sample(sid)
+            targets = []
+            if sample is not None:
+                targets = inj.get_target_analyses(
+                    sample, states=self.allowed_analysis_states)
+            if not targets:
+                remaining[sid] = results
+                continue
+            if len(targets) > 1:
+                self.warn(_("{sid}: more than one analysis receives "
+                            "injections ({keywords}), injections not imported"
+                            .format(sid=sid, keywords=", ".join(
+                                [an.getKeyword() for an in targets]))))
+                continue
+
+            rows = []
+            rest = []
+            for result in results:
+                other = {}
+                for keyword, values in result.items():
+                    if keyword.startswith("CONC_"):
+                        rows.append(self.to_injection_row(keyword, values))
+                    else:
+                        other[keyword] = values
+                if other:
+                    rest.append(other)
+            if rest:
+                remaining[sid] = rest
+            if rows:
+                self.import_injections(sid, sample, targets[0], rows)
+
+        return remaining
+
+    def get_injections_sample(self, sid):
+        """Returns the sample (or partition) with the given ID, if allowed
+        """
+        query = {"getId": sid, "review_state": self.allowed_sample_states}
+        brains = api.search(query, SAMPLE_CATALOG)
+        return api.get_object(brains[0]) if brains else None
+
+    def to_injection_row(self, keyword, values):
+        """Converts a parsed CONC_{UNK|ST}_NN line into an injection row
+        """
+        parts = keyword.split("_")
+        acquired = values.get("DateTime")
+        if hasattr(acquired, "strftime"):
+            acquired = acquired.strftime("%Y-%m-%d %H:%M:%S")
+        return {
+            "type": parts[1] if len(parts) > 2 else "",
+            "number": parts[-1],
+            "conc": values.get(values.get("DefaultResult")),
+            "ret_time": values.get("ret_time"),
+            "area": values.get("area"),
+            "ntp_usp": values.get("ntp_usp"),
+            "vial_number": values.get("vial_number"),
+            "acquired": acquired or values.get("Date Acquired"),
+            "sample_name": values.get("Sample Name"),
+            "data_file": values.get("Data Filename"),
+            "peak": values.get("api_name"),
+        }
+
+    def import_injections(self, sid, sample, analysis, rows):
+        """Stores the rows in the analysis and recalculates the sample
+        """
+        existing = inj.get_injections(analysis)
+        merged, added, replaced, skipped = inj.merge_injections(
+            existing, rows, override=self.override_non_empty)
+        if skipped:
+            self.warn(_("{sid}: {count} injections already in {keyword} were "
+                        "not overridden"
+                        .format(sid=sid, count=skipped,
+                                keyword=analysis.getKeyword())))
+        if not (added or replaced):
+            return False
+
+        inj.set_injections(analysis, merged)
+        if self.instrument:
+            try:
+                analysis.setInstrument(self.instrument)
+            except Exception as exc:
+                self.warn(_("{sid}: instrument not assigned to {keyword}: "
+                            "{error}".format(sid=sid, error=exc,
+                                             keyword=analysis.getKeyword())))
+        self.attach_import_file(analysis)
+        inj.recalculate(sample)
+        sample.reindexObject()
+        self.log(_("{sid}: {keyword} injections imported: {added} added, "
+                   "{replaced} replaced"
+                   .format(sid=sid, keyword=analysis.getKeyword(),
+                           added=added, replaced=replaced)))
+        return True
+
+    def attach_import_file(self, analysis):
+        """Attaches the import file to the analysis, as the base importer
+        """
+        if not get_registry_record("import_analysis_attach_importfile"):
+            return
+        worksheet = analysis.getWorksheet()
+        if not worksheet:
+            return
+        infile = self.parser.getInputFile()
+        filenames = self.get_attachment_filenames(worksheet)
+        attachment = filenames.get(infile.filename)
+        if not attachment:
+            attachment = self.create_attachment(worksheet, infile)
+        self.attach_attachment(analysis, attachment)
 
 class quantitiveResultParser(InstrumentCSVResultsFileParser):
         """Parse the import file and fills the raw results dictionary

@@ -10,6 +10,7 @@
     <include package=".viewlets"/>
     <include package=".content"/>
     <include package=".worksheets"/>
+    <include package=".injections"/>
 
     <!-- Static directory for js, css and image resources -->
     <plone:static

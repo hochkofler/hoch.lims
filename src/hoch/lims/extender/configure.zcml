@@ -12,6 +12,17 @@
     name="batch-extender"
     provides="archetypes.schemaextender.interfaces.ISchemaExtender"/>
 
+    <!-- HPLC injections table (not browser-layer aware) -->
+    <adapter
+      factory=".injections.RoutineAnalysisInjectionsSchemaExtender"
+      name="routine-analysis-injections-extender"
+      provides="archetypes.schemaextender.interfaces.ISchemaExtender"/>
+
+    <adapter
+      factory=".injections.AnalysisServiceInjectionsSchemaExtender"
+      name="analysis-service-injections-extender"
+      provides="archetypes.schemaextender.interfaces.ISchemaExtender"/>
+
     <!-- Analysis Schema Extenders (Sub-Instruments + Consumables) -->
     <adapter
       factory=".analysis.AbstractBaseAnalysisSchemaExtender"

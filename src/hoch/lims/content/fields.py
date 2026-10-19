@@ -5,6 +5,7 @@ from archetypes.schemaextender.field import ExtensionField
 from senaite.core.z3cform.widgets.datetimewidget import DatetimeWidget as SenaiteDatetimeWidget
 from Products.Archetypes.public import DateTimeField
 from Products.Archetypes.Field import IntegerField
+from Products.Archetypes.Field import BooleanField
 from Products.Archetypes.Field import FloatField
 from Products.Archetypes.public import StringField
 from senaite.core.browser.fields.records import RecordsField
@@ -53,3 +54,7 @@ class ExtVariablesSettingsFieldAT(ExtensionField, VariablesSettingsField):
 
 class ExtConsumableFieldsFieldAT(ExtensionField, ConsumableFieldsField):
     """Field extender of ConsumableFieldsField for AT schemaextender"""
+
+
+class ExtBooleanFieldAT(ExtensionField, BooleanField):
+    """Field Extender of BooleanField"""
