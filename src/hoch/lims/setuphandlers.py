@@ -30,6 +30,10 @@ BEHAVIORS = [
          "hoch.lims.extender.behaviors.dynamiccalculation"
          ".IDynamicCalculationRulesBehavior",
      ]),
+    ("AnalysisCategory", [
+         "hoch.lims.extender.behaviors.dynamiccategory"
+         ".IDynamicCategoryBehavior",
+     ]),
 ]
 
 GROUPS = [

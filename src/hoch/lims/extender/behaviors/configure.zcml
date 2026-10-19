@@ -21,6 +21,14 @@
       factory=".dynamiccalculation.DynamicCalculationRules"
       for="senaite.core.interfaces.ICalculation" />
 
+  <plone:behavior
+      name="hoch.lims.extender.behavior.dynamiccategory"
+      title="DynamicCategory"
+      description="Conditions under which the analyses are not performed"
+      provides=".dynamiccategory.IDynamicCategoryBehavior"
+      factory=".dynamiccategory.DynamicCategory"
+      for="senaite.core.interfaces.IAnalysisCategory" />
+
   <subscriber
       for="senaite.core.interfaces.ISampleMatrix
            zope.lifecycleevent.interfaces.IObjectAddedEvent"

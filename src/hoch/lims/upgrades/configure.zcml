@@ -57,4 +57,13 @@
       profile="hoch.lims:default"
       />
 
+  <genericsetup:upgradeStep
+      title="Enable Dynamic exclusion on analysis categories"
+      description="Add the dynamic exclusion behavior to AnalysisCategory"
+      source="1006"
+      destination="1007"
+      handler="hoch.lims.upgrades.v1007.upgrade"
+      profile="hoch.lims:default"
+      />
+
 </configure>
