@@ -1156,3 +1156,88 @@ msgstr "Variable de peso con agua no definida"
 #: hoch/lims/calc.py:344
 msgid "weight variable not defined"
 msgstr "Variable de ponderación no definida"
+
+
+#: hoch/lims/injections
+msgid "Injections"
+msgstr "Inyecciones"
+
+#: hoch/lims/injections
+msgid "Sample injections"
+msgstr "Inyecciones de muestra"
+
+#: hoch/lims/injections
+msgid "Standard injections"
+msgstr "Inyecciones de estándar"
+
+#: hoch/lims/injections
+msgid "Back to the sample"
+msgstr "Volver a la muestra"
+
+#: hoch/lims/injections
+msgid "Save and recalculate"
+msgstr "Guardar y recalcular"
+
+#: hoch/lims/injections
+msgid "Injections saved and results recalculated"
+msgstr "Inyecciones guardadas y resultados recalculados"
+
+#: hoch/lims/injections
+msgid "You are not allowed to change these injections"
+msgstr "No tiene permiso para modificar estas inyecciones"
+
+#: hoch/lims/injections
+msgid "The service of this analysis does not receive HPLC injections."
+msgstr "El servicio de este análisis no recibe inyecciones HPLC."
+
+#: hoch/lims/injections
+msgid "Injections can only be changed before the analysis is submitted."
+msgstr "Las inyecciones solo se pueden modificar antes de enviar el análisis."
+
+#: hoch/lims/injections
+msgid "New injection"
+msgstr "Nueva inyección"
+
+#: hoch/lims/injections
+msgid "Delete"
+msgstr "Eliminar"
+
+#: hoch/lims/injections
+msgid "Type"
+msgstr "Tipo"
+
+#: hoch/lims/injections
+msgid "Conc."
+msgstr "Conc."
+
+#: hoch/lims/injections
+msgid "Ret. time"
+msgstr "T. retención"
+
+#: hoch/lims/injections
+msgid "Area"
+msgstr "Área"
+
+#: hoch/lims/injections
+msgid "NTP (USP)"
+msgstr "NTP (USP)"
+
+#: hoch/lims/injections
+msgid "Acquired"
+msgstr "Adquirida"
+
+#: hoch/lims/injections
+msgid "Data file"
+msgstr "Archivo"
+
+#: hoch/lims/injections
+msgid "Peak"
+msgstr "Pico"
+
+#: hoch/lims/injections
+msgid "Sample name"
+msgstr "Nombre de muestra"
+
+#: hoch/lims/injections
+msgid "Receives HPLC injections"
+msgstr "Recibe inyecciones HPLC"

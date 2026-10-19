@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """View and correct the HPLC injections stored in an analysis."""
 
+from decimal import Decimal
+
 from bika.lims import api
 from bika.lims.api.security import check_permission
 from bika.lims.interfaces import ISubmitted
@@ -12,6 +14,21 @@ from Products.Five.browser import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.statusmessages.interfaces import IStatusMessage
 from senaite.core.permissions import FieldEditAnalysisResult
+
+def format_number(value):
+    """Returns the value as plain text, numbers never in exponential form
+
+    e.g. 1620000.0 -> "1620000", 2.1 -> "2.1", 0.00012 -> "0.00012"
+    """
+    if value is None:
+        return u""
+    if isinstance(value, bool) or not isinstance(value, (int, long, float)):
+        return safe_unicode(value)
+    text = u"{:f}".format(Decimal(repr(value)))
+    if u"." in text:
+        text = text.rstrip(u"0").rstrip(u".")
+    return text
+
 
 # Editable columns, in display order
 EDITABLE = ("type", "number", "conc", "ret_time", "area", "ntp_usp",
@@ -70,11 +87,7 @@ class InjectionsView(BrowserView):
         return {"unk": unk, "st": st}
 
     def format_value(self, value):
-        if value is None:
-            return u""
-        if isinstance(value, float):
-            return u"{:g}".format(value)
-        return safe_unicode(value)
+        return format_number(value)
 
     def get_form_rows(self):
         """Returns the rows posted by the form, without the deleted ones

@@ -236,9 +236,12 @@ class SubInstrumentsConsumablesMixin(object):
         st = len([r for r in rows if r.get("type") == inj.STANDARD])
         url = "{}/injections".format(api.get_url(analysis))
         title = t(_("Injections"))
-        html = u"<a href='{}' class='small'>{}: {} + {}</a>".format(
+        link = u"<a href='{}' class='small text-nowrap'>{}: {} + {}</a>".format(
             url, title, unk, st)
-        self._append_html_element(item, "Service", html, glue="<br/>")
+        # same placement as the analysis conditions, below the service name
+        service = item["replace"].get("Service") or item["Service"]
+        item["replace"]["Service"] = u"<br/>".join(
+            [api.safe_unicode(service), link])
 
     def _on_method_change(self, uid=None, value=None, item=None, **kw):
         item = super(SubInstrumentsConsumablesMixin, self)._on_method_change(

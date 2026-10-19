@@ -4,6 +4,7 @@ import unittest2 as unittest
 
 from hoch.lims import calc
 from hoch.lims import injections as inj
+from hoch.lims.browser.injections.view import format_number
 
 
 def row(kind, number, conc):
@@ -43,6 +44,14 @@ class TestInjections(unittest.TestCase):
             [row("UNK", "1", 50)], [row("ST", "1", 25)])
         self.assertEqual(added, 1)
         self.assertEqual(len(rows), 2)
+
+    def test_numbers_are_never_exponential(self):
+        self.assertEqual(format_number(1620000.0), u"1620000")
+        self.assertEqual(format_number(825264.0), u"825264")
+        self.assertEqual(format_number(2.1), u"2.1")
+        self.assertEqual(format_number(0.00012), u"0.00012")
+        self.assertEqual(format_number(None), u"")
+        self.assertEqual(format_number(u"UNK"), u"UNK")
 
     def test_content_uniformity_math(self):
         # two units, duplicates: (51 + 49) / 2 and (52 + 48) / 2 -> 100 %
