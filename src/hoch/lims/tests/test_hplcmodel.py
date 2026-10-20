@@ -24,6 +24,26 @@ class TestExpressions(unittest.TestCase):
             with self.assertRaises(hm.ModelError):
                 hm.parse(expression)
 
+    def test_optional_uses_default_only_when_missing(self):
+        self.assertEqual(hm.evaluate("a * opcional(b, 1)", {"a": 2}), 2.0)
+        self.assertEqual(hm.evaluate("a * opcional(b, 1)",
+                                     {"a": 2, "b": 3}), 6.0)
+
+    def test_condition_only_needs_the_chosen_branch(self):
+        self.assertEqual(hm.evaluate("si(f, x, 0)", {"f": 0}), 0.0)
+        self.assertEqual(hm.evaluate("si(f, x, 0)", {"f": 1, "x": 5}), 5.0)
+        with self.assertRaises(hm.MissingVariables) as error:
+            hm.evaluate("si(f, x, 0)", {"f": 1})
+        self.assertEqual(error.exception.names, ["x"])
+        with self.assertRaises(hm.MissingVariables) as error:
+            hm.evaluate("si(f, x, 0)", {})
+        self.assertEqual(error.exception.names, ["f"])
+
+    def test_lazy_functions_are_validated(self):
+        for expression in ("opcional(1, 2)", "opcional(a)", "si(a, b)"):
+            with self.assertRaises(hm.ModelError):
+                hm.parse(expression)
+
     def test_missing_variables_are_reported(self):
         with self.assertRaises(hm.MissingVariables) as error:
             hm.evaluate("a * b + c", {"a": 1}, stage="standard")

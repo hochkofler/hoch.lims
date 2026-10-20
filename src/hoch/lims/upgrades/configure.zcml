@@ -66,4 +66,13 @@
       profile="hoch.lims:default"
       />
 
+  <genericsetup:upgradeStep
+      title="Enable the HPLC calculation model"
+      description="HPLC model on Calculation, HPLC parameters on SampleMatrix"
+      source="1007"
+      destination="1008"
+      handler="hoch.lims.upgrades.v1008.upgrade"
+      profile="hoch.lims:default"
+      />
+
 </configure>

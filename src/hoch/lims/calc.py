@@ -1775,3 +1775,16 @@ def calc_disolution(context=None, stage="S1", Q=75, overwrite_remarks=True, pote
         event.notify(ObjectEditedEvent(analysis))
         logger.info("analysis remarks after %s", analysis.getRemarks())
     return 1 if all_pass else 0
+
+
+def calc_hplc_model(context=None):
+    """Result of the HPLC calculation model of the analysis
+
+        calc_hplc_model(context=%(context_uid)s)
+
+    The model (stages, expressions and aggregate) is defined in the
+    "HPLC model" tab of the Calculation; see hoch.lims.hplcanalysis.
+    Returns an empty result while data is missing.
+    """
+    from hoch.lims.hplcanalysis import calculate
+    return calculate(api.get_object(context))

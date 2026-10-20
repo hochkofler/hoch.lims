@@ -31,11 +31,14 @@ TYPES = (SAMPLE, STANDARD)
 # Columns of a row, in display order
 COLUMNS = (
     "type", "number", "conc", "ret_time", "area", "ntp_usp", "vial_number",
-    "acquired", "sample_name", "data_file", "peak",
+    "weight", "acquired", "sample_name", "data_file", "peak",
 )
 
 # Columns holding numbers
-NUMERIC = ("conc", "ret_time", "area", "ntp_usp")
+NUMERIC = ("conc", "ret_time", "area", "ntp_usp", "weight")
+
+# Columns entered in the LIMS, kept when an instrument reimports the row
+KEPT_ON_REIMPORT = ("weight",)
 
 
 def get_field(obj, name):
@@ -151,6 +154,9 @@ def merge_injections(existing, new, override=False):
             if not override:
                 skipped += 1
                 continue
+            for column in KEPT_ON_REIMPORT:
+                if row.get(column) is None:
+                    row[column] = rows[key].get(column)
             replaced += 1
         else:
             added += 1

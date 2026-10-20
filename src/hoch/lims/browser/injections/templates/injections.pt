@@ -45,6 +45,7 @@
           <th i18n:translate="">Area</th>
           <th i18n:translate="">NTP (USP)</th>
           <th i18n:translate="">Vial</th>
+          <th i18n:translate="">Weight</th>
           <th i18n:translate="">Acquired</th>
           <th i18n:translate="">Data file</th>
           <th tal:condition="can_edit" i18n:translate="">Delete</th>

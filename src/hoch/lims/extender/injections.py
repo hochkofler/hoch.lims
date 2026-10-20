@@ -44,6 +44,7 @@ class RoutineAnalysisInjectionsSchemaExtender(object):
                 "area": _("Area"),
                 "ntp_usp": _("NTP (USP)"),
                 "vial_number": _("Vial"),
+                "weight": _("Weight"),
                 "acquired": _("Acquired"),
                 "sample_name": _("Sample name"),
                 "data_file": _("Data file"),

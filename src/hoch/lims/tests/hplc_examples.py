@@ -106,6 +106,33 @@ def case(key, title, description, model, variables, rows, expected,
     }
 
 
+# A single model for every product: factors are switched on by product flags
+UNIVERSAL_MODEL = {
+    "standard": "W_st * (1 - si(usa_agua, agua_st, 0)/100) * P_st/100 / "
+                "(V_st * D_st) * 1000",
+    "amount": "C_u * V_mue * opcional(D_mue, 1) / 1000 * "
+              "si(por_porcion, peso_prom / opcional(W_mue, 1), 1)",
+    "result": "cantidad / LC * 100 * F_PM",
+    "injections_per_unit": 2,
+    "aggregate": "mean",
+    "derived": {"F_PM": "si(usa_PM, n_PM * PM_decl / PM_st, 1)"},
+}
+
+
+def universal(flags, variables=None, drop=None):
+    model = copy.deepcopy(UNIVERSAL_MODEL)
+    new_variables = dict(ASSAY_VARIABLES)
+    new_variables["W_st"] = (20.84, RUN)
+    new_variables.pop("W_st_1")
+    new_variables.pop("W_st_2")
+    for name, value in flags.items():
+        new_variables[name] = (value, PRODUCT)
+    new_variables.update(variables or {})
+    for name in (drop or []):
+        new_variables.pop(name, None)
+    return model, new_variables
+
+
 def get_cases():
     assay_rows = injections(ASSAY_STANDARD_AREAS, ASSAY_SAMPLE_AREAS,
                             weights=ASSAY_UNIT_WEIGHTS)
@@ -212,6 +239,47 @@ def get_cases():
         u"qué falta, en lugar de asumir 0.",
         model, variables, assay_rows, None, source=illustrative,
         error=u"agua_st"))
+
+    universal_title = u"Modelo universal"
+    model, variables = universal({"usa_agua": 1, "usa_PM": 1, "por_porcion": 0})
+    cases.append(case(
+        "universal_rosuvastatina",
+        u"11. Modelo universal: Rosuvastatina (agua y PM activos)",
+        u"La misma Calculation sirve para todos los productos. Este producto "
+        u"declara usa_agua = 1 y usa_PM = 1; da lo mismo que el caso 1.",
+        model, variables, assay_rows, 98.427166, reference=u"Celda L64",
+        source=universal_title))
+
+    model, variables = universal({"usa_agua": 0, "usa_PM": 0, "por_porcion": 0},
+                                 drop=["agua_st", "PM_st", "PM_decl", "n_PM"])
+    cases.append(case(
+        "universal_sin_factores",
+        u"12. Modelo universal: producto sin agua ni PM",
+        u"El producto declara usa_agua = 0 y usa_PM = 0: no hace falta "
+        u"cargar agua ni pesos moleculares y esos factores valen 1.",
+        model, variables, assay_rows, 106.859512, source=universal_title))
+
+    model, variables = universal({"usa_agua": 1, "usa_PM": 1, "por_porcion": 0},
+                                 drop=["agua_st"])
+    cases.append(case(
+        "universal_falta_agua",
+        u"13. Modelo universal: el producto usa agua y falta el dato",
+        u"Con usa_agua = 1 el agua pasa a ser obligatoria: si no se carga, "
+        u"no calcula. Un factor activo nunca se reemplaza por su valor "
+        u"neutro.",
+        model, variables, assay_rows, None, source=universal_title,
+        error=u"agua_st"))
+
+    model, variables = universal(
+        {"usa_agua": 1, "usa_PM": 1, "por_porcion": 1},
+        variables={"peso_prom": (662.496, PRODUCT)})
+    cases.append(case(
+        "universal_porcion",
+        u"14. Modelo universal: muestra por porción pesada",
+        u"Con por_porcion = 1 la cantidad se lleva a la unidad con el peso "
+        u"promedio (aquí 662.496 mg, el promedio de la columna K) y la "
+        u"pesada de cada unidad.",
+        model, variables, assay_rows, 98.436066, source=universal_title))
 
     return cases
 

@@ -21,6 +21,7 @@ from bika.lims.interfaces import IAnalysis
 from bika.lims.interfaces import IAnalysisService
 from bika.lims.utils import get_link_for
 from bika.lims.utils import t
+from hoch.lims import hplcanalysis
 from hoch.lims import injections as inj
 from hoch.lims import messageFactory as _
 from senaite.core.catalog import SENAITE_CATALOG
@@ -226,18 +227,24 @@ class SubInstrumentsConsumablesMixin(object):
         return item
 
     def _folder_item_injections(self, obj, item):
-        """Adds a link to the HPLC injections table of the analysis
+        """Adds links to the HPLC injections table and calculation detail
         """
         analysis = self.get_object(obj)
-        if not inj.receives_injections(analysis):
+        links = []
+        if inj.receives_injections(analysis):
+            rows = inj.get_injections(analysis)
+            unk = len([r for r in rows if r.get("type") == inj.SAMPLE])
+            st = len([r for r in rows if r.get("type") == inj.STANDARD])
+            url = "{}/injections".format(api.get_url(analysis))
+            links.append(u"<a href='{}' class='small text-nowrap'>{}: {} + {}"
+                         u"</a>".format(url, t(_("Injections")), unk, st))
+        if hplcanalysis.get_model(analysis):
+            url = "{}/hplc_detail".format(api.get_url(analysis))
+            links.append(u"<a href='{}' class='small text-nowrap'>{}</a>".format(
+                url, t(_("Calculation detail"))))
+        if not links:
             return
-        rows = inj.get_injections(analysis)
-        unk = len([r for r in rows if r.get("type") == inj.SAMPLE])
-        st = len([r for r in rows if r.get("type") == inj.STANDARD])
-        url = "{}/injections".format(api.get_url(analysis))
-        title = t(_("Injections"))
-        link = u"<a href='{}' class='small text-nowrap'>{}: {} + {}</a>".format(
-            url, title, unk, st)
+        link = u" &middot; ".join(links)
         # same placement as the analysis conditions, below the service name
         service = item["replace"].get("Service") or item["Service"]
         item["replace"]["Service"] = u"<br/>".join(

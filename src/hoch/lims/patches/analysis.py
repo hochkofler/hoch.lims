@@ -78,6 +78,8 @@ def setCalculation(self, value):
     self.getField("CalculationVersion").set(self, version)
 
     if not value:
+        from hoch.lims.hplcanalysis import snapshot_model
+        snapshot_model(self, None)
         return
 
     # Build indexed lookup of service interims by keyword so we can apply
@@ -112,3 +114,7 @@ def setCalculation(self, value):
     ]
 
     self.setInterimFields(merged_interims + service_only)
+
+    # Copy the HPLC model of the calculation, as for the formula
+    from hoch.lims.hplcanalysis import snapshot_model
+    snapshot_model(self, calc)

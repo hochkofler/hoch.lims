@@ -1241,3 +1241,155 @@ msgstr "Nombre de muestra"
 #: hoch/lims/injections
 msgid "Receives HPLC injections"
 msgstr "Recibe inyecciones HPLC"
+
+#: hoch/lims/hplc
+msgid "Calculation detail"
+msgstr "Detalle de cálculo"
+
+#: hoch/lims/hplc
+msgid "Weight"
+msgstr "Pesada"
+
+#: hoch/lims/hplc
+msgid "Product"
+msgstr "Ficha del producto"
+
+#: hoch/lims/hplc
+msgid "Assay of the sample"
+msgstr "Valoración de la muestra"
+
+#: hoch/lims/hplc
+msgid "Run data"
+msgstr "Datos de la corrida"
+
+#: hoch/lims/hplc
+msgid "Other analysis"
+msgstr "Otro análisis"
+
+#: hoch/lims/hplc
+msgid "Derived"
+msgstr "Derivada"
+
+#: hoch/lims/hplc
+msgid "Mean (assay)"
+msgstr "Promedio (valoración)"
+
+#: hoch/lims/hplc
+msgid "Content uniformity (acceptance value)"
+msgstr "Uniformidad de contenido (valor de aceptación)"
+
+#: hoch/lims/hplc
+msgid "Dissolution (per vessel, S1)"
+msgstr "Disolución (por vaso, S1)"
+
+#: hoch/lims/hplc
+msgid "Calculation model"
+msgstr "Modelo de cálculo"
+
+#: hoch/lims/hplc
+msgid "Calculation"
+msgstr "Cálculo"
+
+#: hoch/lims/hplc
+msgid "version"
+msgstr "versión"
+
+#: hoch/lims/hplc
+msgid "1. Standard concentration"
+msgstr "1. Concentración del estándar"
+
+#: hoch/lims/hplc
+msgid "2. Per injection"
+msgstr "2. Por inyección"
+
+#: hoch/lims/hplc
+msgid "3. Amount per unit"
+msgstr "3. Cantidad por unidad"
+
+#: hoch/lims/hplc
+msgid "4. Result per unit"
+msgstr "4. Resultado por unidad"
+
+#: hoch/lims/hplc
+msgid "5. Aggregate"
+msgstr "5. Agregado"
+
+#: hoch/lims/hplc
+msgid "Derived variable"
+msgstr "Variable derivada"
+
+#: hoch/lims/hplc
+msgid "injections per unit"
+msgstr "inyecciones por unidad"
+
+#: hoch/lims/hplc
+msgid "Last calculation"
+msgstr "Último cálculo"
+
+#: hoch/lims/hplc
+msgid "Not calculated"
+msgstr "No calculado"
+
+#: hoch/lims/hplc
+msgid "Not calculated yet."
+msgstr "Todavía no se calculó."
+
+#: hoch/lims/hplc
+msgid "Values used"
+msgstr "Valores usados"
+
+#: hoch/lims/hplc
+msgid "Variable"
+msgstr "Variable"
+
+#: hoch/lims/hplc
+msgid "Origin"
+msgstr "Origen"
+
+#: hoch/lims/hplc
+msgid "Standard"
+msgstr "Estándar"
+
+#: hoch/lims/hplc
+msgid "Standard areas RSD (%)"
+msgstr "RSD de áreas del estándar (%)"
+
+#: hoch/lims/hplc
+msgid "Units"
+msgstr "Unidades"
+
+#: hoch/lims/hplc
+msgid "Areas"
+msgstr "Áreas"
+
+#: hoch/lims/hplc
+msgid "Amount"
+msgstr "Cantidad"
+
+#: hoch/lims/hplc
+msgid "Mean"
+msgstr "Promedio"
+
+#: hoch/lims/hplc
+msgid "Standard deviation"
+msgstr "Desviación estándar"
+
+#: hoch/lims/hplc
+msgid "Coefficient of variation (%)"
+msgstr "Coeficiente de variación (%)"
+
+#: hoch/lims/hplc
+msgid "Stage S1 (each vessel not less than Q + 5)"
+msgstr "Etapa S1 (cada vaso no menor a Q + 5)"
+
+#: hoch/lims/hplc
+msgid "This analysis does not use the HPLC calculation model."
+msgstr "Este análisis no usa el modelo de cálculo HPLC."
+
+#: hoch/lims/hplc
+msgid "HPLC model"
+msgstr "Modelo HPLC"
+
+#: hoch/lims/hplc
+msgid "HPLC parameters"
+msgstr "Parámetros HPLC"

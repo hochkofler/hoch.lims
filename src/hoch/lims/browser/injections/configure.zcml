@@ -12,4 +12,13 @@
       layer="hoch.lims.interfaces.IHochLims"
       />
 
+  <!-- Step by step detail of the HPLC model calculation -->
+  <browser:page
+      for="bika.lims.interfaces.IRoutineAnalysis"
+      name="hplc_detail"
+      class=".detail.HPLCDetailView"
+      permission="senaite.core.permissions.ViewResults"
+      layer="hoch.lims.interfaces.IHochLims"
+      />
+
 </configure>

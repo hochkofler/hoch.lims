@@ -32,7 +32,7 @@ def format_number(value):
 
 # Editable columns, in display order
 EDITABLE = ("type", "number", "conc", "ret_time", "area", "ntp_usp",
-            "vial_number")
+            "vial_number", "weight")
 
 
 class InjectionsView(BrowserView):

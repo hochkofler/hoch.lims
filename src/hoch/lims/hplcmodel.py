@@ -19,6 +19,16 @@ returned in the trace, so a result can be reconstructed step by step.
 Expressions only allow numbers, variables, + - * / ** and parentheses and
 the functions in FUNCTIONS. Dotted names (``valoracion.agua_st``) are
 variables too, so values of other analyses can be referenced.
+
+Two functions make factors optional, so a single model can serve products
+with and without a given correction:
+
+- ``opcional(x, default)``: the value of the variable x, or the default
+  when x has no value (e.g. ``opcional(D_mue, 1)``)
+- ``si(condition, a, b)``: a when the condition is not 0, otherwise b. Only
+  the chosen branch needs values, so a product flag turns a factor on and
+  makes its data mandatory: ``si(usa_agua, agua_st, 0)`` requires agua_st
+  only for products with usa_agua = 1
 """
 
 import ast
@@ -28,6 +38,11 @@ import operator
 # Variables provided by the model itself
 BUILTIN = ("A_i", "A_st", "C_st", "C_i", "C_u", "A_u", "W_mue", "unidad",
            "cantidad")
+
+# Functions evaluated lazily (only the needed arguments)
+OPTIONAL = ("opcional", "optional")
+CONDITIONAL = ("si", "if_")
+LAZY = OPTIONAL + CONDITIONAL
 
 FUNCTIONS = {
     "mean": lambda *v: sum(v) / float(len(v)),
@@ -119,11 +134,18 @@ def check(node, expression):
         return
     if isinstance(node, ast.Call):
         name = isinstance(node.func, ast.Name) and node.func.id
-        if name not in FUNCTIONS or node.keywords or \
+        if name not in FUNCTIONS and name not in LAZY or node.keywords or \
                 getattr(node, "starargs", None) or \
                 getattr(node, "kwargs", None):
             raise ModelError("Function not allowed in '{}'".format(
                 expression))
+        if name in OPTIONAL and (len(node.args) != 2 or dotted_name(
+                node.args[0]) is None):
+            raise ModelError("opcional() needs a variable and a default "
+                             "value in '{}'".format(expression))
+        if name in CONDITIONAL and len(node.args) != 3:
+            raise ModelError("si() needs a condition and two values in "
+                             "'{}'".format(expression))
         for arg in node.args:
             check(arg, expression)
         return
@@ -155,32 +177,53 @@ def names(expression):
 def evaluate(expression, variables, stage="expression"):
     """Evaluates the expression with the given variables
 
-    :raises MissingVariables: when a variable has no value
+    :raises MissingVariables: when a needed variable has no value
     """
     tree = parse(expression)
-    missing = [n for n in names(expression)
-               if variables.get(n) is None]
-    if missing:
-        raise MissingVariables(missing, stage)
+    missing = []
+
+    def has(name):
+        return variables.get(name) is not None
 
     def ev(node):
         if isinstance(node, ast.Num):
             return float(node.n)
         if isinstance(node, (ast.Name, ast.Attribute)):
-            return float(variables[dotted_name(node)])
+            name = dotted_name(node)
+            if not has(name):
+                missing.append(name)
+                return 1.0
+            return float(variables[name])
         if isinstance(node, ast.BinOp):
             return OPERATORS[type(node.op)](ev(node.left), ev(node.right))
         if isinstance(node, ast.UnaryOp):
             return UNARY[type(node.op)](ev(node.operand))
         if isinstance(node, ast.Call):
-            return float(FUNCTIONS[node.func.id](*map(ev, node.args)))
+            name = node.func.id
+            if name in OPTIONAL:
+                if has(dotted_name(node.args[0])):
+                    return ev(node.args[0])
+                return ev(node.args[1])
+            if name in CONDITIONAL:
+                before = len(missing)
+                condition = ev(node.args[0])
+                if len(missing) > before:
+                    # without the condition, the branch is unknown
+                    return 1.0
+                return ev(node.args[1]) if condition else ev(node.args[2])
+            return float(FUNCTIONS[name](*map(ev, node.args)))
         raise ModelError("Not allowed")
 
     try:
-        return ev(tree)
+        value = ev(tree)
     except ZeroDivisionError:
+        if missing:
+            raise MissingVariables(missing, stage)
         raise ModelError("Division by zero in {}: {}".format(
             stage, expression))
+    if missing:
+        raise MissingVariables(missing, stage)
+    return value
 
 
 def mean(values):

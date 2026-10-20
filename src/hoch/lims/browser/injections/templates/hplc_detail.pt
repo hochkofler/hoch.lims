@@ -1,0 +1,113 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      metal:use-macro="context/main_template/macros/master"
+      i18n:domain="hoch.lims">
+<body>
+<metal:content-core fill-slot="content-core">
+<tal:view define="trace view/get_trace;
+                  model view/get_model;
+                  output python: trace.get('output');">
+
+  <h1 class="documentFirstHeading" tal:content="view/get_title">Detail</h1>
+  <p>
+    <a tal:attributes="href view/get_sample_url" i18n:translate="">Back to the sample</a>
+    <tal:inj condition="view/get_injections_url">&middot;
+      <a tal:attributes="href view/get_injections_url" i18n:translate="">Injections</a>
+    </tal:inj>
+  </p>
+
+  <p class="discreet" tal:condition="not: model" i18n:translate="">
+    This analysis does not use the HPLC calculation model.
+  </p>
+
+  <tal:model condition="model">
+  <h3 i18n:translate="">Calculation model</h3>
+  <table class="table table-sm table-bordered">
+    <tr><th i18n:translate="">Calculation</th>
+        <td><span tal:content="model/calculation"/> &middot;
+            <span i18n:translate="">version</span> <span tal:content="model/version"/></td></tr>
+    <tr><th i18n:translate="">1. Standard concentration</th><td><code tal:content="model/standard"/></td></tr>
+    <tr><th i18n:translate="">2. Per injection</th><td><code>A_i * C_st / A_st</code></td></tr>
+    <tr><th i18n:translate="">3. Amount per unit</th>
+        <td><code tal:content="model/amount"/>
+            (<span tal:content="model/injections_per_unit"/> <span i18n:translate="">injections per unit</span>)</td></tr>
+    <tr><th i18n:translate="">4. Result per unit</th><td><code tal:content="model/result"/></td></tr>
+    <tr><th i18n:translate="">5. Aggregate</th><td tal:content="python: view.aggregate(model.get('aggregate'))"/></tr>
+    <tr tal:repeat="item view/get_derived">
+      <th i18n:translate="">Derived variable</th>
+      <td><code tal:content="python: '%s = %s' % item"/></td></tr>
+  </table>
+  </tal:model>
+
+  <p tal:condition="not: trace" class="discreet" i18n:translate="">Not calculated yet.</p>
+
+  <tal:trace condition="trace">
+  <p class="discreet">
+    <span i18n:translate="">Last calculation</span>: <span tal:content="trace/date"/>
+  </p>
+
+  <div class="alert alert-warning" tal:condition="trace/error">
+    <strong i18n:translate="">Not calculated</strong>:
+    <span tal:content="trace/error"/>
+  </div>
+
+  <tal:out condition="output">
+  <h3 i18n:translate="">Values used</h3>
+  <table class="table table-sm table-bordered">
+    <thead><tr><th i18n:translate="">Variable</th><th i18n:translate="">Value</th><th i18n:translate="">Origin</th></tr></thead>
+    <tbody>
+      <tr tal:repeat="var view/get_variables">
+        <td><code tal:content="var/name"/></td>
+        <td class="text-right" tal:content="python: view.num(var['value'])"/>
+        <td tal:content="python: view.origin(var['origin'])"/>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 i18n:translate="">Standard</h3>
+  <table class="table table-sm table-bordered">
+    <tr><th>C_st</th><td class="text-right" tal:content="python: view.num(output['C_st'], 6)"/></tr>
+    <tr><th>A_st</th><td class="text-right" tal:content="python: view.num(output['A_st'], 2)"/></tr>
+    <tr><th i18n:translate="">Standard areas RSD (%)</th><td class="text-right" tal:content="python: view.num(output['rsd_st'], 4)"/></tr>
+  </table>
+
+  <h3 i18n:translate="">Units</h3>
+  <table class="table table-sm table-bordered">
+    <thead><tr>
+      <th i18n:translate="">Unit</th><th i18n:translate="">Injections</th><th i18n:translate="">Areas</th>
+      <th>C_u</th><th>W_mue</th><th i18n:translate="">Amount</th><th i18n:translate="">Result</th>
+    </tr></thead>
+    <tbody>
+      <tr tal:repeat="unit output/units">
+        <td tal:content="unit/unidad"/>
+        <td tal:content="python: ', '.join(unit['injections'])"/>
+        <td class="text-right" tal:content="python: ', '.join([view.num(a) for a in unit['areas']])"/>
+        <td class="text-right" tal:content="python: view.num(unit['C_u'], 6)"/>
+        <td class="text-right" tal:content="python: view.num(unit['W_mue'])"/>
+        <td class="text-right" tal:content="python: view.num(unit['cantidad'], 6)"/>
+        <td class="text-right" tal:content="python: view.num(unit['resultado'], 6)"/>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 i18n:translate="">Result</h3>
+  <table class="table table-sm table-bordered">
+    <tr><th i18n:translate="">Mean</th><td class="text-right" tal:content="python: view.num(output['mean'], 6)"/></tr>
+    <tr><th i18n:translate="">Standard deviation</th><td class="text-right" tal:content="python: view.num(output['s'], 6)"/></tr>
+    <tr><th i18n:translate="">Coefficient of variation (%)</th><td class="text-right" tal:content="python: view.num(output['cv'], 6)"/></tr>
+    <tr tal:condition="python: output['aggregate'] == 'uniformity'">
+      <th>M</th><td class="text-right" tal:content="python: view.num(output['M'], 6)"/></tr>
+    <tr tal:condition="python: output['aggregate'] == 'dissolution'">
+      <th i18n:translate="">Stage S1 (each vessel not less than Q + 5)</th>
+      <td tal:content="python: output['S1'] and 'Cumple' or 'No cumple'"/></tr>
+    <tr><th i18n:translate="">Result</th><td class="text-right"><strong tal:content="python: view.num(output['result'], 6)"/></td></tr>
+  </table>
+  </tal:out>
+  </tal:trace>
+
+</tal:view>
+</metal:content-core>
+</body>
+</html>

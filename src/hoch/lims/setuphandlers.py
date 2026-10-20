@@ -25,10 +25,12 @@ BEHAVIORS = [
     ("SampleMatrix", [
          "hoch.lims.extender.samplematrix.ISampleMatrixSchemaExtender",
          "hoch.lims.extender.behaviors.variablestable.IVariablesTableBehavior",
+         "hoch.lims.extender.behaviors.hplcmodel.IHPLCParametersBehavior",
      ]),
     ("Calculation", [
          "hoch.lims.extender.behaviors.dynamiccalculation"
          ".IDynamicCalculationRulesBehavior",
+         "hoch.lims.extender.behaviors.hplcmodel.IHPLCModelBehavior",
      ]),
     ("AnalysisCategory", [
          "hoch.lims.extender.behaviors.dynamiccategory"

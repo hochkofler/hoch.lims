@@ -22,6 +22,22 @@
       for="senaite.core.interfaces.ICalculation" />
 
   <plone:behavior
+      name="hoch.lims.extender.behavior.hplcmodel"
+      title="HPLCModel"
+      description="External standard HPLC calculation model"
+      provides=".hplcmodel.IHPLCModelBehavior"
+      factory=".hplcmodel.HPLCModel"
+      for="senaite.core.interfaces.ICalculation" />
+
+  <plone:behavior
+      name="hoch.lims.extender.behavior.hplcparameters"
+      title="HPLCParameters"
+      description="HPLC parameters of the product"
+      provides=".hplcmodel.IHPLCParametersBehavior"
+      factory=".hplcmodel.HPLCParameters"
+      for="senaite.core.interfaces.ISampleMatrix" />
+
+  <plone:behavior
       name="hoch.lims.extender.behavior.dynamiccategory"
       title="DynamicCategory"
       description="Conditions under which the analyses are not performed"
