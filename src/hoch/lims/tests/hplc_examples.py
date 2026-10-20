@@ -1,0 +1,221 @@
+# -*- coding: utf-8 -*-
+"""Worked examples of the HPLC calculation model.
+
+Data of cases 1-4 come from the release spreadsheet of ROSUVAST 20 mg soft
+capsules, lot 52614L ("valoracion rosuvastatina.xlsx", sheet
+92638-dosificado), and their expected values are the ones of that sheet.
+The other cases reuse the same data to show how factors are inserted or
+removed; their expected values come from the model itself.
+"""
+
+import copy
+
+# Standard and sample preparation of the assay / content uniformity run
+ASSAY_STANDARD_AREAS = [791854, 793043, 792758, 794814, 795462, 795634]
+ASSAY_SAMPLE_AREAS = [825354, 826428, 818742, 820729, 822442, 819919,
+                      810035, 807699, 822630, 825715, 814542, 815982,
+                      821808, 821357, 818348, 818975, 802101, 802563,
+                      807854, 809596]
+# Weight of each soft capsule (column K), not used by the assay itself
+ASSAY_UNIT_WEIGHTS = [671.51, 655.49, 669.06, 670.93, 663.11, 655.78,
+                      655.43, 659.62, 655.22, 668.81]
+
+DISSOLUTION_STANDARD_AREAS = [562757, 569308, 571012, 562949, 569002, 569433]
+DISSOLUTION_SAMPLE_AREAS = [604791, 603703, 572566, 571062, 609250, 608122,
+                            624815, 623801, 601626, 602734, 601734, 600256]
+
+
+def injections(standard_areas, sample_areas, per_unit=2, weights=None):
+    rows = []
+    for number, area in enumerate(standard_areas, 1):
+        rows.append({"type": "ST", "number": u"%02d" % number, "area": area})
+    for number, area in enumerate(sample_areas, 1):
+        row = {"type": "UNK", "number": u"%02d" % number, "area": area}
+        unit = (number - 1) // per_unit
+        if weights and number % per_unit == 1:
+            row["weight"] = weights[unit]
+        rows.append(row)
+    return rows
+
+
+# Sources of the variables, as they would be found in the LIMS
+RUN = "run data"
+PRODUCT = "product"
+STANDARD_LOT = "standard lot"
+ANALYSIS = "other analysis"
+
+ASSAY_VARIABLES = {
+    # run data (entered by the analyst)
+    "W_st_1": (20.84, RUN),
+    "W_st_2": (20.84, RUN),
+    "agua_st": (4.251, RUN),
+    # standard lot RSNR25006
+    "P_st": (99.7, STANDARD_LOT),
+    # product (once per product)
+    "V_st": (50, PRODUCT),
+    "D_st": (25, PRODUCT),
+    "V_mue": (50, PRODUCT),
+    "D_mue": (25, PRODUCT),
+    "LC": (20, PRODUCT),
+    "PM_st": (1001.14, PRODUCT),
+    "PM_decl": (481.54, PRODUCT),
+    "n_PM": (2, PRODUCT),
+}
+
+DERIVED = {
+    "W_st": "mean(W_st_1, W_st_2)",
+    "F_PM": "n_PM * PM_decl / PM_st",
+}
+
+ASSAY_MODEL = {
+    "standard": "W_st * (1 - agua_st/100) * P_st/100 / (V_st * D_st) * 1000",
+    "amount": "C_u * V_mue * D_mue / 1000",
+    "result": "cantidad / LC * 100 * F_PM",
+    "injections_per_unit": 2,
+    "aggregate": "mean",
+    "derived": DERIVED,
+}
+
+
+def variant(model=None, variables=None, drop=None, **changes):
+    """Returns a copy of the assay model and variables with changes
+    """
+    new_model = copy.deepcopy(ASSAY_MODEL)
+    new_model.update(changes)
+    new_model.update(model or {})
+    new_variables = dict(ASSAY_VARIABLES)
+    new_variables.update(variables or {})
+    for name in (drop or []):
+        new_variables.pop(name, None)
+    return new_model, new_variables
+
+
+def case(key, title, description, model, variables, rows, expected,
+         reference=None, source=u"Planilla 52614L", error=None):
+    return {
+        "key": key,
+        "title": title,
+        "description": description,
+        "model": model,
+        "variables": variables,
+        "injections": rows,
+        "expected": expected,
+        "reference": reference,
+        "source": source,
+        "error": error,
+    }
+
+
+def get_cases():
+    assay_rows = injections(ASSAY_STANDARD_AREAS, ASSAY_SAMPLE_AREAS,
+                            weights=ASSAY_UNIT_WEIGHTS)
+    dissolution_rows = injections(DISSOLUTION_STANDARD_AREAS,
+                                  DISSOLUTION_SAMPLE_AREAS)
+    illustrative = u"Variante sobre los datos de la planilla 52614L"
+    cases = []
+
+    model, variables = variant()
+    cases.append(case(
+        "valoracion", u"1. Valoración de Rosuvastatina (% del declarado)",
+        u"Estándar de rosuvastatina cálcica corregido por agua y potencia; "
+        u"resultado como rosuvastatina base (factor de peso molecular).",
+        model, variables, assay_rows, 98.427166, reference=u"Celda L64"))
+
+    model, variables = variant(aggregate="uniformity", T=100, k=2.4)
+    cases.append(case(
+        "uniformidad", u"2. Uniformidad de contenido (valor de aceptación)",
+        u"Mismo modelo y mismos datos que la valoración; cambia solo el "
+        u"agregado. La planilla tiene 14.9 escrito a mano en E54.",
+        model, variables, assay_rows, 2.294124,
+        reference=u"Calculado con L64 y L65 (E54 está escrito a mano)"))
+
+    model, variables = variant(aggregate="mean", result="cantidad * F_PM")
+    cases.append(case(
+        "mg_unidad", u"3. Resultado en mg por unidad",
+        u"Misma corrida; el resultado se expresa en mg de rosuvastatina "
+        u"base por cápsula en lugar de % del declarado.",
+        model, variables, assay_rows, 19.685433, reference=u"Celda N62"))
+
+    model, variables = variant(
+        model={
+            "standard": "W_st * (1 - agua_st/100) * P_st/100 / "
+                        "(V_st * D_st) * 1000",
+            "amount": "C_u * V_medio * (V_aforo / V_alicuota) / 1000",
+            "aggregate": "dissolution",
+            "Q": 75,
+            "derived": dict(DERIVED),
+        },
+        variables={
+            "W_st_1": (57.95, RUN), "W_st_2": (57.92, RUN),
+            "V_st": (100, PRODUCT), "D_st": (50, PRODUCT),
+            "V_medio": (900, PRODUCT), "V_alicuota": (5, PRODUCT),
+            "V_aforo": (10, PRODUCT),
+            "valoracion.agua_st": (4.251, ANALYSIS),
+        },
+        drop=["V_mue", "D_mue"])
+    model["standard"] = model["standard"].replace(
+        "agua_st", "valoracion.agua_st")
+    variables.pop("agua_st")
+    cases.append(case(
+        "disolucion", u"4. Disolución (6 vasos, etapa S1)",
+        u"Mismo modelo con otra cantidad por unidad (medio de 900 mL, "
+        u"alícuota de 5 mL llevada a 10 mL). El agua se toma de la "
+        u"valoración de la misma muestra.",
+        model, variables, dissolution_rows, 101.610246,
+        reference=u"Celda L149"))
+
+    model, variables = variant(
+        standard="W_st * (1 - agua_st) * P_st/100 / (V_st * D_st) * 1000",
+        variables={"agua_st": (0.04251, RUN)})
+    cases.append(case(
+        "agua_fraccion", u"5. Agua cargada como fracción",
+        u"El método escribe el agua como fracción (0.04251) en lugar de %; "
+        u"solo cambia la expresión del estándar. Mismo resultado que el "
+        u"caso 1.",
+        model, variables, assay_rows, 98.427166, source=illustrative))
+
+    model, variables = variant(
+        standard="W_st * P_st/100 / (V_st * D_st) * 1000", drop=["agua_st"])
+    cases.append(case(
+        "sin_agua", u"6. Sin corrección por agua",
+        u"Quitando el factor de agua de la expresión del estándar. Muestra "
+        u"cuánto pesa la corrección (unos 4.4 puntos).",
+        model, variables, assay_rows, 102.797070, source=illustrative))
+
+    model, variables = variant(result="cantidad / LC * 100")
+    cases.append(case(
+        "sin_pm", u"7. Sin conversión por peso molecular",
+        u"Para un estándar en la misma forma que el declarado (por ejemplo "
+        u"una base contra una base): se quita F_PM del resultado.",
+        model, variables, assay_rows, 102.316914, source=illustrative))
+
+    model, variables = variant(
+        result="cantidad / LC * 100 * F_PM * pureza/100",
+        variables={"pureza": (99.5, STANDARD_LOT)})
+    cases.append(case(
+        "factor_extra", u"8. Insertar un factor nuevo (pureza 99.5 %)",
+        u"Se agrega «* pureza/100» al resultado y se define de dónde sale "
+        u"pureza. No requiere programar nada.",
+        model, variables, assay_rows, 97.935031, source=illustrative))
+
+    model, variables = variant(result="cantidad * F_PM / (W_mue / 1000)")
+    cases.append(case(
+        "mg_g", u"9. Resultado en mg/g",
+        u"Usa la pesada de cada unidad (columna K) para expresar mg de "
+        u"rosuvastatina base por g de contenido.",
+        model, variables, assay_rows, 29.716728, source=illustrative))
+
+    model, variables = variant(drop=["agua_st"])
+    cases.append(case(
+        "falta_agua", u"10. Falta el agua del estándar",
+        u"Si el analista no carga el agua, el sistema no calcula y dice "
+        u"qué falta, en lugar de asumir 0.",
+        model, variables, assay_rows, None, source=illustrative,
+        error=u"agua_st"))
+
+    return cases
+
+
+def values_of(variables):
+    return dict((name, value) for name, (value, source)
+                in variables.items())
