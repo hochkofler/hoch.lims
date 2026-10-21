@@ -360,6 +360,11 @@ class quantitativeResultsImportInterface(CustomAnalysisResultImporter):
         parsed = super(quantitativeResultsImportInterface, self).parse_results()
         if not parsed:
             return parsed
+        if getattr(self.parser, "rejected", False):
+            # a wrong injection would change every result of the run
+            self.err(_("The file was not imported: fix the injections "
+                       "reported and export the run again"))
+            return {}
 
         remaining = {}
         for sid, results in parsed.items():
@@ -414,6 +419,7 @@ class quantitativeResultsImportInterface(CustomAnalysisResultImporter):
             "type": parts[1] if len(parts) > 2 else "",
             "number": parts[-1],
             "conc": values.get(values.get("DefaultResult")),
+            "std_conc": values.get("std_conc"),
             "ret_time": values.get("ret_time"),
             "area": values.get("area"),
             "ntp_usp": values.get("ntp_usp"),
@@ -493,10 +499,15 @@ class quantitiveResultParser(InstrumentCSVResultsFileParser):
                     "Ret. Time": "ret_time",
                     "NTP(USP)":"ntp_usp",
                     "Vial#":"vial_number",
+                    "Std. Conc.": "std_conc",
                 }
             self._missing_headers = []
             self._mapped_api_samples = {}
             self._important_headers = ['Sample ID', 'Sample Name', 'Sample Type', 'Date Acquired', 'Conc.']
+            # (sample, peak, keyword) of the lines already parsed
+            self._seen_injections = set()
+            # the file has injections that can not be trusted
+            self.rejected = False
             logger.info("NexeraIfaParser initialized")
         
         def _parseline(self, line):
@@ -595,6 +606,8 @@ class quantitiveResultParser(InstrumentCSVResultsFileParser):
                     _results[new_key] = _results.get(key)
                 
                 _results['api_name'] = self._currentpeakname
+                if not self.check_sample_type(_results, line):
+                    return 0
                 self._currentanalysiskw = self.resolve_analysis_keyword(_results)
                 self._currentsampleid = _results['Sample ID']
                 
@@ -606,6 +619,19 @@ class quantitiveResultParser(InstrumentCSVResultsFileParser):
                     self._current_partition = get_sid_from_api(self._currentsampleid, normalized_peak_name)
                     self._mapped_api_samples[peak_key] = self._current_partition
                     logger.info("current partition id info %s", self._current_partition)
+
+                injection = (self._current_partition or self._currentsampleid,
+                             self._currentpeakname, self._currentanalysiskw)
+                if injection in self._seen_injections:
+                    self.err("Injection {} of {} ({}) is repeated in the file: "
+                             "check the number at the end of the Sample Name "
+                             "'{}'".format(self._currentanalysiskw, injection[0],
+                                           self._currentpeakname,
+                                           _results['Sample Name']),
+                             numline=self._numline, line=line)
+                    self.rejected = True
+                    return 0
+                self._seen_injections.add(injection)
 
                 self._addRawResult(self._current_partition or self._currentsampleid,
                                 values={self._currentanalysiskw: _results},
@@ -631,6 +657,22 @@ class quantitiveResultParser(InstrumentCSVResultsFileParser):
                 return
             return result
         
+        def check_sample_type(self, results_line, line):
+            """Rejects a standard injection that is typed as Unknown
+            """
+            sample_type = results_line.get('Sample Type') or ''
+            if sample_type.startswith('Standard'):
+                return True
+            name = normalize_text(results_line.get('Sample Name') or '')
+            if name.startswith(STANDARD_NAMES):
+                self.err("'{}' looks like a standard but its Sample Type is "
+                         "'{}': fix it in LabSolutions and export again"
+                         .format(results_line.get('Sample Name'), sample_type),
+                         numline=self._numline, line=line)
+                self.rejected = True
+                return False
+            return True
+
         def resolve_analysis_keyword(self, results_line):
             if not results_line['Sample Type'] or not results_line['number_line']:
                 return ''
@@ -643,6 +685,10 @@ class quantitiveResultParser(InstrumentCSVResultsFileParser):
                 
             default_number_str = str(results_line['number_line']).zfill(2)
             return "CONC_" +sample_type_abrev + "_" + default_number_str
+
+# Sample Names of the standard injections (normalized)
+STANDARD_NAMES = ("ESTANDAR", "STANDARD", "STD_", "ST_")
+
 
 def get_ar_by_arid(arid):
     query = {"getId": arid, "review_state": ALLOWED_SAMPLE_STATES}

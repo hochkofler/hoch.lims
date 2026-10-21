@@ -40,6 +40,7 @@ class RoutineAnalysisInjectionsSchemaExtender(object):
                 "type": _("Type"),
                 "number": _("Injection"),
                 "conc": _("Conc."),
+                "std_conc": _("Std. Conc."),
                 "ret_time": _("Ret. time"),
                 "area": _("Area"),
                 "ntp_usp": _("NTP (USP)"),

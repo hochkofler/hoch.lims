@@ -44,6 +44,10 @@ BUILTIN = ("A_i", "A_st", "C_st", "C_i", "C_u", "A_u", "W_mue", "unidad",
 SAMPLE_INJECTIONS = "n_iny_mue"
 STANDARD_INJECTIONS = "n_iny_st"
 DISSOLUTION_Q = "Q"
+# Standard concentration from the instrument (Std. Conc. of the file)
+STANDARD_FROM_INSTRUMENT = "usa_std_equipo"
+STANDARD_FACTOR = "f_std_equipo"
+STANDARD_TOLERANCE = "tol_std_equipo"
 
 # Functions evaluated lazily (only the needed arguments)
 OPTIONAL = ("opcional", "optional")
@@ -83,6 +87,19 @@ STANDARD = "ST"
 
 class ModelError(Exception):
     """The model can not be calculated (a message for the analyst)"""
+
+
+class StandardMismatch(ModelError):
+    """The standard concentration of the instrument does not match the one
+    expected from the selected reference standard
+    """
+
+    def __init__(self, check):
+        self.check = check
+        super(StandardMismatch, self).__init__(
+            "Std. Conc. of the instrument ({instrument:.6g}) differs "
+            "{difference:.3f} % from the expected one ({expected:.6g}), "
+            "tolerance {tolerance:g} %".format(**check))
 
 
 class MissingVariables(ModelError):
@@ -301,6 +318,12 @@ def calculate(model, variables, injections):
         - derived: optional {name: expression} of derived variables
         - T, k: uniformity parameters, Q: dissolution parameter (%),
           overridden by the variable Q
+        - standard_from_instrument: use the Std. Conc. of the standard
+          injections (x standard_factor, default 1000: mg/mL to ug/mL)
+          once it matches the concentration of the standard expression
+          within standard_tolerance % (default 0.1); otherwise the
+          calculation is blocked (StandardMismatch). Overridden by the
+          variables usa_std_equipo, f_std_equipo and tol_std_equipo
     :param variables: {name: value} from all the sources
     :param injections: rows with type (UNK/ST), number, area and an
         optional weight (sample weight of the unit, W_mue)
@@ -345,29 +368,68 @@ def calculate(model, variables, injections):
             raise ModelError(
                 "{} standard injections can not be grouped in preparations "
                 "of {}".format(len(standards), per_prep))
-        missing = []
         for index in range(0, len(standards), per_prep):
-            number = len(preparations) + 1
-            weight = values.get("W_st_{}".format(number))
-            if weight is None:
-                missing.append("W_st_{}".format(number))
             rows = standards[index:index + per_prep]
-            preparations.append({"preparacion": number, "W_st": weight,
+            preparations.append({"preparacion": len(preparations) + 1,
                                  "rows": rows})
-        if missing:
-            raise MissingVariables(missing, "standard")
+        missing = []
         for prep in preparations:
-            prep_values = dict(values, W_st=float(prep["W_st"]),
-                               preparacion=prep["preparacion"])
-            prep["C_st"] = evaluate(model["standard"], prep_values,
-                                    stage="standard")
+            number = prep["preparacion"]
+            # X_<n> is the value of X for preparation n (W_st_1, W_st_2...)
+            prep_values = dict(values, preparacion=number)
+            suffix = "_{}".format(number)
+            for name, value in values.items():
+                if name.endswith(suffix) and value is not None:
+                    prep_values[name[:-len(suffix)]] = value
+            if values.get("W_st" + suffix) is None:
+                # the weight of each preparation is its own
+                prep_values.pop("W_st", None)
+            prep["W_st"] = prep_values.get("W_st")
+            try:
+                prep["C_st"] = evaluate(model["standard"], prep_values,
+                                        stage="standard")
+            except MissingVariables as exc:
+                for name in exc.names:
+                    per_preparation = name == "W_st" or any(
+                        n.startswith(name + "_") for n in values)
+                    missing.append(name + suffix if per_preparation
+                                   else name)
+                continue
             areas = [float(r["area"]) for r in prep.pop("rows")]
             prep.update({"areas": areas, "A_st": mean(areas),
                          "rsd": stdev(areas) / mean(areas) * 100})
+        if missing:
+            raise MissingVariables(missing, "standard")
         C_st = mean([prep["C_st"] for prep in preparations])
     else:
         C_st = evaluate(model["standard"], values, stage="standard")
     A_st = mean([float(r["area"]) for r in standards])
+
+    # The instrument concentration is used once it matches the expected one
+    check = None
+    if parameter(STANDARD_FROM_INSTRUMENT, "standard_from_instrument", 0):
+        reported = [r.get("std_conc") for r in standards
+                    if r.get("std_conc") not in (None, "")]
+        if not reported:
+            raise ModelError("The instrument file has no Std. Conc. for the "
+                             "standard injections")
+        factor = float(parameter(STANDARD_FACTOR, "standard_factor", 1000))
+        tolerance = float(parameter(STANDARD_TOLERANCE,
+                                    "standard_tolerance", 0.1))
+        instrument = mean([float(v) for v in reported]) * factor
+        difference = abs(instrument - C_st) / C_st * 100 if C_st else 100.0
+        check = {
+            "instrument": instrument,
+            "reported": mean([float(v) for v in reported]),
+            "factor": factor,
+            "expected": C_st,
+            "difference": difference,
+            "tolerance": tolerance,
+            "passed": difference <= tolerance,
+        }
+        if not check["passed"]:
+            raise StandardMismatch(check)
+        C_st = instrument
     values.update({"C_st": C_st, "A_st": A_st})
 
     # 2-4. per injection and per unit
@@ -402,6 +464,7 @@ def calculate(model, variables, injections):
         "A_st": A_st,
         "rsd_st": stdev([float(r["area"]) for r in standards]) / A_st * 100,
         "preparations": preparations,
+        "standard_check": check,
         "injections_per_unit": per_unit,
         "standard_injections_per_prep": per_prep,
         "derived": derived,
@@ -425,8 +488,12 @@ def calculate(model, variables, injections):
     else:
         output["result"] = output["mean"]
     used = used_variables(model)
-    used |= set("W_st_{}".format(p["preparacion"]) for p in preparations)
-    used |= set([SAMPLE_INJECTIONS, STANDARD_INJECTIONS])
+    for prep in preparations:
+        suffix = "_{}".format(prep["preparacion"])
+        used |= set(name for name in values if name.endswith(suffix))
+    used |= set([SAMPLE_INJECTIONS, STANDARD_INJECTIONS,
+                 STANDARD_FROM_INSTRUMENT, STANDARD_FACTOR,
+                 STANDARD_TOLERANCE])
     if aggregate == DISSOLUTION:
         used.add(DISSOLUTION_Q)
     if preparations:

@@ -224,6 +224,109 @@ class TestHPLCAnalysisFunctional(SimpleTestCase):
         html = analysis.restrictedTraverse("@@hplc_detail")()
         self.assertIn("111.02886", html)
 
+    def test_potency_from_the_selected_reference_standard(self):
+        # FLAMADIN PLUS lot 82618, paracetamol dissolution, reference
+        # standard lot 202408096A with a potency of 99.9 %
+        model = dict(ex.UNIVERSAL_V2)
+        model["standard"] = model["standard"].replace(
+            "P_st/100", "ref.concentration/100")
+        calc = api.create(self.portal.setup.calculations, "Calculation",
+                          title="HPLC Disolucion ref")
+        calc.setInterimFields(RUN_INTERIMS[:3])
+        set_model(calc, model, aggregate="dissolution")
+        calc.hplc_standard_injections_per_prep = 3
+        dis = api.create(api.get_bika_setup().bika_analysisservices,
+                         "AnalysisService", title="Disolucion Paracetamol",
+                         Keyword="DIS_PARACETAMOL",
+                         Category=self.val.getRawCategory())
+        dis.getField(inj.RECEIVES_FIELD).set(dis, True)
+        dis.setCalculation(calc)
+        params = dict(ex.FLAMADIN_DISSOLUTION_PARAMETERS, V_st=50, LC=500,
+                      usa_agua=0, usa_PM=0, n_iny_mue=2)
+        self.matrix.hplc_parameters = [
+            {"service": api.get_uid(dis), "name": name,
+             "value": float(value), "unit": u""}
+            for name, value in params.items()]
+        supplier = api.create(self.portal.setup.suppliers,
+                              "Supplier", Name="Proveedor")
+        reference = api.create(supplier, "ReferenceSample",
+                               title="PARACETAMOL POLVO-202408096A")
+        reference.VariablesSettings = [
+            {"keyword": "concentration", "title": "Concentration",
+             "value": "99.9", "unit": "%"}]
+        values = {
+            "Client": api.get_uid(self.client),
+            "Contact": api.get_uid(self.contact),
+            "DateSampled": DateTime().strftime("%Y-%m-%d"),
+            "SampleType": api.get_uid(self.product),
+        }
+        sample = create_analysisrequest(self.client, self.request, values,
+                                        [api.get_uid(dis)])
+        doActionFor(sample, "receive")
+        analysis = self.get(sample, "DIS_PARACETAMOL")
+        data = ex.FLAMADIN["dissolution"]["PARACETAMOL"]
+        inj.set_injections(analysis, ex.injections(data["standard"],
+                                                   data["samples"]))
+        self.set_run_data(analysis, W_st_1="55.57", W_st_2="55.57")
+        analysis.calculateResult(override=True)
+        # no reference standard selected yet
+        self.assertEqual(analysis.getResult(), "")
+        self.assertIn("ref.concentration", ha.get_trace(analysis)["missing"])
+
+        analysis.ConsumablesFields = [
+            {"keyword": "x", "value": api.get_uid(reference)}]
+        analysis.calculateResult(override=True)
+        self.assertAlmostEqual(api.to_float(analysis.getResult()),
+                               97.436344, 5)
+        trace = ha.get_trace(analysis)
+        self.assertEqual(trace["variables"]["ref.concentration"],
+                         [99.9, ha.REFERENCE])
+        self.assertEqual(trace["references"][0]["title"],
+                         u"PARACETAMOL POLVO-202408096A")
+        html = analysis.restrictedTraverse("@@hplc_detail")()
+        self.assertIn("PARACETAMOL POLVO-202408096A", html)
+
+    def instrument_sample(self, std_conc, **params):
+        """Rosuvastatina assay with the Std. Conc. of the file in use
+        """
+        params.setdefault("usa_std_equipo", 1)
+        self.matrix.hplc_parameters = self.matrix.hplc_parameters + [
+            {"service": None, "name": name, "value": float(value),
+             "unit": u""} for name, value in params.items()]
+        sample = self.loaded_sample()
+        val = self.get(sample, "VAL_ROSUVASTATINA")
+        rows = inj.get_injections(val)
+        for row in rows:
+            if row["type"] == "ST":
+                row["std_conc"] = std_conc
+        inj.set_injections(val, rows)
+        val.calculateResult(override=True)
+        return val
+
+    def test_standard_from_instrument_is_validated(self):
+        # expected 15.915383 ug/mL from the weights and the potency
+        val = self.instrument_sample(0.0159154)
+        check = ha.get_trace(val)["standard_check"]
+        self.assertTrue(check["passed"])
+        self.assertAlmostEqual(api.to_float(val.getResult()), 98.427, 3)
+        html = val.restrictedTraverse("@@hplc_detail")()
+        self.assertIn("Standard concentration check", html)
+
+    def test_rounded_std_conc_blocks_the_calculation(self):
+        # LabSolutions rounded the Std. Conc. to 0.016 (+0.53 %)
+        val = self.instrument_sample(0.016)
+        self.assertEqual(val.getResult(), "")
+        trace = ha.get_trace(val)
+        self.assertFalse(trace["standard_check"]["passed"])
+        self.assertIn("0.532", trace["error"])
+        html = val.restrictedTraverse("@@hplc_detail")()
+        self.assertIn("Blocked", html)
+        # a wider tolerance of the product accepts it
+        val = self.instrument_sample(0.016, tol_std_equipo=1)
+        self.assertTrue(ha.get_trace(val)["standard_check"]["passed"])
+        self.assertAlmostEqual(api.to_float(val.getResult()),
+                               98.427166 * 0.016 / 0.015915383, 4)
+
     def test_detail_view_renders(self):
         sample = self.loaded_sample()
         val = self.get(sample, "VAL_ROSUVASTATINA")

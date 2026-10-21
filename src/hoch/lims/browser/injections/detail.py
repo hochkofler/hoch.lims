@@ -15,6 +15,7 @@ ORIGINS = {
     ha.RUN: _(u"Run data"),
     ha.ANALYSIS: _(u"Other analysis"),
     ha.DERIVED: _(u"Derived"),
+    ha.REFERENCE: _(u"Reference standard"),
 }
 
 AGGREGATES = {
@@ -68,6 +69,10 @@ class HPLCDetailView(BrowserView):
         for name, (value, origin) in sorted((trace.get("variables") or {}).items()):
             items.append({"name": name, "value": value, "origin": origin})
         return items
+
+    def missing_reference(self):
+        missing = self.get_trace().get("missing") or []
+        return any(name.startswith("ref") for name in missing)
 
     def get_derived(self):
         return sorted((self.get_model().get("derived") or {}).items())

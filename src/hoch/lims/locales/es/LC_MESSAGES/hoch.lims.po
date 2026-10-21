@@ -1413,3 +1413,95 @@ msgstr "RSD (%)"
 #: hoch/lims/hplc
 msgid "Standard injections per preparation"
 msgstr "Inyecciones de estándar por preparación"
+
+#: hoch/lims/hplc
+msgid "Reference standard"
+msgstr "Estándar de referencia"
+
+#: hoch/lims/hplc
+msgid "Reference standards"
+msgstr "Estándares de referencia"
+
+#: hoch/lims/hplc
+msgid "Variable prefix"
+msgstr "Prefijo de variable"
+
+#: hoch/lims/hplc
+msgid "Lot"
+msgstr "Lote"
+
+#: hoch/lims/hplc
+msgid "Expiry"
+msgstr "Vencimiento"
+
+#: hoch/lims/hplc
+msgid "Values"
+msgstr "Valores"
+
+#: hoch/lims/hplc
+msgid "Expired"
+msgstr "Vencido"
+
+#: hoch/lims/hplc
+msgid "Select the reference standard of the analysis: its values (potency, concentration) are taken from the selected lot."
+msgstr "Seleccione el estándar de referencia del análisis: sus valores (potencia, concentración) se toman del lote seleccionado."
+
+#: hoch/lims/hplc
+msgid "Std. Conc."
+msgstr "Conc. estándar"
+
+#: hoch/lims/hplc
+msgid "Standard concentration check"
+msgstr "Verificación de la concentración del estándar"
+
+#: hoch/lims/hplc
+msgid "Std. Conc. of the instrument file"
+msgstr "Std. Conc. del archivo del equipo"
+
+#: hoch/lims/hplc
+msgid "Expected from the reference standard (expression 1)"
+msgstr "Esperada según el estándar de referencia (expresión 1)"
+
+#: hoch/lims/hplc
+msgid "Difference (%)"
+msgstr "Diferencia (%)"
+
+#: hoch/lims/hplc
+msgid "Tolerance (%)"
+msgstr "Tolerancia (%)"
+
+#: hoch/lims/hplc
+msgid "Check"
+msgstr "Verificación"
+
+#: hoch/lims/hplc
+msgid "Passed: the calculation uses the Std. Conc. of the instrument"
+msgstr "Cumple: el cálculo usa la Std. Conc. del equipo"
+
+#: hoch/lims/hplc
+msgid "Blocked: review the reference standard selected, the standard weights or the Std. Conc. entered in LabSolutions"
+msgstr "Bloqueado: revise el estándar de referencia seleccionado, los pesos del estándar o la Std. Conc. ingresada en LabSolutions"
+
+#: hoch/lims/hplc
+msgid "label_hplc_standard_from_instrument"
+msgstr "Concentración del estándar desde el equipo"
+
+#: hoch/lims/hplc
+msgid "description_hplc_standard_from_instrument"
+msgstr "Usa la Std. Conc. del archivo del equipo, si coincide dentro de la tolerancia con la concentración esperada según el estándar de referencia seleccionado (expresión 1). Si no, el cálculo se bloquea. El parámetro de producto usa_std_equipo lo reemplaza."
+
+#: hoch/lims/hplc
+msgid "label_hplc_standard_factor"
+msgstr "Factor de la Std. Conc. del equipo"
+
+#: hoch/lims/hplc
+msgid "description_hplc_standard_factor"
+msgstr "Convierte la Std. Conc. del archivo a la unidad de la expresión 1, p. ej. 1000 de mg/mL a ug/mL (parámetro de producto f_std_equipo)"
+
+#: hoch/lims/hplc
+msgid "label_hplc_standard_tolerance"
+msgstr "Tolerancia de la concentración del estándar (%)"
+
+#: hoch/lims/hplc
+msgid "description_hplc_standard_tolerance"
+msgstr "Diferencia máxima entre la concentración del estándar del equipo y la esperada (parámetro de producto tol_std_equipo)"

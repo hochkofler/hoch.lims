@@ -142,6 +142,67 @@ class TestExamples(unittest.TestCase):
         with self.assertRaises(hm.ModelError):
             hm.calculate(case["model"], ex.values_of(case["variables"]), rows)
 
+    def instrument_case(self, ratio, **values):
+        """Flamadin assay with the Std. Conc. of the file at a ratio of the
+        expected one
+        """
+        model, variables, rows = ex.flamadin("assay", "PARACETAMOL")
+        values = dict(ex.values_of(variables), **values)
+        expected = hm.calculate(model, values, rows)
+        for row in rows:
+            if row["type"] == "ST":
+                row["std_conc"] = expected["C_st"] / 1000. * ratio
+        model["standard_from_instrument"] = True
+        return model, values, rows, expected
+
+    def test_standard_from_instrument_within_tolerance(self):
+        model, values, rows, expected = self.instrument_case(1.0005)
+        output = hm.calculate(model, values, rows)
+        check = output["standard_check"]
+        self.assertTrue(check["passed"])
+        self.assertAlmostEqual(check["difference"], 0.05, 6)
+        self.assertEqual(check["tolerance"], 0.1)
+        self.assertAlmostEqual(check["expected"], expected["C_st"], 9)
+        self.assertAlmostEqual(output["C_st"], expected["C_st"] * 1.0005, 9)
+        # the result follows the concentration of the instrument
+        self.assertAlmostEqual(output["result"], expected["result"] * 1.0005,
+                               6)
+
+    def test_standard_from_instrument_blocks_out_of_tolerance(self):
+        # Rosuvastatina 52614L: LabSolutions rounded Std. Conc. to 0.016
+        # for an expected 0.0159154 mg/mL (+0.53 %)
+        model, values, rows, expected = self.instrument_case(0.016 / 0.0159154)
+        with self.assertRaises(hm.StandardMismatch) as error:
+            hm.calculate(model, values, rows)
+        check = error.exception.check
+        self.assertFalse(check["passed"])
+        self.assertAlmostEqual(check["difference"], 0.5316, 3)
+
+    def test_standard_tolerance_and_factor_are_configurable(self):
+        ratio = 0.016 / 0.0159154
+        model, values, rows, expected = self.instrument_case(ratio)
+        model["standard_tolerance"] = 1
+        self.assertTrue(hm.calculate(model, values, rows)
+                        ["standard_check"]["passed"])
+        # the product parameter wins over the calculation
+        model, values, rows, expected = self.instrument_case(
+            ratio, tol_std_equipo=0.5)
+        with self.assertRaises(hm.StandardMismatch):
+            hm.calculate(model, values, rows)
+        model, values, rows, expected = self.instrument_case(1, usa_std_equipo=0)
+        self.assertIsNone(hm.calculate(model, values, rows)["standard_check"])
+        model, values, rows, expected = self.instrument_case(1000,
+                                                             f_std_equipo=1)
+        self.assertTrue(hm.calculate(model, values, rows)
+                        ["standard_check"]["passed"])
+
+    def test_standard_from_instrument_needs_the_std_conc(self):
+        model, values, rows, expected = self.instrument_case(1)
+        for row in rows:
+            row.pop("std_conc", None)
+        with self.assertRaises(hm.ModelError):
+            hm.calculate(model, values, rows)
+
 
 def test_suite():
     suite = unittest.TestSuite()

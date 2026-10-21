@@ -30,12 +30,12 @@ TYPES = (SAMPLE, STANDARD)
 
 # Columns of a row, in display order
 COLUMNS = (
-    "type", "number", "conc", "ret_time", "area", "ntp_usp", "vial_number",
-    "weight", "acquired", "sample_name", "data_file", "peak",
+    "type", "number", "conc", "std_conc", "ret_time", "area", "ntp_usp",
+    "vial_number", "weight", "acquired", "sample_name", "data_file", "peak",
 )
 
 # Columns holding numbers
-NUMERIC = ("conc", "ret_time", "area", "ntp_usp", "weight")
+NUMERIC = ("conc", "std_conc", "ret_time", "area", "ntp_usp", "weight")
 
 # Columns entered in the LIMS, kept when an instrument reimports the row
 KEPT_ON_REIMPORT = ("weight",)

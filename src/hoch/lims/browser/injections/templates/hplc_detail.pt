@@ -51,7 +51,53 @@
   <div class="alert alert-warning" tal:condition="trace/error">
     <strong i18n:translate="">Not calculated</strong>:
     <span tal:content="trace/error"/>
+    <div tal:condition="view/missing_reference" i18n:translate="">
+      Select the reference standard of the analysis: its values (potency,
+      concentration) are taken from the selected lot.
+    </div>
   </div>
+
+  <tal:check define="check python: trace.get('standard_check')" condition="check">
+  <h3 i18n:translate="">Standard concentration check</h3>
+  <table class="table table-sm table-bordered">
+    <tr><th i18n:translate="">Std. Conc. of the instrument file</th>
+        <td class="text-right"><span tal:content="python: view.num(check['reported'], 6)"/>
+          &times; <span tal:content="python: view.num(check['factor'])"/>
+          = <span tal:content="python: view.num(check['instrument'], 6)"/></td></tr>
+    <tr><th i18n:translate="">Expected from the reference standard (expression 1)</th>
+        <td class="text-right" tal:content="python: view.num(check['expected'], 6)"/></tr>
+    <tr><th i18n:translate="">Difference (%)</th>
+        <td class="text-right" tal:content="python: view.num(check['difference'], 4)"/></tr>
+    <tr><th i18n:translate="">Tolerance (%)</th>
+        <td class="text-right" tal:content="python: view.num(check['tolerance'])"/></tr>
+    <tr><th i18n:translate="">Check</th>
+        <td>
+          <strong class="text-success" tal:condition="check/passed" i18n:translate="">
+            Passed: the calculation uses the Std. Conc. of the instrument</strong>
+          <strong class="text-danger" tal:condition="not: check/passed" i18n:translate="">
+            Blocked: review the reference standard selected, the standard
+            weights or the Std. Conc. entered in LabSolutions</strong>
+        </td></tr>
+  </table>
+  </tal:check>
+
+  <tal:refs condition="python: trace.get('references')">
+  <h3 i18n:translate="">Reference standards</h3>
+  <table class="table table-sm table-bordered">
+    <thead><tr><th i18n:translate="">Variable prefix</th><th i18n:translate="">Reference standard</th>
+      <th i18n:translate="">Lot</th><th i18n:translate="">Expiry</th><th i18n:translate="">Values</th></tr></thead>
+    <tbody>
+      <tr tal:repeat="ref python: trace.get('references')">
+        <td><code tal:content="python: repeat['ref'].index == 0 and 'ref' or 'ref_%s' % (repeat['ref'].index + 1)"/></td>
+        <td tal:content="ref/title"/>
+        <td tal:content="ref/lot"/>
+        <td><span tal:content="ref/expiry"/>
+            <strong class="text-danger" tal:condition="ref/expired" i18n:translate="">Expired</strong></td>
+        <td tal:content="python: ', '.join(['%s = %s %s' % (k, view.num(v[0]), v[1] or '') for k, v in sorted(ref['variables'].items())])"/>
+      </tr>
+    </tbody>
+  </table>
+  </tal:refs>
 
   <tal:out condition="output">
   <h3 i18n:translate="">Values used</h3>

@@ -16,6 +16,11 @@ Variables are collected from these sources, the later ones win:
 3. Run data: interims of the analysis itself
 4. Other analyses of the sample: ``<KEYWORD>`` is the result of that
    analysis and ``<KEYWORD>.<interim>`` one of its interims
+5. Reference standards selected for the analysis (consumables): the
+   variables of the first one are ``ref.<keyword>`` (e.g.
+   ``ref.concentration``, its potency) and those of the n-th one
+   ``ref_<n>.<keyword>``. When the analysis has none selected, the ones of
+   the assay of the same sample are used.
 
 Variables X_1, X_2... define X as their mean when X is not set, so the
 number of standard weighings is free.
@@ -46,6 +51,7 @@ PRODUCT = u"product"
 ASSAY = u"assay"
 RUN = u"run"
 ANALYSIS = u"analysis"
+REFERENCE = u"reference"
 DERIVED = u"derived"
 INJECTIONS = u"injections"
 
@@ -80,6 +86,11 @@ def get_calculation_model(calculation):
                                        None) or 1,
         "standard_injections_per_prep": getattr(
             obj, "hplc_standard_injections_per_prep", None) or 0,
+        "standard_from_instrument": bool(getattr(
+            obj, "hplc_standard_from_instrument", False)),
+        "standard_factor": getattr(obj, "hplc_standard_factor", None) or 1000.0,
+        "standard_tolerance": getattr(obj, "hplc_standard_tolerance",
+                                      None) or 0.1,
         "aggregate": getattr(obj, "hplc_aggregate", None) or hm.MEAN,
         "T": getattr(obj, "hplc_T", None) or 100.0,
         "k": getattr(obj, "hplc_k", None) or 2.4,
@@ -165,6 +176,41 @@ def product_parameters(analysis, source):
     return found
 
 
+def get_consumables(analysis):
+    field = api.get_fields(analysis).get("ConsumablesFields")
+    if field is not None:
+        return field.get(analysis) or []
+    return list(getattr(aq_base(analysis), "ConsumablesFields", None) or [])
+
+
+def get_references(analysis):
+    """Returns the reference standards selected for the analysis
+    """
+    references = []
+    for entry in get_consumables(analysis):
+        uid = entry.get("value") if isinstance(entry, dict) else None
+        reference = api.get_object_by_uid(uid, None) if uid else None
+        if reference is None:
+            continue
+        variables = {}
+        settings = getattr(aq_base(reference), "VariablesSettings", None)
+        for setting in settings or []:
+            value = inj.to_float(setting.get("value"))
+            if setting.get("keyword") and value is not None:
+                variables[setting["keyword"]] = (value, setting.get("unit"))
+        expiry = api.safe_getattr(reference, "getExpiryDate", None)
+        expired = bool(expiry and expiry.isPast())
+        references.append({
+            "title": api.safe_unicode(api.get_title(reference)),
+            "lot": api.safe_unicode(api.safe_getattr(
+                reference, "getLotNumber", u"") or u""),
+            "expiry": expiry and expiry.strftime("%Y-%m-%d") or u"",
+            "expired": expired,
+            "variables": variables,
+        })
+    return references
+
+
 def collect_variables(analysis, source):
     """Returns the variables for the model and the origin of each one
 
@@ -204,6 +250,15 @@ def collect_variables(analysis, source):
             values[key] = value
             origins[key] = ANALYSIS
 
+    references = get_references(analysis)
+    if not references and source is not None and not same(source, analysis):
+        references = get_references(source)
+    for index, reference in enumerate(references, 1):
+        for name, (value, unit) in reference["variables"].items():
+            put(u"ref_{}.{}".format(index, name), value, REFERENCE)
+            if index == 1:
+                put(u"ref.{}".format(name), value, REFERENCE)
+
     # X_1, X_2... -> X (mean), when X is not set
     groups = {}
     for name, value in values.items():
@@ -213,7 +268,7 @@ def collect_variables(analysis, source):
     for base, items in groups.items():
         if base not in values:
             put(base, sum(items) / float(len(items)), DERIVED)
-    return values, origins
+    return values, origins, references
 
 
 def get_rows(source):
@@ -223,6 +278,7 @@ def get_rows(source):
             "type": row.get("type"),
             "number": row.get("number"),
             "area": row.get("area"),
+            "std_conc": row.get("std_conc"),
             "weight": row.get("weight"),
         })
     return rows
@@ -256,18 +312,21 @@ def calculate(analysis):
         if source is None:
             raise hm.ModelError("No analysis of this sample receives the "
                                 "HPLC injections")
-        values, origins = collect_variables(analysis, source)
+        values, origins, references = collect_variables(analysis, source)
+        trace["references"] = references
         output = hm.calculate(model, values, get_rows(source))
         used = dict((name, [value, origins.get(name, DERIVED)])
                     for name, value in output["variables"].items())
         for name, value in output["derived"].items():
             used[name] = [value, DERIVED]
-        trace.update({"output": output, "variables": used, "error": None})
+        trace.update({"output": output, "variables": used, "error": None,
+                      "standard_check": output.get("standard_check")})
         result = output["result"]
     except hm.ModelError as exc:
         trace.update({"output": None, "variables": {},
                       "error": api.safe_unicode(str(exc)),
-                      "missing": getattr(exc, "names", None)})
+                      "missing": getattr(exc, "names", None),
+                      "standard_check": getattr(exc, "check", None)})
         logger.info("HPLC model: {} of {} not calculated: {}".format(
             analysis.getKeyword(), api.get_id(analysis.getRequest()), exc))
         result = ""

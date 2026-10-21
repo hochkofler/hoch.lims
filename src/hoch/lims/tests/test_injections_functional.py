@@ -26,21 +26,28 @@ HEADER = (u"Data Filename\tSample Name\tSample ID\tSample Type\tVial#\t"
           u"Date Acquired\tRet. Time\tArea\tConc.\tNTP(USP)")
 
 
-def run_file(sample_id, injections, peak=u"PARACETAMOL"):
+def run_file(sample_id, injections, peak=u"PARACETAMOL", std_conc=None):
     """Returns the text of a Nexera quantitative export
 
-    :param injections: list of (type, number, conc) tuples
+    :param injections: list of (type, number, conc) tuples, type ST, UNK or
+        ST? for a standard typed as Unknown
+    :param std_conc: Std. Conc. of the standard injections, if the file
+        has that column
     """
-    lines = [u"ID#\t1", u"Name\t{}".format(peak), HEADER]
+    header = HEADER + (std_conc is not None and u"\tStd. Conc." or u"")
+    lines = [u"ID#\t1", u"Name\t{}".format(peak), header]
     for index, (kind, number, conc) in enumerate(injections, 1):
-        name = u"{}_{:02d}".format(kind == "ST" and u"ST" or u"MUESTRA",
-                                   number)
+        standard = kind.startswith("ST")
+        name = u"{}_{:02d}".format(standard and u"ST" or u"MUESTRA", number)
         sample_type = kind == "ST" and u"Standard" or u"Unknown"
-        lines.append(u"\t".join([
+        columns = [
             u"{}".format(index), u"run_{}.lcd".format(index), name,
             sample_id, sample_type, u"{}".format(10 + index),
             u"15/10/2026 10:{:02d}:00".format(index), u"2.10",
-            u"{}".format(1000 + index), u"{}".format(conc), u"8100"]))
+            u"{}".format(1000 + index), u"{}".format(conc), u"8100"]
+        if std_conc is not None:
+            columns.append(standard and u"{}".format(std_conc) or u"-----")
+        lines.append(u"\t".join(columns))
     return u"\n".join(lines) + u"\n"
 
 
@@ -193,6 +200,41 @@ class TestInjectionsFunctional(SimpleTestCase):
         uc = self.get_analysis(partition, "UC_PARACETAMOL")
         self.assertEqual(inj.get_injections(uc), [])
         self.assertAlmostEqual(api.to_float(uc.getResult()), 0.0)
+
+    def test_std_conc_is_imported(self):
+        sample, partition = self.new_partitioned_sample()
+        text = run_file(sample.getId(), [
+            ("ST", 1, 25.1), ("ST", 2, 25.0), ("UNK", 1, 51.0),
+            ("UNK", 2, 49.0)], std_conc=u"0,02998")
+        importer = self.import_text(text)
+        self.assertFalse(importer.errors, importer.errors)
+        val = self.get_analysis(partition, "VAL_PARACETAMOL")
+        rows = dict(((r["type"], r["number"]), r)
+                    for r in inj.get_injections(val))
+        self.assertEqual(rows[("ST", "01")]["std_conc"], 0.02998)
+        self.assertIsNone(rows[("UNK", "01")].get("std_conc"))
+
+    def test_repeated_injection_rejects_the_file(self):
+        sample, partition = self.new_partitioned_sample()
+        text = run_file(sample.getId(), [
+            ("ST", 1, 25.1), ("ST", 1, 25.0), ("UNK", 1, 51.0),
+            ("UNK", 2, 49.0)])
+        importer = self.import_text(text)
+        self.assertTrue(any("repeated" in e for e in importer.errors),
+                        importer.errors)
+        val = self.get_analysis(partition, "VAL_PARACETAMOL")
+        self.assertEqual(inj.get_injections(val), [])
+
+    def test_standard_typed_as_unknown_rejects_the_file(self):
+        sample, partition = self.new_partitioned_sample()
+        text = run_file(sample.getId(), [
+            ("ST", 1, 25.1), ("ST?", 2, 25.0), ("UNK", 1, 51.0),
+            ("UNK", 2, 49.0)])
+        importer = self.import_text(text)
+        self.assertTrue(any("looks like a standard" in e
+                            for e in importer.errors), importer.errors)
+        val = self.get_analysis(partition, "VAL_PARACETAMOL")
+        self.assertEqual(inj.get_injections(val), [])
 
     def test_any_number_of_injections(self):
         sample, partition = self.new_partitioned_sample()

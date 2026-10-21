@@ -37,8 +37,9 @@ AGGREGATES = SimpleVocabulary([
 # Attributes on the Calculation, in the order of the model stages
 MODEL_FIELDS = (
     "hplc_standard", "hplc_amount", "hplc_result", "hplc_injections_per_unit",
-    "hplc_standard_injections_per_prep", "hplc_aggregate", "hplc_T",
-    "hplc_k", "hplc_Q", "hplc_derived",
+    "hplc_standard_injections_per_prep", "hplc_standard_from_instrument",
+    "hplc_standard_factor", "hplc_standard_tolerance", "hplc_aggregate",
+    "hplc_T", "hplc_k", "hplc_Q", "hplc_derived",
 )
 
 
@@ -101,6 +102,44 @@ class IHPLCModelBehavior(model.Schema):
                     u" overrides it, as n_iny_mue does for the injections "
                     u"per unit and Q for dissolution."),
         min=0,
+        required=False,
+    )
+
+    hplc_standard_from_instrument = schema.Bool(
+        title=_(u"label_hplc_standard_from_instrument",
+                default=u"Standard concentration from the instrument"),
+        description=_(
+            u"description_hplc_standard_from_instrument",
+            default=u"Use the Std. Conc. of the instrument file, once it "
+                    u"matches the concentration expected from the selected "
+                    u"reference standard (expression 1) within the "
+                    u"tolerance. Otherwise the calculation is blocked. The "
+                    u"product parameter usa_std_equipo overrides it."),
+        default=False,
+        required=False,
+    )
+
+    hplc_standard_factor = schema.Float(
+        title=_(u"label_hplc_standard_factor",
+                default=u"Factor of the instrument Std. Conc."),
+        description=_(
+            u"description_hplc_standard_factor",
+            default=u"Converts the Std. Conc. of the file to the unit of "
+                    u"expression 1, e.g. 1000 for mg/mL to ug/mL "
+                    u"(product parameter f_std_equipo)"),
+        default=1000.0,
+        required=False,
+    )
+
+    hplc_standard_tolerance = schema.Float(
+        title=_(u"label_hplc_standard_tolerance",
+                default=u"Standard concentration tolerance (%)"),
+        description=_(
+            u"description_hplc_standard_tolerance",
+            default=u"Maximum difference between the instrument and the "
+                    u"expected standard concentration (product parameter "
+                    u"tol_std_equipo)"),
+        default=0.1,
         required=False,
     )
 
