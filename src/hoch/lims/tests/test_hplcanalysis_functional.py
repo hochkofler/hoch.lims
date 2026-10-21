@@ -286,6 +286,35 @@ class TestHPLCAnalysisFunctional(SimpleTestCase):
         html = analysis.restrictedTraverse("@@hplc_detail")()
         self.assertIn("PARACETAMOL POLVO-202408096A", html)
 
+    def test_selecting_the_reference_standard_recalculates(self):
+        from senaite.core.interfaces.datamanager import IDataManager
+        from zope.component import getAdapter
+        supplier = api.create(self.portal.setup.suppliers,
+                              "Supplier", Name="Proveedor")
+        reference = api.create(supplier, "ReferenceSample",
+                               title="ROSUVASTATINA CALCICA-RSNR25006")
+        reference.VariablesSettings = [
+            {"keyword": "concentration", "title": "Concentration",
+             "value": "99.7", "unit": "%"}]
+        sample = self.loaded_sample(P_st="")
+        val = self.get(sample, "VAL_ROSUVASTATINA")
+        uc = self.get(sample, "UC_ROSUVASTATINA")
+        for analysis in (val, uc):
+            model = ha.get_model(analysis)
+            model["standard"] = model["standard"].replace(
+                "P_st/100", "ref.concentration/100")
+            setattr(analysis, ha.MODEL_ATTR, model)
+        val.ConsumablesFields = [{"keyword": "slot", "value": ""}]
+        val.calculateResult(override=True)
+        self.assertEqual(val.getResult(), "")
+
+        updated = getAdapter(val, IDataManager).set(
+            "slot", api.get_uid(reference))
+        self.assertIn(val, updated)
+        self.assertAlmostEqual(api.to_float(val.getResult()), 98.427166, 5)
+        # the uniformity reads the reference of the assay
+        self.assertAlmostEqual(api.to_float(uc.getResult()), 2.294124, 5)
+
     def instrument_sample(self, std_conc, **params):
         """Rosuvastatina assay with the Std. Conc. of the file in use
         """

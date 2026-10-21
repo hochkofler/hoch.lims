@@ -68,6 +68,10 @@ class HochRoutineAnalysisDataManager(RoutineAnalysisDataManager):
             if not self.is_field_writeable(consumable_field):
                 return []
             self._set_consumable_value(name, value)
-            return [self.context]
+            updated = set([self.context])
+            if self.context.getCalculation():
+                # the calculation may read the selected reference standard
+                updated.update(self.recalculate_results(self.context))
+            return list(updated)
 
         return super(HochRoutineAnalysisDataManager, self).set(name, value)
