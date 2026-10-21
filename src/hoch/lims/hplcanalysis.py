@@ -78,6 +78,8 @@ def get_calculation_model(calculation):
         "result": getattr(obj, "hplc_result", None) or u"",
         "injections_per_unit": getattr(obj, "hplc_injections_per_unit",
                                        None) or 1,
+        "standard_injections_per_prep": getattr(
+            obj, "hplc_standard_injections_per_prep", None) or 0,
         "aggregate": getattr(obj, "hplc_aggregate", None) or hm.MEAN,
         "T": getattr(obj, "hplc_T", None) or 100.0,
         "k": getattr(obj, "hplc_k", None) or 2.4,

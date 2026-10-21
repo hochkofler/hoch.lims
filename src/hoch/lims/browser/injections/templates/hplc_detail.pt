@@ -32,7 +32,7 @@
     <tr><th i18n:translate="">2. Per injection</th><td><code>A_i * C_st / A_st</code></td></tr>
     <tr><th i18n:translate="">3. Amount per unit</th>
         <td><code tal:content="model/amount"/>
-            (<span tal:content="model/injections_per_unit"/> <span i18n:translate="">injections per unit</span>)</td></tr>
+            (<span tal:content="python: output and output.get('injections_per_unit') or model.get('injections_per_unit')"/> <span i18n:translate="">injections per unit</span>)</td></tr>
     <tr><th i18n:translate="">4. Result per unit</th><td><code tal:content="model/result"/></td></tr>
     <tr><th i18n:translate="">5. Aggregate</th><td tal:content="python: view.aggregate(model.get('aggregate'))"/></tr>
     <tr tal:repeat="item view/get_derived">
@@ -70,8 +70,31 @@
   <table class="table table-sm table-bordered">
     <tr><th>C_st</th><td class="text-right" tal:content="python: view.num(output['C_st'], 6)"/></tr>
     <tr><th>A_st</th><td class="text-right" tal:content="python: view.num(output['A_st'], 2)"/></tr>
+    <tr tal:condition="python: output.get('standard_injections_per_prep')">
+      <th i18n:translate="">Standard injections per preparation</th>
+      <td class="text-right" tal:content="python: output.get('standard_injections_per_prep')"/></tr>
     <tr><th i18n:translate="">Standard areas RSD (%)</th><td class="text-right" tal:content="python: view.num(output['rsd_st'], 4)"/></tr>
   </table>
+
+  <tal:preps condition="python: output.get('preparations')">
+  <h3 i18n:translate="">Standard preparations</h3>
+  <table class="table table-sm table-bordered">
+    <thead><tr>
+      <th i18n:translate="">Preparation</th><th>W_st</th><th i18n:translate="">Areas</th>
+      <th i18n:translate="">Mean area</th><th i18n:translate="">RSD (%)</th><th>C_st</th>
+    </tr></thead>
+    <tbody>
+      <tr tal:repeat="prep python: output.get('preparations')">
+        <td tal:content="prep/preparacion"/>
+        <td class="text-right" tal:content="python: view.num(prep['W_st'])"/>
+        <td class="text-right" tal:content="python: ', '.join([view.num(a) for a in prep['areas']])"/>
+        <td class="text-right" tal:content="python: view.num(prep['A_st'], 2)"/>
+        <td class="text-right" tal:content="python: view.num(prep['rsd'], 4)"/>
+        <td class="text-right" tal:content="python: view.num(prep['C_st'], 6)"/>
+      </tr>
+    </tbody>
+  </table>
+  </tal:preps>
 
   <h3 i18n:translate="">Units</h3>
   <table class="table table-sm table-bordered">

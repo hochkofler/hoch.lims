@@ -37,7 +37,13 @@ import operator
 
 # Variables provided by the model itself
 BUILTIN = ("A_i", "A_st", "C_st", "C_i", "C_u", "A_u", "W_mue", "unidad",
-           "cantidad")
+           "cantidad", "preparacion")
+
+# Variables that override the model parameters, e.g. from the product
+# (a dissolution test defines its own Q, a method its own injections)
+SAMPLE_INJECTIONS = "n_iny_mue"
+STANDARD_INJECTIONS = "n_iny_st"
+DISSOLUTION_Q = "Q"
 
 # Functions evaluated lazily (only the needed arguments)
 OPTIONAL = ("opcional", "optional")
@@ -286,9 +292,15 @@ def calculate(model, variables, injections):
         - amount: expression of the amount per unit
         - result: expression of the result per unit
         - injections_per_unit: sample injections averaged per unit
+          (overridden by the variable n_iny_mue)
+        - standard_injections_per_prep: standard injections of each
+          preparation, each preparation with its own weight W_st_1,
+          W_st_2...; 0 or missing = one concentration for all the standard
+          injections (overridden by the variable n_iny_st)
         - aggregate: mean, uniformity or dissolution
         - derived: optional {name: expression} of derived variables
-        - T, k: uniformity parameters, Q: dissolution parameter (%)
+        - T, k: uniformity parameters, Q: dissolution parameter (%),
+          overridden by the variable Q
     :param variables: {name: value} from all the sources
     :param injections: rows with type (UNK/ST), number, area and an
         optional weight (sample weight of the unit, W_mue)
@@ -297,9 +309,18 @@ def calculate(model, variables, injections):
     aggregate = model.get("aggregate") or MEAN
     if aggregate not in AGGREGATES:
         raise ModelError("Unknown aggregate: {}".format(aggregate))
-    per_unit = int(model.get("injections_per_unit") or 1)
 
     values, derived = resolve_derived(model.get("derived"), variables)
+
+    def parameter(name, key, default):
+        value = values.get(name)
+        if value is None:
+            value = model.get(key)
+        return default if value in (None, "") else value
+
+    per_unit = int(parameter(SAMPLE_INJECTIONS, "injections_per_unit", 1))
+    per_prep = int(parameter(STANDARD_INJECTIONS,
+                             "standard_injections_per_prep", 0))
 
     standards = [r for r in injections
                  if r.get("type") == STANDARD and r.get("area")]
@@ -315,8 +336,37 @@ def calculate(model, variables, injections):
             "{} sample injections can not be grouped in units of {}".format(
                 len(samples), per_unit))
 
-    # 1. standard
-    C_st = evaluate(model["standard"], values, stage="standard")
+    # 1. standard: one concentration per preparation, each with its own
+    # weight (W_st_1, W_st_2...), or a single one for all the injections
+    standards = sorted(standards, key=sort_key)
+    preparations = []
+    if per_prep:
+        if len(standards) % per_prep:
+            raise ModelError(
+                "{} standard injections can not be grouped in preparations "
+                "of {}".format(len(standards), per_prep))
+        missing = []
+        for index in range(0, len(standards), per_prep):
+            number = len(preparations) + 1
+            weight = values.get("W_st_{}".format(number))
+            if weight is None:
+                missing.append("W_st_{}".format(number))
+            rows = standards[index:index + per_prep]
+            preparations.append({"preparacion": number, "W_st": weight,
+                                 "rows": rows})
+        if missing:
+            raise MissingVariables(missing, "standard")
+        for prep in preparations:
+            prep_values = dict(values, W_st=float(prep["W_st"]),
+                               preparacion=prep["preparacion"])
+            prep["C_st"] = evaluate(model["standard"], prep_values,
+                                    stage="standard")
+            areas = [float(r["area"]) for r in prep.pop("rows")]
+            prep.update({"areas": areas, "A_st": mean(areas),
+                         "rsd": stdev(areas) / mean(areas) * 100})
+        C_st = mean([prep["C_st"] for prep in preparations])
+    else:
+        C_st = evaluate(model["standard"], values, stage="standard")
     A_st = mean([float(r["area"]) for r in standards])
     values.update({"C_st": C_st, "A_st": A_st})
 
@@ -351,6 +401,9 @@ def calculate(model, variables, injections):
         "C_st": C_st,
         "A_st": A_st,
         "rsd_st": stdev([float(r["area"]) for r in standards]) / A_st * 100,
+        "preparations": preparations,
+        "injections_per_unit": per_unit,
+        "standard_injections_per_prep": per_prep,
         "derived": derived,
         "units": units,
         "mean": mean(results),
@@ -363,7 +416,7 @@ def calculate(model, variables, injections):
             results, T=float(model.get("T", 100)), k=float(model.get("k", 2.4)))
         output.update({"result": av, "M": reference})
     elif aggregate == DISSOLUTION:
-        Q = float(model.get("Q", 75))
+        Q = float(parameter(DISSOLUTION_Q, "Q", 75))
         output.update({
             "result": output["mean"],
             "Q": Q,
@@ -371,9 +424,16 @@ def calculate(model, variables, injections):
         })
     else:
         output["result"] = output["mean"]
+    used = used_variables(model)
+    used |= set("W_st_{}".format(p["preparacion"]) for p in preparations)
+    used |= set([SAMPLE_INJECTIONS, STANDARD_INJECTIONS])
+    if aggregate == DISSOLUTION:
+        used.add(DISSOLUTION_Q)
+    if preparations:
+        used.discard("W_st")
     output["variables"] = dict(
-        (name, values[name]) for name in used_variables(model)
-        if name in values and name not in BUILTIN)
+        (name, values[name]) for name in used
+        if values.get(name) is not None and name not in BUILTIN)
     return output
 
 

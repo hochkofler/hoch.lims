@@ -133,6 +133,81 @@ def universal(flags, variables=None, drop=None):
     return model, new_variables
 
 
+# Universal model with dilutions as aliquot -> volumetric flask, the same
+# expressions for assay, content uniformity and dissolution. Standard
+# injections are grouped per preparation, each with its own weight.
+UNIVERSAL_V2 = {
+    "standard": "W_st * (1 - si(usa_agua, agua_st, 0)/100) * P_st/100 / V_st"
+                " * V_alicuota_st / V_aforo_st * 1000",
+    "amount": "C_u * V_mue * V_aforo_mue / V_alicuota_mue / 1000",
+    "result": "cantidad / LC * 100 * F_PM",
+    "injections_per_unit": 2,
+    "standard_injections_per_prep": 3,
+    "aggregate": "mean",
+    "derived": {"F_PM": "si(usa_PM, n_PM * PM_decl / PM_st, 1)"},
+}
+
+# FLAMADIN PLUS soft capsules (paracetamol 500 mg + diclofenac sodium 50 mg),
+# lot 82618, sheet "82618 NOTIFICACION 2026" of "TEST DE DISOLUCION.xlsx"
+FLAMADIN = {
+    "assay": {
+        "PARACETAMOL": {
+            "standard": [5011049, 5002213, 5000046, 5012810, 5012899, 5017703],
+            "samples": [4919029, 4916611, 4839508, 4844432, 4875903, 4878808,
+                        4879178, 4881011, 4887744, 4887098, 4809235, 4810215,
+                        4898895, 4897669, 4832062, 4834988, 4889717, 4881697,
+                        4894356, 4897300],
+            "weights": [250.25, 250.25], "potency": 99.9, "LC": 500},
+        "DICLOFENACO SODICO": {
+            "standard": [1314873, 1312982, 1313487, 1299315, 1299096, 1299833],
+            "samples": [1337351, 1335564, 1355031, 1355426, 1355860, 1357346,
+                        1367351, 1368856, 1364051, 1365284, 1255887, 1256853,
+                        1347482, 1347274, 1345019, 1346735, 1386838, 1385500,
+                        1375853, 1377149],
+            "weights": [25.13, 25.13], "potency": 99.5, "LC": 50},
+    },
+    "dissolution": {
+        "PARACETAMOL": {
+            "standard": [1201180, 1200994, 1197875, 1198350, 1198983, 1201147],
+            "samples": [1158618, 1164979, 1194969, 1188144, 1162231, 1161777,
+                        1155794, 1158074, 1186259, 1186930, 1160074, 1160510],
+            "weights": [55.57, 55.57], "potency": 99.9, "LC": 500,
+            "V_st": 50},
+        "DICLOFENACO SODICO": {
+            "standard": [308065, 308104, 307456, 307432, 308250, 308045],
+            "samples": [318463, 318465, 322686, 329964, 320396, 320384,
+                        318257, 319117, 328801, 328819, 319508, 319315],
+            "weights": [11.17, 11.17], "potency": 99.5, "LC": 50,
+            "V_st": 100},
+    },
+}
+
+FLAMADIN_ASSAY_PARAMETERS = {"V_st": 50, "V_alicuota_st": 1.5,
+                             "V_aforo_st": 25, "V_mue": 100,
+                             "V_alicuota_mue": 1.5, "V_aforo_mue": 25}
+FLAMADIN_DISSOLUTION_PARAMETERS = {"V_alicuota_st": 1, "V_aforo_st": 10,
+                                   "V_mue": 900, "V_alicuota_mue": 2,
+                                   "V_aforo_mue": 10, "Q": 70}
+
+
+def flamadin(test, active, aggregate="mean", drop=None):
+    data = FLAMADIN[test][active]
+    model = copy.deepcopy(UNIVERSAL_V2)
+    model["aggregate"] = aggregate
+    variables = {"usa_agua": (0, PRODUCT), "usa_PM": (0, PRODUCT),
+                 "n_iny_st": (3, PRODUCT), "n_iny_mue": (2, PRODUCT),
+                 "LC": (data["LC"], PRODUCT), "P_st": (data["potency"], RUN)}
+    parameters = FLAMADIN_ASSAY_PARAMETERS if test == "assay" \
+        else dict(FLAMADIN_DISSOLUTION_PARAMETERS, V_st=data["V_st"])
+    for name, value in parameters.items():
+        variables[name] = (value, PRODUCT)
+    for number, weight in enumerate(data["weights"], 1):
+        variables["W_st_{}".format(number)] = (weight, RUN)
+    for name in (drop or []):
+        variables.pop(name, None)
+    return model, variables, injections(data["standard"], data["samples"])
+
+
 def get_cases():
     assay_rows = injections(ASSAY_STANDARD_AREAS, ASSAY_SAMPLE_AREAS,
                             weights=ASSAY_UNIT_WEIGHTS)
@@ -280,6 +355,55 @@ def get_cases():
         u"promedio (aquí 662.496 mg, el promedio de la columna K) y la "
         u"pesada de cada unidad.",
         model, variables, assay_rows, 98.436066, source=universal_title))
+
+    source = u"Planilla FLAMADIN PLUS 82618"
+    model = copy.deepcopy(UNIVERSAL_V2)
+    variables = dict(ASSAY_VARIABLES)
+    for name in ("D_st", "D_mue"):
+        variables.pop(name)
+    variables.update({
+        "V_alicuota_st": (1, PRODUCT), "V_aforo_st": (25, PRODUCT),
+        "V_alicuota_mue": (1, PRODUCT), "V_aforo_mue": (25, PRODUCT),
+        "usa_agua": (1, PRODUCT), "usa_PM": (1, PRODUCT),
+        "n_iny_st": (3, PRODUCT), "n_iny_mue": (2, PRODUCT)})
+    cases.append(case(
+        "v2_rosuvastatina", u"15. Universal v2: Rosuvastatina",
+        u"Diluciones como alícuota y aforo, y 2 preparaciones de estándar "
+        u"de 3 inyecciones, cada una con su pesada. Mismo resultado que el "
+        u"caso 1.",
+        model, variables, assay_rows, 98.427166, reference=u"Celda L64"))
+
+    for key, title, test, active, aggregate, expected, ref in (
+            ("flamadin_val_para", u"16. Flamadin: valoración Paracetamol",
+             "assay", "PARACETAMOL", "mean", 97.271451, u"Celda J73"),
+            ("flamadin_uc_para", u"17. Flamadin: uniformidad Paracetamol",
+             "assay", "PARACETAMOL", "uniformity", 2.836051,
+             u"E53 = 2.8 (escrito a mano)"),
+            ("flamadin_val_diclo", u"18. Flamadin: valoración Diclofenaco",
+             "assay", "DICLOFENACO SODICO", "mean", 103.288894, u"Celda L73"),
+            ("flamadin_uc_diclo", u"19. Flamadin: uniformidad Diclofenaco",
+             "assay", "DICLOFENACO SODICO", "uniformity", 8.382690,
+             u"E55 = 8.4 (escrito a mano)"),
+            ("flamadin_dis_para", u"20. Flamadin: disolución Paracetamol",
+             "dissolution", "PARACETAMOL", "dissolution", 97.436344,
+             u"Celda L161"),
+            ("flamadin_dis_diclo", u"21. Flamadin: disolución Diclofenaco",
+             "dissolution", "DICLOFENACO SODICO", "dissolution", 104.615467,
+             u"La planilla informa 105.094109 con la concentración del "
+             u"estándar escrita a mano y sin aplicar la potencia")):
+        model, variables, rows = flamadin(test, active, aggregate)
+        cases.append(case(key, title, u"Mismo modelo universal; cambian el "
+                          u"agregado y los parámetros del servicio.",
+                          model, variables, rows, expected, reference=ref,
+                          source=source))
+
+    model, variables, rows = flamadin("assay", "PARACETAMOL",
+                                      drop=["W_st_2"])
+    cases.append(case(
+        "falta_pesada", u"22. Falta la pesada de la preparación 2",
+        u"Con 2 preparaciones de estándar, cada una necesita su pesada: si "
+        u"falta una, no calcula.",
+        model, variables, rows, None, source=source, error=u"W_st_2"))
 
     return cases
 

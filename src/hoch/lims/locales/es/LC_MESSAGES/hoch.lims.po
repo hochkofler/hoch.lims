@@ -1393,3 +1393,23 @@ msgstr "Modelo HPLC"
 #: hoch/lims/hplc
 msgid "HPLC parameters"
 msgstr "Parámetros HPLC"
+
+#: hoch/lims/hplc
+msgid "Standard preparations"
+msgstr "Preparaciones del estándar"
+
+#: hoch/lims/hplc
+msgid "Preparation"
+msgstr "Preparación"
+
+#: hoch/lims/hplc
+msgid "Mean area"
+msgstr "Área promedio"
+
+#: hoch/lims/hplc
+msgid "RSD (%)"
+msgstr "RSD (%)"
+
+#: hoch/lims/hplc
+msgid "Standard injections per preparation"
+msgstr "Inyecciones de estándar por preparación"

@@ -102,6 +102,40 @@ class TestExamples(unittest.TestCase):
             self.assertAlmostEqual(value, cell, 9)
         self.assertTrue(output["S1"])
 
+    def test_standard_preparations_use_their_own_weights(self):
+        model, variables, rows = ex.flamadin("assay", "PARACETAMOL")
+        values = ex.values_of(variables)
+        values["W_st_2"] = 252.25
+        output = hm.calculate(model, values, rows)
+        preps = output["preparations"]
+        self.assertEqual([p["W_st"] for p in preps], [250.25, 252.25])
+        self.assertEqual([len(p["areas"]) for p in preps], [3, 3])
+        self.assertAlmostEqual(output["C_st"],
+                               (preps[0]["C_st"] + preps[1]["C_st"]) / 2, 9)
+        self.assertNotIn("W_st", output["variables"])
+        self.assertEqual(output["variables"]["W_st_2"], 252.25)
+
+    def test_product_overrides_injections_and_Q(self):
+        model, variables, rows = ex.flamadin("dissolution", "PARACETAMOL",
+                                             aggregate="dissolution")
+        values = ex.values_of(variables)
+        output = hm.calculate(model, values, rows)
+        self.assertEqual(output["Q"], 70.0)
+        self.assertEqual(output["injections_per_unit"], 2)
+        self.assertEqual(len(output["units"]), 6)
+        values["n_iny_mue"] = 3
+        values["Q"] = 99
+        output = hm.calculate(model, values, rows)
+        self.assertEqual(len(output["units"]), 4)
+        self.assertFalse(output["S1"])
+
+    def test_preparations_need_complete_groups(self):
+        model, variables, rows = ex.flamadin("assay", "PARACETAMOL")
+        values = ex.values_of(variables)
+        values["n_iny_st"] = 4
+        with self.assertRaises(hm.ModelError):
+            hm.calculate(model, values, rows)
+
     def test_units_need_complete_groups(self):
         case = ex.get_cases()[0]
         rows = case["injections"][:-1]

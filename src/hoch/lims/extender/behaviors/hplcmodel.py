@@ -37,7 +37,8 @@ AGGREGATES = SimpleVocabulary([
 # Attributes on the Calculation, in the order of the model stages
 MODEL_FIELDS = (
     "hplc_standard", "hplc_amount", "hplc_result", "hplc_injections_per_unit",
-    "hplc_aggregate", "hplc_T", "hplc_k", "hplc_Q", "hplc_derived",
+    "hplc_standard_injections_per_prep", "hplc_aggregate", "hplc_T",
+    "hplc_k", "hplc_Q", "hplc_derived",
 )
 
 
@@ -86,6 +87,20 @@ class IHPLCModelBehavior(model.Schema):
                 default=u"Injections per unit"),
         default=2,
         min=1,
+        required=False,
+    )
+
+    hplc_standard_injections_per_prep = schema.Int(
+        title=_(u"label_hplc_standard_injections_per_prep",
+                default=u"Standard injections per preparation"),
+        description=_(
+            u"description_hplc_standard_injections_per_prep",
+            default=u"Each preparation uses its own weight (W_st_1, W_st_2"
+                    u"...). Leave empty for a single concentration for all "
+                    u"the standard injections. The product parameter n_iny_st"
+                    u" overrides it, as n_iny_mue does for the injections "
+                    u"per unit and Q for dissolution."),
+        min=0,
         required=False,
     )
 

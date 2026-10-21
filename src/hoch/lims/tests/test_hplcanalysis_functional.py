@@ -173,6 +173,57 @@ class TestHPLCAnalysisFunctional(SimpleTestCase):
         val = self.get(sample, "VAL_ROSUVASTATINA")
         self.assertAlmostEqual(api.to_float(val.getResult()), 102.797070, 5)
 
+    def test_dissolution_with_product_parameters(self):
+        # FLAMADIN PLUS lot 82618, paracetamol: separate dissolution sample,
+        # 2 standard preparations x 3 injections, Q from the product
+        model = ex.UNIVERSAL_V2
+        dis_calc = api.create(self.portal.setup.calculations, "Calculation",
+                              title="HPLC Disolucion")
+        dis_calc.setInterimFields(RUN_INTERIMS)
+        set_model(dis_calc, model, aggregate="dissolution")
+        dis_calc.hplc_standard_injections_per_prep = 3
+        dis = api.create(api.get_bika_setup().bika_analysisservices,
+                         "AnalysisService", title="Disolucion Paracetamol",
+                         Keyword="DIS_PARACETAMOL",
+                         Category=self.val.getRawCategory())
+        dis.getField(inj.RECEIVES_FIELD).set(dis, True)
+        dis.setCalculation(dis_calc)
+        params = dict(ex.FLAMADIN_DISSOLUTION_PARAMETERS, V_st=50, LC=500,
+                      usa_agua=0, usa_PM=0, n_iny_mue=2)
+        self.matrix.hplc_parameters = [
+            {"service": api.get_uid(dis), "name": name,
+             "value": float(value), "unit": u""}
+            for name, value in params.items()]
+        values = {
+            "Client": api.get_uid(self.client),
+            "Contact": api.get_uid(self.contact),
+            "DateSampled": DateTime().strftime("%Y-%m-%d"),
+            "SampleType": api.get_uid(self.product),
+        }
+        sample = create_analysisrequest(self.client, self.request, values,
+                                        [api.get_uid(dis)])
+        doActionFor(sample, "receive")
+        analysis = self.get(sample, "DIS_PARACETAMOL")
+        data = ex.FLAMADIN["dissolution"]["PARACETAMOL"]
+        inj.set_injections(analysis, ex.injections(data["standard"],
+                                                   data["samples"]))
+        self.set_run_data(analysis, W_st_1="55.57", P_st="99.9")
+        analysis.calculateResult(override=True)
+        # the second preparation has no weight yet
+        self.assertEqual(analysis.getResult(), "")
+        self.assertEqual(ha.get_trace(analysis)["missing"], ["W_st_2"])
+
+        self.set_run_data(analysis, W_st_2="55.57")
+        analysis.calculateResult(override=True)
+        self.assertAlmostEqual(api.to_float(analysis.getResult()),
+                               97.436344, 5)
+        output = ha.get_trace(analysis)["output"]
+        self.assertEqual(output["Q"], 70.0)
+        self.assertTrue(output["S1"])
+        self.assertEqual(len(output["preparations"]), 2)
+        html = analysis.restrictedTraverse("@@hplc_detail")()
+        self.assertIn("111.02886", html)
+
     def test_detail_view_renders(self):
         sample = self.loaded_sample()
         val = self.get(sample, "VAL_ROSUVASTATINA")
