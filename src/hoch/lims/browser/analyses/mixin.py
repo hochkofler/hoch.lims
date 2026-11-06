@@ -19,9 +19,11 @@ from bika.lims import api
 from bika.lims import logger
 from bika.lims.interfaces import IAnalysis
 from bika.lims.interfaces import IAnalysisService
+from bika.lims.interfaces import ISubmitted
 from bika.lims.utils import get_link_for
 from bika.lims.utils import t
 from hoch.lims import hplcanalysis
+from hoch.lims.hplcanalysis import format_std_conc
 from hoch.lims import injections as inj
 from hoch.lims import messageFactory as _
 from senaite.core.catalog import SENAITE_CATALOG
@@ -244,11 +246,35 @@ class SubInstrumentsConsumablesMixin(object):
                 url, t(_("Calculation detail"))))
         if not links:
             return
-        link = u" &middot; ".join(links)
+        lines = [u" &middot; ".join(links)]
+        if inj.receives_injections(analysis):
+            lines.extend(self._standard_preparation_lines(analysis))
         # same placement as the analysis conditions, below the service name
         service = item["replace"].get("Service") or item["Service"]
         item["replace"]["Service"] = u"<br/>".join(
-            [api.safe_unicode(service), link])
+            [api.safe_unicode(service)] + lines)
+
+    def _standard_preparation_lines(self, analysis):
+        """Std. Conc. the analyst enters in the instrument, before injecting
+        """
+        if ISubmitted.providedBy(analysis):
+            return []
+        prep = hplcanalysis.preparation(analysis)
+        if not prep or not prep["from_instrument"]:
+            return []
+        label = t(_("Std. Conc. for the instrument"))
+        if prep["instrument"] is None:
+            missing = u", ".join(prep["missing"])
+            return [u"<span class='small text-muted'>{}: {} {}</span>".format(
+                label, t(_("missing")), missing)]
+        values = [p["instrument"] for p in prep["preparations"]]
+        text = u"<strong>{}</strong>".format(format_std_conc(prep["instrument"]))
+        if len(set(format_std_conc(v) for v in values)) > 1:
+            text += u" ({})".format(u" &middot; ".join(
+                u"{} {}: {}".format(t(_("prep.")), p["preparacion"],
+                                    format_std_conc(p["instrument"]))
+                for p in prep["preparations"]))
+        return [u"<span class='small'>{}: {}</span>".format(label, text)]
 
     def _on_method_change(self, uid=None, value=None, item=None, **kw):
         item = super(SubInstrumentsConsumablesMixin, self)._on_method_change(

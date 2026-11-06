@@ -203,6 +203,31 @@ class TestExamples(unittest.TestCase):
         with self.assertRaises(hm.ModelError):
             hm.calculate(model, values, rows)
 
+    def test_standard_preparations_before_injecting(self):
+        model, variables, rows = ex.flamadin("assay", "PARACETAMOL")
+        values = ex.values_of(variables)
+        expected = hm.calculate(model, values, rows)["C_st"]
+        prep = hm.standard_preparations(model, values)
+        self.assertEqual(prep["missing"], [])
+        self.assertAlmostEqual(prep["C_st"], expected, 9)
+        self.assertAlmostEqual(prep["instrument"], expected / 1000., 12)
+        # each weight is its own preparation
+        values["W_st_2"] = 252.25
+        prep = hm.standard_preparations(model, values)
+        self.assertEqual([p["W_st"] for p in prep["preparations"]],
+                         [250.25, 252.25])
+        self.assertAlmostEqual(
+            prep["C_st"], hm.calculate(model, values, rows)["C_st"], 9)
+
+    def test_standard_preparations_report_missing_values(self):
+        model, variables, rows = ex.flamadin("assay", "PARACETAMOL")
+        values = ex.values_of(variables)
+        for name in [n for n in values if n.startswith("W_st")]:
+            del values[name]
+        prep = hm.standard_preparations(model, values)
+        self.assertIsNone(prep["instrument"])
+        self.assertIn("W_st_1", prep["missing"])
+
 
 def test_suite():
     suite = unittest.TestSuite()

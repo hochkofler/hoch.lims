@@ -70,6 +70,12 @@ class HPLCDetailView(BrowserView):
             items.append({"name": name, "value": value, "origin": origin})
         return items
 
+    def get_preparation(self):
+        return ha.preparation(self.context)
+
+    def std_conc(self, value):
+        return ha.format_std_conc(value)
+
     def missing_reference(self):
         missing = self.get_trace().get("missing") or []
         return any(name.startswith("ref") for name in missing)

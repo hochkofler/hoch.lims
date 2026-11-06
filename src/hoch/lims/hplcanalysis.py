@@ -30,6 +30,7 @@ the analysis, so the result can be reviewed step by step.
 """
 
 import copy
+import math
 import re
 from datetime import datetime
 
@@ -282,6 +283,42 @@ def get_rows(source):
             "weight": row.get("weight"),
         })
     return rows
+
+
+def preparation(analysis):
+    """Standard preparations of the run of the analysis, before injecting
+
+    Tells the analyst the Std. Conc. to enter in the instrument, from the
+    weights, the water and the selected reference standard.
+
+    :returns: the dict of hoch.lims.hplcmodel.standard_preparations, or None
+        when the analysis does not use the HPLC model
+    """
+    model = get_model(analysis)
+    if not model:
+        return None
+    source = inj.get_source_analysis(analysis) or analysis
+    values, origins, references = collect_variables(analysis, source)
+    try:
+        return hm.standard_preparations(model, values)
+    except hm.ModelError as exc:
+        logger.info("HPLC model: no standard preparation for {}: {}".format(
+            analysis.getKeyword(), exc))
+        return None
+
+
+def format_std_conc(value, digits=6):
+    """Std. Conc. with 6 significant digits, never in exponent notation
+    """
+    if value is None:
+        return u""
+    if not value:
+        return u"0"
+    decimals = max(digits - int(math.floor(math.log10(abs(value)))) - 1, 0)
+    text = u"{:.{}f}".format(value, decimals)
+    if u"." in text:
+        text = text.rstrip(u"0").rstrip(u".")
+    return text
 
 
 def to_plain(value):

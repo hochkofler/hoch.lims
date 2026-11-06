@@ -356,6 +356,24 @@ class TestHPLCAnalysisFunctional(SimpleTestCase):
         self.assertAlmostEqual(api.to_float(val.getResult()),
                                98.427166 * 0.016 / 0.015915383, 4)
 
+    def test_standard_preparation_for_the_instrument(self):
+        # Rosuvastatina 52614L: 20.84 mg, water 4.251 %, potency 99.7 %
+        sample = self.new_sample()
+        val = self.get(sample, "VAL_ROSUVASTATINA")
+        self.matrix.hplc_parameters = self.matrix.hplc_parameters + [
+            {"service": None, "name": u"usa_std_equipo", "value": 1.0,
+             "unit": u""}]
+        self.set_run_data(val, W_st_1="20.84", agua_st="4.251",
+                          P_st="99.7")
+        prep = ha.preparation(val)
+        self.assertEqual(prep["missing"], [])
+        self.assertAlmostEqual(prep["C_st"], 15.915383, 6)
+        self.assertEqual(ha.format_std_conc(prep["instrument"]), u"0.0159154")
+        # before any injection, the detail tells what to enter
+        html = val.restrictedTraverse("@@hplc_detail")()
+        self.assertIn("Standard preparation", html)
+        self.assertIn("0.0159154", html)
+
     def test_detail_view_renders(self):
         sample = self.loaded_sample()
         val = self.get(sample, "VAL_ROSUVASTATINA")

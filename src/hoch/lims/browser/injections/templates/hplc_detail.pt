@@ -41,6 +41,43 @@
   </table>
   </tal:model>
 
+  <tal:prep define="prep view/get_preparation" condition="python: prep and prep['from_instrument']">
+  <h3 i18n:translate="">Standard preparation</h3>
+  <p class="discreet" i18n:translate="">
+    Enter this concentration as Std. Conc. in the instrument before
+    injecting, so the instrument calculates with the real concentration of
+    the run. It comes from the weights, the water and the selected
+    reference standard of this analysis.
+  </p>
+  <div class="alert alert-info" tal:condition="prep/missing">
+    <span i18n:translate="">Missing values to calculate it</span>:
+    <code tal:content="python: ', '.join(prep['missing'])"/>
+  </div>
+  <table class="table table-sm table-bordered" tal:condition="prep/preparations">
+    <thead><tr>
+      <th i18n:translate="">Preparation</th><th>W_st</th><th>C_st</th>
+      <th i18n:translate="">Std. Conc. for the instrument</th>
+    </tr></thead>
+    <tbody>
+      <tr tal:repeat="p prep/preparations">
+        <td tal:content="p/preparacion"/>
+        <td class="text-right" tal:content="python: view.num(p['W_st'])"/>
+        <td class="text-right" tal:content="python: view.num(p['C_st'], 6)"/>
+        <td class="text-right" tal:content="python: view.std_conc(p['instrument'])"/>
+      </tr>
+      <tr tal:condition="python: prep['instrument'] is not None and len(prep['preparations']) > 1">
+        <th colspan="2" i18n:translate="">Mean</th>
+        <td class="text-right" tal:content="python: view.num(prep['C_st'], 6)"/>
+        <td class="text-right"><strong tal:content="python: view.std_conc(prep['instrument'])"/></td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="discreet" tal:condition="prep/preparations">
+    <span i18n:translate="">Factor</span> <span tal:content="python: view.num(prep['factor'])"/>,
+    <span i18n:translate="">tolerance</span> <span tal:content="python: view.num(prep['tolerance'])"/> %
+  </p>
+  </tal:prep>
+
   <p tal:condition="not: trace" class="discreet" i18n:translate="">Not calculated yet.</p>
 
   <tal:trace condition="trace">

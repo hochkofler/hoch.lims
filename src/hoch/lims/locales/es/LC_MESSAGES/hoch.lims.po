@@ -1505,3 +1505,35 @@ msgstr "Tolerancia de la concentración del estándar (%)"
 #: hoch/lims/hplc
 msgid "description_hplc_standard_tolerance"
 msgstr "Diferencia máxima entre la concentración del estándar del equipo y la esperada (parámetro de producto tol_std_equipo)"
+
+#: hoch/lims/hplc
+msgid "Std. Conc. for the instrument"
+msgstr "Std. Conc. para el equipo"
+
+#: hoch/lims/hplc
+msgid "missing"
+msgstr "falta"
+
+#: hoch/lims/hplc
+msgid "prep."
+msgstr "prep."
+
+#: hoch/lims/hplc
+msgid "Standard preparation"
+msgstr "Preparación del estándar"
+
+#: hoch/lims/hplc
+msgid "Enter this concentration as Std. Conc. in the instrument before injecting, so the instrument calculates with the real concentration of the run. It comes from the weights, the water and the selected reference standard of this analysis."
+msgstr "Cargue esta concentración como Std. Conc. en el equipo antes de inyectar, para que el equipo calcule con la concentración real de la corrida. Sale de las pesadas, el agua y el estándar de referencia seleccionado en este análisis."
+
+#: hoch/lims/hplc
+msgid "Missing values to calculate it"
+msgstr "Faltan valores para calcularla"
+
+#: hoch/lims/hplc
+msgid "Factor"
+msgstr "Factor"
+
+#: hoch/lims/hplc
+msgid "tolerance"
+msgstr "tolerancia"

@@ -34,6 +34,7 @@ with and without a given correction:
 import ast
 import math
 import operator
+import re
 
 # Variables provided by the model itself
 BUILTIN = ("A_i", "A_st", "C_st", "C_i", "C_u", "A_u", "W_mue", "unidad",
@@ -277,8 +278,10 @@ def sort_key(row):
     return number.zfill(4) if number.isdigit() else number
 
 
-def resolve_derived(derived, variables):
+def resolve_derived(derived, variables, strict=True):
     """Evaluates the derived variables, in any order of dependency
+
+    :param strict: False leaves out the derived variables that miss values
     """
     values = dict(variables)
     pending = dict(derived or {})
@@ -291,7 +294,11 @@ def resolve_derived(derived, variables):
             except MissingVariables as exc:
                 if set(exc.names) & set(pending):
                     continue
-                raise
+                if strict:
+                    raise
+                del pending[name]
+                progress = True
+                continue
             trace[name] = values[name]
             del pending[name]
             progress = True
@@ -299,6 +306,80 @@ def resolve_derived(derived, variables):
             raise ModelError("Circular derived variables: {}".format(
                 ", ".join(sorted(pending))))
     return values, trace
+
+
+def get_parameter(values, model, name, key, default):
+    """Value of a model parameter, overridden by the variable of that name
+    """
+    value = values.get(name)
+    if value is None:
+        value = model.get(key)
+    return default if value in (None, "") else value
+
+
+def preparation_values(values, number):
+    """Variables of the standard preparation number: X_<n> is its X
+    """
+    prep_values = dict(values, preparacion=number)
+    suffix = "_{}".format(number)
+    for name, value in values.items():
+        if name.endswith(suffix) and value is not None:
+            prep_values[name[:-len(suffix)]] = value
+    if values.get("W_st" + suffix) is None:
+        # the weight of each preparation is its own
+        prep_values.pop("W_st", None)
+    return prep_values
+
+
+def standard_preparations(model, variables):
+    """Concentration of each standard preparation, before the injections
+
+    It is what the analyst enters as Std. Conc. in the instrument, so the
+    instrument calculates with the real concentration of the run. A
+    preparation is each weight W_st_1, W_st_2... entered (or W_st alone).
+
+    :returns: dict with the preparations (number, weight, C_st and the value
+        for the instrument), their mean, the factor and the names of the
+        missing values
+    """
+    values, derived = resolve_derived(model.get("derived"), variables,
+                                      strict=False)
+    factor = float(get_parameter(values, model, STANDARD_FACTOR,
+                                 "standard_factor", 1000))
+    numbers = sorted(
+        int(match.group(1)) for match in
+        [re.match(r"^W_st_(\d+)$", name) for name in values
+         if values[name] is not None] if match)
+    preparations, missing = [], []
+    for number in numbers or [None]:
+        prep_values = values if number is None else \
+            preparation_values(values, number)
+        try:
+            C_st = evaluate(model["standard"], prep_values, stage="standard")
+        except MissingVariables as exc:
+            missing.extend(number is None and name == "W_st" and "W_st_1"
+                           or name for name in exc.names)
+            continue
+        preparations.append({
+            "preparacion": number or 1,
+            "W_st": prep_values.get("W_st"),
+            "C_st": C_st,
+            "instrument": C_st / factor,
+        })
+    C_st = mean([p["C_st"] for p in preparations]) if preparations and \
+        not missing else None
+    return {
+        "preparations": preparations,
+        "C_st": C_st,
+        "instrument": C_st / factor if C_st is not None else None,
+        "factor": factor,
+        "from_instrument": bool(get_parameter(
+            values, model, STANDARD_FROM_INSTRUMENT,
+            "standard_from_instrument", 0)),
+        "tolerance": float(get_parameter(values, model, STANDARD_TOLERANCE,
+                                         "standard_tolerance", 0.1)),
+        "missing": sorted(set(missing)),
+    }
 
 
 def calculate(model, variables, injections):
@@ -336,10 +417,7 @@ def calculate(model, variables, injections):
     values, derived = resolve_derived(model.get("derived"), variables)
 
     def parameter(name, key, default):
-        value = values.get(name)
-        if value is None:
-            value = model.get(key)
-        return default if value in (None, "") else value
+        return get_parameter(values, model, name, key, default)
 
     per_unit = int(parameter(SAMPLE_INJECTIONS, "injections_per_unit", 1))
     per_prep = int(parameter(STANDARD_INJECTIONS,
@@ -376,14 +454,8 @@ def calculate(model, variables, injections):
         for prep in preparations:
             number = prep["preparacion"]
             # X_<n> is the value of X for preparation n (W_st_1, W_st_2...)
-            prep_values = dict(values, preparacion=number)
+            prep_values = preparation_values(values, number)
             suffix = "_{}".format(number)
-            for name, value in values.items():
-                if name.endswith(suffix) and value is not None:
-                    prep_values[name[:-len(suffix)]] = value
-            if values.get("W_st" + suffix) is None:
-                # the weight of each preparation is its own
-                prep_values.pop("W_st", None)
             prep["W_st"] = prep_values.get("W_st")
             try:
                 prep["C_st"] = evaluate(model["standard"], prep_values,
