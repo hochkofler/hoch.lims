@@ -331,13 +331,16 @@ def preparation_values(values, number):
     return prep_values
 
 
-def standard_preparations(model, variables):
+def standard_preparations(model, variables, standards=None):
     """Concentration of each standard preparation, before the injections
 
     It is what the analyst enters as Std. Conc. in the instrument, so the
     instrument calculates with the real concentration of the run. A
     preparation is each weight W_st_1, W_st_2... entered (or W_st alone).
 
+    :param standards: the standard injections, once imported: then the
+        preparations are the ones the calculation uses (weights of further
+        preparations are left out)
     :returns: dict with the preparations (number, weight, C_st and the value
         for the instrument), their mean, the factor and the names of the
         missing values
@@ -350,6 +353,12 @@ def standard_preparations(model, variables):
         int(match.group(1)) for match in
         [re.match(r"^W_st_(\d+)$", name) for name in values
          if values[name] is not None] if match)
+    per_prep = int(get_parameter(values, model, STANDARD_INJECTIONS,
+                                 "standard_injections_per_prep", 0))
+    standards = [r for r in standards or [] if r.get("area")]
+    if per_prep and standards and numbers:
+        count = len(standards) // per_prep
+        numbers = [n for n in numbers if n <= count] or numbers
     preparations, missing = [], []
     for number in numbers or [None]:
         prep_values = values if number is None else \

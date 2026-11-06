@@ -219,6 +219,20 @@ class TestExamples(unittest.TestCase):
         self.assertAlmostEqual(
             prep["C_st"], hm.calculate(model, values, rows)["C_st"], 9)
 
+    def test_standard_preparations_follow_the_injections(self):
+        model, variables, rows = ex.flamadin("assay", "PARACETAMOL")
+        values = ex.values_of(variables)
+        values["W_st_3"] = 999.0
+        standards = [r for r in rows if r["type"] == "ST"]
+        # before injecting, every weight entered is a preparation
+        self.assertEqual(len(hm.standard_preparations(
+            model, values)["preparations"]), 3)
+        # after, only the 2 preparations of the 6 standard injections
+        prep = hm.standard_preparations(model, values, standards)
+        self.assertEqual(len(prep["preparations"]), 2)
+        self.assertAlmostEqual(
+            prep["C_st"], hm.calculate(model, values, rows)["C_st"], 9)
+
     def test_standard_preparations_report_missing_values(self):
         model, variables, rows = ex.flamadin("assay", "PARACETAMOL")
         values = ex.values_of(variables)

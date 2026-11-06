@@ -300,7 +300,9 @@ def preparation(analysis):
     source = inj.get_source_analysis(analysis) or analysis
     values, origins, references = collect_variables(analysis, source)
     try:
-        return hm.standard_preparations(model, values)
+        standards = [r for r in get_rows(source)
+                     if r.get("type") == hm.STANDARD]
+        return hm.standard_preparations(model, values, standards)
     except hm.ModelError as exc:
         logger.info("HPLC model: no standard preparation for {}: {}".format(
             analysis.getKeyword(), exc))
