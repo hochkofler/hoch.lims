@@ -21,12 +21,12 @@ from bika.lims.interfaces import IAnalysis
 from bika.lims.interfaces import IAnalysisService
 from bika.lims.interfaces import ISubmitted
 from bika.lims.utils import get_link_for
-from bika.lims.utils import t
 from hoch.lims import hplcanalysis
 from hoch.lims.hplcanalysis import format_std_conc
 from hoch.lims import injections as inj
 from hoch.lims import messageFactory as _
 from senaite.core.catalog import SENAITE_CATALOG
+from senaite.core.i18n import translate as t
 from senaite.core.permissions import FieldEditAnalysisResult
 
 
@@ -239,11 +239,11 @@ class SubInstrumentsConsumablesMixin(object):
             st = len([r for r in rows if r.get("type") == inj.STANDARD])
             url = "{}/injections".format(api.get_url(analysis))
             links.append(u"<a href='{}' class='small text-nowrap'>{}: {} + {}"
-                         u"</a>".format(url, t(_("Injections")), unk, st))
+                         u"</a>".format(url, t(_("Injections"), to_utf8=False), unk, st))
         if hplcanalysis.get_model(analysis):
             url = "{}/hplc_detail".format(api.get_url(analysis))
             links.append(u"<a href='{}' class='small text-nowrap'>{}</a>".format(
-                url, t(_("Calculation detail"))))
+                url, t(_("Calculation detail"), to_utf8=False)))
         if not links:
             return
         lines = [u" &middot; ".join(links)]
@@ -262,16 +262,16 @@ class SubInstrumentsConsumablesMixin(object):
         prep = hplcanalysis.preparation(analysis)
         if not prep or not prep["from_instrument"]:
             return []
-        label = t(_("Std. Conc. for the instrument"))
+        label = t(_("Std. Conc. for the instrument"), to_utf8=False)
         if prep["instrument"] is None:
             missing = u", ".join(prep["missing"])
             return [u"<span class='small text-muted'>{}: {} {}</span>".format(
-                label, t(_("missing")), missing)]
+                label, t(_("missing"), to_utf8=False), missing)]
         values = [p["instrument"] for p in prep["preparations"]]
         text = u"<strong>{}</strong>".format(format_std_conc(prep["instrument"]))
         if len(set(format_std_conc(v) for v in values)) > 1:
             text += u" ({})".format(u" &middot; ".join(
-                u"{} {}: {}".format(t(_("prep.")), p["preparacion"],
+                u"{} {}: {}".format(t(_("prep."), to_utf8=False), p["preparacion"],
                                     format_std_conc(p["instrument"]))
                 for p in prep["preparations"]))
         return [u"<span class='small'>{}: {}</span>".format(label, text)]
