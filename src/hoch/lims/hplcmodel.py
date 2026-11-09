@@ -273,9 +273,58 @@ def acceptance_value(values, T=100.0, k=2.4):
     return abs(reference - m) + k * s, reference
 
 
+# Injection number <preparation or unit>.<injection>, e.g. 2.3
+GROUPED_NUMBER = re.compile(r"^0*(\d+)\.0*(\d+)$")
+
+
 def sort_key(row):
     number = u"{}".format(row.get("number") or u"")
-    return number.zfill(4) if number.isdigit() else number
+    parts = number.split(u".")
+    if all(part.isdigit() for part in parts):
+        return (0, ) + tuple(int(part) for part in parts)
+    return (1, number)
+
+
+def group_rows(rows, size, what, groups):
+    """Groups the injections in preparations (standard) or units (sample)
+
+    Numbers <group>.<injection> (1.1, 1.2, 2.1...) say the group of each
+    injection, whatever the number of injections of each group. Otherwise
+    the injections are taken in order, size by size.
+
+    :returns: list of (group number, rows), or None without size nor
+        grouped numbers
+    """
+    rows = sorted(rows, key=sort_key)
+    matches = [GROUPED_NUMBER.match(u"{}".format(r.get("number") or u""))
+               for r in rows]
+    if any(matches):
+        if not all(matches):
+            raise ModelError(
+                "The {} mix numbers with and without {} (1.1, 1.2, 2.1...)"
+                .format(what, groups[:-1]))
+        grouped = {}
+        for row, match in zip(rows, matches):
+            grouped.setdefault(int(match.group(1)), []).append(row)
+        return [(number, grouped[number]) for number in sorted(grouped)]
+    if not size:
+        return None
+    if len(rows) % size:
+        raise ModelError("{} {} can not be grouped in {} of {}".format(
+            len(rows), what, groups, size))
+    return [(index // size + 1, rows[index:index + size])
+            for index in range(0, len(rows), size)]
+
+
+def group_size(groups):
+    """Injections per group, or the range when the groups differ
+    """
+    sizes = sorted(set(len(rows) for number, rows in groups or []))
+    if not sizes:
+        return 0
+    if len(sizes) == 1:
+        return sizes[0]
+    return u"{}-{}".format(sizes[0], sizes[-1])
 
 
 def resolve_derived(derived, variables, strict=True):
@@ -356,9 +405,15 @@ def standard_preparations(model, variables, standards=None):
     per_prep = int(get_parameter(values, model, STANDARD_INJECTIONS,
                                  "standard_injections_per_prep", 0))
     standards = [r for r in standards or [] if r.get("area")]
-    if per_prep and standards and numbers:
-        count = len(standards) // per_prep
-        numbers = [n for n in numbers if n <= count] or numbers
+    if standards and numbers:
+        try:
+            groups = group_rows(standards, per_prep, "standard injections",
+                                "preparations")
+        except ModelError:
+            groups = None
+        if groups:
+            used = [number for number, rows in groups]
+            numbers = [n for n in numbers if n in used] or numbers
     preparations, missing = [], []
     for number in numbers or [None]:
         prep_values = values if number is None else \
@@ -432,8 +487,9 @@ def calculate(model, variables, injections):
     per_prep = int(parameter(STANDARD_INJECTIONS,
                              "standard_injections_per_prep", 0))
 
-    standards = [r for r in injections
-                 if r.get("type") == STANDARD and r.get("area")]
+    standards = sorted([r for r in injections
+                        if r.get("type") == STANDARD and r.get("area")],
+                       key=sort_key)
     samples = sorted([r for r in injections
                       if r.get("type") == SAMPLE and r.get("area")],
                      key=sort_key)
@@ -441,24 +497,16 @@ def calculate(model, variables, injections):
         raise ModelError("No standard injections")
     if not samples:
         raise ModelError("No sample injections")
-    if len(samples) % per_unit:
-        raise ModelError(
-            "{} sample injections can not be grouped in units of {}".format(
-                len(samples), per_unit))
+    unit_groups = group_rows(samples, per_unit, "sample injections", "units")
+    prep_groups = group_rows(standards, per_prep, "standard injections",
+                             "preparations")
 
     # 1. standard: one concentration per preparation, each with its own
     # weight (W_st_1, W_st_2...), or a single one for all the injections
-    standards = sorted(standards, key=sort_key)
     preparations = []
-    if per_prep:
-        if len(standards) % per_prep:
-            raise ModelError(
-                "{} standard injections can not be grouped in preparations "
-                "of {}".format(len(standards), per_prep))
-        for index in range(0, len(standards), per_prep):
-            rows = standards[index:index + per_prep]
-            preparations.append({"preparacion": len(preparations) + 1,
-                                 "rows": rows})
+    if prep_groups:
+        for number, rows in prep_groups:
+            preparations.append({"preparacion": number, "rows": rows})
         missing = []
         for prep in preparations:
             number = prep["preparacion"]
@@ -515,13 +563,12 @@ def calculate(model, variables, injections):
 
     # 2-4. per injection and per unit
     units = []
-    for index in range(0, len(samples), per_unit):
-        rows = samples[index:index + per_unit]
+    for number, rows in unit_groups:
         C_i = [float(r["area"]) * C_st / A_st for r in rows]
         weights = [r.get("weight") for r in rows if r.get("weight")]
         unit = dict(values)
         unit.update({
-            "unidad": len(units) + 1,
+            "unidad": number,
             "A_u": mean([float(r["area"]) for r in rows]),
             "C_u": mean(C_i),
             "W_mue": weights and float(weights[0]) or None,
@@ -546,8 +593,8 @@ def calculate(model, variables, injections):
         "rsd_st": stdev([float(r["area"]) for r in standards]) / A_st * 100,
         "preparations": preparations,
         "standard_check": check,
-        "injections_per_unit": per_unit,
-        "standard_injections_per_prep": per_prep,
+        "injections_per_unit": group_size(unit_groups),
+        "standard_injections_per_prep": group_size(prep_groups),
         "derived": derived,
         "units": units,
         "mean": mean(results),

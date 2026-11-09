@@ -214,6 +214,48 @@ class TestInjectionsFunctional(SimpleTestCase):
         self.assertEqual(rows[("ST", "01")]["std_conc"], 0.02998)
         self.assertIsNone(rows[("UNK", "01")].get("std_conc"))
 
+    def test_grouped_names_are_imported(self):
+        from hoch.lims.exportimport.instruments.shimadzu.nexera import \
+            extract_final_number_from_string as number
+        self.assertEqual(number("Estandar Rosuvastatina 2.3"), "2.3")
+        self.assertEqual(number("Rosuvast 20mg - 92638 - Cap.Blanda 12"),
+                         "12")
+        self.assertEqual(number("Rosuvast 20mg - 92638 - Cap.Blanda 1.2"),
+                         "1.2")
+        self.assertEqual(inj.normalize_number(u"01.02"), u"1.2")
+        sample, partition = self.new_partitioned_sample()
+        text = run_file(sample.getId(), [
+            ("ST", 1, 25.1), ("ST", 2, 25.0), ("UNK", 1, 51.0),
+            ("UNK", 2, 49.0)])
+        for old, new in ((u"ST_01", u"Estandar Paracetamol 1.1"),
+                         (u"ST_02", u"Estandar Paracetamol 1.2"),
+                         (u"MUESTRA_01", u"Paracetamol 500 mg 1.1"),
+                         (u"MUESTRA_02", u"Paracetamol 500 mg 1.2")):
+            text = text.replace(u"\t{}\t".format(old), u"\t{}\t".format(new))
+        importer = self.import_text(text)
+        self.assertFalse(importer.errors, importer.errors)
+        val = self.get_analysis(partition, "VAL_PARACETAMOL")
+        self.assertEqual([(r["type"], r["number"])
+                          for r in inj.get_injections(val)],
+                         [("UNK", "1.1"), ("UNK", "1.2"),
+                          ("ST", "1.1"), ("ST", "1.2")])
+
+    def test_new_numbering_replaces_the_old_one(self):
+        old = [{"type": "ST", "number": "01", "area": 1},
+               {"type": "UNK", "number": "01", "area": 2},
+               {"type": "UNK", "number": "02", "area": 3}]
+        new = [{"type": "UNK", "number": "1.1", "area": 4},
+               {"type": "UNK", "number": "1.2", "area": 5}]
+        rows, added, replaced, skipped = inj.merge_injections(old, new)
+        self.assertEqual((added, replaced, skipped), (0, 0, 2))
+        self.assertEqual(sorted(r["number"] for r in rows),
+                         [u"01", u"01", u"02"])
+        rows, added, replaced, skipped = inj.merge_injections(
+            old, new, override=True)
+        self.assertEqual((added, replaced, skipped), (2, 2, 0))
+        self.assertEqual([(r["type"], r["number"]) for r in rows],
+                         [("UNK", "1.1"), ("UNK", "1.2"), ("ST", "01")])
+
     def test_repeated_injection_rejects_the_file(self):
         sample, partition = self.new_partitioned_sample()
         text = run_file(sample.getId(), [

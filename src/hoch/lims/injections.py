@@ -14,6 +14,8 @@ that analysis, so the data is never duplicated. Samples created before this
 change keep their ``CONC_*`` analyses and the calculations keep reading them.
 """
 
+import re
+
 from bika.lims import api
 from bika.lims import logger
 from bika.lims.interfaces import IRoutineAnalysis
@@ -65,13 +67,37 @@ def normalize_type(value):
     return SAMPLE
 
 
+# Injection number <preparation or unit>.<injection>, e.g. 2.3
+GROUPED_NUMBER = re.compile(r"^0*(\d+)\.0*(\d+)$")
+
+
 def normalize_number(value):
-    """Returns the injection number as a zero padded string, e.g. "07"
+    """Returns the injection number: zero padded, e.g. "07", or as
+    <preparation or unit>.<injection>, e.g. "2.3"
     """
     value = api.safe_unicode(value or u"").strip()
     if value.isdigit():
         return value.zfill(2)
+    match = GROUPED_NUMBER.match(value)
+    if match:
+        return u"{}.{}".format(int(match.group(1)), int(match.group(2)))
     return value
+
+
+def grouped(rows):
+    """Whether the rows are numbered <group>.<injection>
+    """
+    return any(GROUPED_NUMBER.match(r.get("number") or u"") for r in rows)
+
+
+def number_key(number):
+    """Sort key of an injection number: 9 before 10 and 1.2 before 1.10
+    """
+    number = api.safe_unicode(number or u"")
+    parts = number.split(u".")
+    if all(part.isdigit() for part in parts):
+        return (0, ) + tuple(int(part) for part in parts)
+    return (1, number)
 
 
 def to_float(value):
@@ -113,9 +139,8 @@ def row_key(row):
 
 def sort_rows(rows):
     def key(row):
-        number = row.get("number") or u""
         return (TYPES.index(row.get("type", SAMPLE)),
-                number.zfill(4) if number.isdigit() else number)
+                number_key(row.get("number")))
     return sorted(rows, key=key)
 
 
@@ -146,9 +171,24 @@ def merge_injections(existing, new, override=False):
 
     :returns: tuple of (rows, added, replaced, skipped)
     """
-    rows = dict((row_key(r), r) for r in map(normalize_row, existing))
+    existing = map(normalize_row, existing)
+    new = map(normalize_row, new)
     added = replaced = skipped = 0
-    for row in map(normalize_row, new):
+    # numbers 1.1, 1.2... and 01, 02... can not be mixed in a type: the new
+    # numbering replaces the old one when overriding, otherwise it is skipped
+    for kind in set(row["type"] for row in new):
+        old_rows = [r for r in existing if r["type"] == kind]
+        if not old_rows or grouped(old_rows) == grouped(
+                [r for r in new if r["type"] == kind]):
+            continue
+        if override:
+            existing = [r for r in existing if r["type"] != kind]
+            replaced += len(old_rows)
+        else:
+            skipped += len([r for r in new if r["type"] == kind])
+            new = [r for r in new if r["type"] != kind]
+    rows = dict((row_key(r), r) for r in existing)
+    for row in new:
         key = row_key(row)
         if key in rows:
             if not override:

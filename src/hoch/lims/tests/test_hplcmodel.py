@@ -233,6 +233,58 @@ class TestExamples(unittest.TestCase):
         self.assertAlmostEqual(
             prep["C_st"], hm.calculate(model, values, rows)["C_st"], 9)
 
+    def grouped(self, rows, per_group_st=3, per_group_unk=2):
+        """Same rows numbered <group>.<injection>"""
+        out, counters = [], {}
+        for row in rows:
+            size = per_group_st if row["type"] == "ST" else per_group_unk
+            index = counters.get(row["type"], 0)
+            counters[row["type"]] = index + 1
+            out.append(dict(row, number=u"{}.{}".format(
+                index // size + 1, index % size + 1)))
+        return out
+
+    def test_grouped_numbers_give_the_same_result(self):
+        model, variables, rows = ex.flamadin("assay", "PARACETAMOL")
+        values = ex.values_of(variables)
+        expected = hm.calculate(model, values, rows)
+        output = hm.calculate(model, values, self.grouped(rows))
+        self.assertAlmostEqual(output["result"], expected["result"], 9)
+        self.assertEqual([p["preparacion"] for p in output["preparations"]],
+                         [1, 2])
+        self.assertEqual(output["units"][0]["injections"], [u"1.1", u"1.2"])
+        self.assertEqual(output["injections_per_unit"], 2)
+
+    def test_grouped_numbers_set_the_groups(self):
+        model, variables, rows = ex.flamadin("assay", "PARACETAMOL")
+        values = ex.values_of(variables)
+        rows = self.grouped(rows)
+        # the configured injections per unit/preparation no longer apply
+        values["n_iny_mue"] = 3
+        values["n_iny_st"] = 4
+        output = hm.calculate(model, values, rows)
+        self.assertEqual(len(output["units"]), 10)
+        self.assertEqual(len(output["preparations"]), 2)
+        # a lost injection leaves its unit with one
+        rows = [r for r in rows if not (r["type"] == "UNK" and
+                                        r["number"] == u"3.2")]
+        output = hm.calculate(model, values, rows)
+        unit = [u for u in output["units"] if u["unidad"] == 3][0]
+        self.assertEqual(unit["injections"], [u"3.1"])
+        self.assertEqual(output["injections_per_unit"], u"1-2")
+        # a third preparation needs its own weight
+        rows = rows + [dict(rows[0], type="ST", number=u"3.1")]
+        with self.assertRaises(hm.MissingVariables) as error:
+            hm.calculate(model, values, rows)
+        self.assertIn("W_st_3", error.exception.names)
+
+    def test_mixed_numbers_are_refused(self):
+        model, variables, rows = ex.flamadin("assay", "PARACETAMOL")
+        rows = self.grouped(rows)
+        rows[-1] = dict(rows[-1], number=u"21")
+        with self.assertRaises(hm.ModelError):
+            hm.calculate(model, ex.values_of(variables), rows)
+
     def test_standard_preparations_report_missing_values(self):
         model, variables, rows = ex.flamadin("assay", "PARACETAMOL")
         values = ex.values_of(variables)

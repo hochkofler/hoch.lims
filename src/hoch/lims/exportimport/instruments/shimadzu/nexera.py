@@ -49,9 +49,16 @@ class CustomAnalysisResultImporter(AnalysisResultsImporter):
 
 def extract_final_number_from_string(s):
     """Extracts the final number from a given string.
-    
+
+    A final <group>.<injection> (e.g. "Estandar Rosuvastatina 2.3") is kept
+    whole, as the preparation or unit and the injection within it.
+
     Args:
         s (str): The input string."""
+    s = (s or "").strip()
+    match = re.search(r'(?:^|[^\d.])(\d+\.\d+)$', s)
+    if match:
+        return match.group(1)
     match = re.search(r'(\d+)$', s)
     return match.group(1) if match else None
 
